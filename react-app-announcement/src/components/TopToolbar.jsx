@@ -7,6 +7,7 @@ function TopToolbar() {
   const { 
     state, 
     setCurrentTab, 
+    toggleConfigPanel,
     toggleProjectMenu, 
     toggleDownloadMenu 
   } = useApp();
@@ -36,6 +37,10 @@ function TopToolbar() {
 
   const handleTabClick = (tab) => {
     setCurrentTab(tab);
+    // 自动打开配置面板
+    if (!state.configPanelOpen) {
+      toggleConfigPanel();
+    }
   };
 
   const handleCreateNewProject = () => {

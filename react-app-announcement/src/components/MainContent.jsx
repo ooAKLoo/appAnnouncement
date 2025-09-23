@@ -1,9 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import PhoneModel from './PhoneModel';
 
 function MainContent() {
-  const { state } = useApp();
+  const { state, hideImagePreview } = useApp();
+
+  // 自动隐藏截图预览窗口（但保留iPhone上的显示）
+  useEffect(() => {
+    if (state.showImagePreview) {
+      const timer = setTimeout(() => {
+        hideImagePreview();
+      }, 3000); // 3秒后自动隐藏预览窗口
+
+      return () => clearTimeout(timer);
+    }
+  }, [state.showImagePreview, hideImagePreview]);
 
   const backgroundStyle = {
     background: `linear-gradient(135deg, ${state.design.bgColor} 0%, ${state.design.gradientColor} 100%)`
@@ -64,8 +75,8 @@ function MainContent() {
   return (
     <div className={layout.container} style={backgroundStyle}>
       {/* Image Preview */}
-      {state.screenImage && (
-        <div className="fixed top-20 right-5 z-30 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-4 max-w-xs" id="imagePreview">
+      {state.showImagePreview && state.screenImage && (
+        <div className="fixed top-20 right-5 z-30 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-4 max-w-xs animate-fadeInRight" id="imagePreview">
           <img 
             id="previewImg" 
             src={state.screenImage} 

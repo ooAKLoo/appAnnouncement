@@ -9,6 +9,8 @@ import ProjectsSection from './config/ProjectsSection';
 function LeftConfigPanel() {
   const { state, toggleConfigPanel } = useApp();
 
+  if (!state.configPanelOpen) return null;
+
   return (
     <div className="fixed left-5 top-1/2 transform -translate-y-1/2 w-72 max-h-[calc(100vh-120px)] bg-white/95 backdrop-blur-xl rounded-xl shadow-xl border border-white/20 z-40 overflow-y-auto">
       <button 

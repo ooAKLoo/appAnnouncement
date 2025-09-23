@@ -17,6 +17,7 @@ export default {
       },
       animation: {
         'fadeInLeft': 'fadeInLeft 1s ease-out',
+        'fadeInRight': 'fadeInRight 1s ease-out',
         'fadeInUp': 'fadeInUp 1s ease-out',
         'float': 'float 6s ease-in-out infinite',
         'float-delay': 'floatDelay 6s ease-in-out infinite',
@@ -24,6 +25,10 @@ export default {
       keyframes: {
         fadeInLeft: {
           '0%': { opacity: '0', transform: 'translateX(-50px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' }
+        },
+        fadeInRight: {
+          '0%': { opacity: '0', transform: 'translateX(50px)' },
           '100%': { opacity: '1', transform: 'translateX(0)' }
         },
         fadeInUp: {

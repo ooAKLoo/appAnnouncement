@@ -23,6 +23,7 @@ const initialState = {
     googlePlayUrl: ''
   },
   screenImage: null,
+  showImagePreview: false,
   projects: [],
   currentTab: 'app',
   configPanelOpen: false,
@@ -53,7 +54,13 @@ function appReducer(state, action) {
     case 'SET_SCREEN_IMAGE':
       return {
         ...state,
-        screenImage: action.payload
+        screenImage: action.payload,
+        showImagePreview: action.payload !== null
+      };
+    case 'HIDE_IMAGE_PREVIEW':
+      return {
+        ...state,
+        showImagePreview: false
       };
     case 'SET_CURRENT_TAB':
       return {
@@ -156,6 +163,7 @@ export function AppProvider({ children }) {
     updateDesign: (design) => dispatch({ type: 'UPDATE_DESIGN', payload: design }),
     updateDownloads: (downloads) => dispatch({ type: 'UPDATE_DOWNLOADS', payload: downloads }),
     setScreenImage: (image) => dispatch({ type: 'SET_SCREEN_IMAGE', payload: image }),
+    hideImagePreview: () => dispatch({ type: 'HIDE_IMAGE_PREVIEW' }),
     setCurrentTab: (tab) => dispatch({ type: 'SET_CURRENT_TAB', payload: tab }),
     toggleConfigPanel: () => dispatch({ type: 'TOGGLE_CONFIG_PANEL' }),
     toggleDownloadMenu: () => dispatch({ type: 'TOGGLE_DOWNLOAD_MENU' }),
