@@ -4,11 +4,11 @@ const AppContext = createContext();
 
 const initialState = {
   appInfo: {
-    name: 'Bompay',
-    icon: 'B',
-    title: 'Download Bompay today',
-    subtitle: '体验全新的支付方式，让生活更简单',
-    iconImage: null
+    name: 'Postory',
+    icon: 'P',
+    title: 'Download Postory today',
+    subtitle: '创造你的故事，分享你的精彩',
+    iconImage: '/postory-icon.png'
   },
   design: {
     template: 'classic',
@@ -22,6 +22,20 @@ const initialState = {
     appStoreUrl: '',
     googlePlayUrl: ''
   },
+  features: [
+    { icon: '📸', title: '智能创作', description: 'AI辅助创作，轻松制作精彩内容' },
+    { icon: '🎆', title: '效果丰富', description: '多样化特效，让作品更出彩' },
+    { icon: '👥', title: '社区分享', description: '与好友分享创作，构建创作社区' }
+  ],
+  eventInfo: {
+    discount: '50%',
+    endDate: '2024-12-31',
+    promoCode: 'SPECIAL2024',
+    eventTitle: '限时优惠',
+    eventDescription: '年度最大优惠活动'
+  },
+  currentTheme: 'launch', // 当前选中的主题
+  currentStyle: 'minimal', // 当前选中的风格
   screenImage: null,
   showImagePreview: false,
   projects: [],
@@ -45,6 +59,26 @@ function appReducer(state, action) {
       return {
         ...state,
         design: { ...state.design, ...action.payload }
+      };
+    case 'UPDATE_THEME':
+      return {
+        ...state,
+        currentTheme: action.payload
+      };
+    case 'UPDATE_STYLE':
+      return {
+        ...state,
+        currentStyle: action.payload
+      };
+    case 'UPDATE_FEATURES':
+      return {
+        ...state,
+        features: action.payload
+      };
+    case 'UPDATE_EVENT_INFO':
+      return {
+        ...state,
+        eventInfo: { ...state.eventInfo, ...action.payload }
       };
     case 'UPDATE_DOWNLOADS':
       return {
@@ -163,6 +197,10 @@ export function AppProvider({ children }) {
     // Helper functions
     updateAppInfo: (info) => dispatch({ type: 'UPDATE_APP_INFO', payload: info }),
     updateDesign: (design) => dispatch({ type: 'UPDATE_DESIGN', payload: design }),
+    updateTheme: (theme) => dispatch({ type: 'UPDATE_THEME', payload: theme }),
+    updateStyle: (style) => dispatch({ type: 'UPDATE_STYLE', payload: style }),
+    updateFeatures: (features) => dispatch({ type: 'UPDATE_FEATURES', payload: features }),
+    updateEventInfo: (eventInfo) => dispatch({ type: 'UPDATE_EVENT_INFO', payload: eventInfo }),
     updateDownloads: (downloads) => dispatch({ type: 'UPDATE_DOWNLOADS', payload: downloads }),
     setScreenImage: (image) => dispatch({ type: 'SET_SCREEN_IMAGE', payload: image }),
     hideImagePreview: () => dispatch({ type: 'HIDE_IMAGE_PREVIEW' }),

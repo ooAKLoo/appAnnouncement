@@ -5,9 +5,11 @@ import TemplateSection from './config/TemplateSection';
 import AppConfigSection from './config/AppConfigSection';
 import DesignSection from './config/DesignSection';
 import ProjectsSection from './config/ProjectsSection';
+import ThemeSelector from './common/ThemeSelector';
+import StyleSelector from './common/StyleSelector';
 
 function LeftConfigPanel() {
-  const { state, toggleConfigPanel } = useApp();
+  const { state, toggleConfigPanel, updateTheme, updateStyle } = useApp();
 
   if (!state.configPanelOpen) return null;
 
@@ -19,6 +21,26 @@ function LeftConfigPanel() {
       >
         <X size={16} />
       </button>
+      
+      {state.currentTab === 'template' && (
+        <div className="p-4 pb-0 space-y-6">
+          <div>
+            <div className="text-sm font-medium text-gray-600 mb-3">选择主题</div>
+            <ThemeSelector 
+              selectedTheme={state.currentTheme || 'launch'}
+              onThemeChange={(theme) => updateTheme(theme)}
+            />
+          </div>
+          
+          <div>
+            <div className="text-sm font-medium text-gray-600 mb-3">选择风格</div>
+            <StyleSelector 
+              selectedStyle={state.currentStyle || 'minimal'}
+              onStyleChange={(style) => updateStyle(style)}
+            />
+          </div>
+        </div>
+      )}
 
       <TemplateSection 
         isActive={state.currentTab === 'template'} 
