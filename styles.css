@@ -1273,3 +1273,489 @@ body {
     font-size: 11px;
     text-align: center;
 }
+
+/* 保存按钮样式 */
+.save-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(16, 185, 129, 0.9);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-right: 12px;
+}
+
+.save-btn:hover {
+    background: rgba(16, 185, 129, 1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.save-icon {
+    width: 16px;
+    height: 16px;
+}
+
+/* 项目列表样式 */
+.projects-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.no-projects {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 40px 20px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+}
+
+.no-projects i {
+    width: 32px;
+    height: 32px;
+    opacity: 0.5;
+}
+
+.project-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.project-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.project-item-thumbnail {
+    width: 48px;
+    height: 48px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.project-thumbnail-placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.project-item-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.project-item-name {
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+.project-item-date {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+}
+
+.project-item-details {
+    display: flex;
+    gap: 6px;
+    margin-top: 2px;
+}
+
+.project-detail-tag {
+    background: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    text-transform: capitalize;
+}
+
+.project-item-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.project-action-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.project-action-btn.load {
+    background: rgba(59, 130, 246, 0.8);
+    color: white;
+}
+
+.project-action-btn.load:hover {
+    background: rgba(59, 130, 246, 1);
+    transform: scale(1.05);
+}
+
+.project-action-btn.delete {
+    background: rgba(239, 68, 68, 0.8);
+    color: white;
+}
+
+.project-action-btn.delete:hover {
+    background: rgba(239, 68, 68, 1);
+    transform: scale(1.05);
+}
+
+.project-action-btn i {
+    width: 14px;
+    height: 14px;
+}
+
+/* 保存对话框样式 */
+.save-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.save-dialog-overlay.show {
+    opacity: 1;
+}
+
+.save-dialog {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 500px;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.save-dialog-overlay.show .save-dialog {
+    transform: scale(1);
+}
+
+.save-dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.save-dialog-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.save-dialog-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: none;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #6b7280;
+    transition: all 0.3s ease;
+}
+
+.save-dialog-close:hover {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+.save-dialog-body {
+    padding: 24px;
+}
+
+.save-dialog-field {
+    margin-bottom: 20px;
+}
+
+.save-dialog-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.save-dialog-field input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.save-dialog-field input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.save-dialog-preview {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px;
+    background: #f9fafb;
+}
+
+.save-preview-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6b7280;
+    margin-bottom: 12px;
+}
+
+.save-preview-content {
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.mini-preview {
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mini-preview-header {
+    padding: 12px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mini-logo {
+    width: 24px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: #333;
+}
+
+.mini-title {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.mini-preview-body {
+    padding: 12px;
+    background: white;
+}
+
+.mini-main-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+.mini-subtitle {
+    font-size: 10px;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+.save-dialog-footer {
+    display: flex;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid #e5e7eb;
+    justify-content: flex-end;
+}
+
+.save-dialog-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.save-dialog-btn.cancel {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.save-dialog-btn.cancel:hover {
+    background: #e5e7eb;
+}
+
+.save-dialog-btn.save {
+    background: #3b82f6;
+    color: white;
+}
+
+.save-dialog-btn.save:hover {
+    background: #2563eb;
+}
+
+/* 确认删除对话框样式 */
+.confirm-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.confirm-dialog-overlay.show {
+    opacity: 1;
+}
+
+.confirm-dialog {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 400px;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.confirm-dialog-overlay.show .confirm-dialog {
+    transform: scale(1);
+}
+
+.confirm-dialog-header {
+    padding: 20px 24px 16px;
+}
+
+.confirm-dialog-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #dc2626;
+}
+
+.confirm-dialog-body {
+    padding: 0 24px 20px;
+}
+
+.confirm-dialog-body p {
+    margin: 0;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+.confirm-dialog-footer {
+    display: flex;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid #e5e7eb;
+    justify-content: flex-end;
+}
+
+.confirm-dialog-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.confirm-dialog-btn.cancel {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.confirm-dialog-btn.cancel:hover {
+    background: #e5e7eb;
+}
+
+.confirm-dialog-btn.delete {
+    background: #dc2626;
+    color: white;
+}
+
+.confirm-dialog-btn.delete:hover {
+    background: #b91c1c;
+}
+
+/* 通知样式 */
+.notification {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 10002;
+}
+
+/* 滚动条样式 */
+.projects-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.projects-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.projects-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.projects-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}

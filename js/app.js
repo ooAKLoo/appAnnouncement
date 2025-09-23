@@ -5,6 +5,7 @@ class AppManager {
         this.model3DManager = null;
         this.uploadManager = null;
         this.downloadManager = null;
+        this.projectManager = null;
         this.isInitialized = false;
     }
 
@@ -29,11 +30,16 @@ class AppManager {
             this.downloadManager = new DownloadManager(this.configManager);
             console.log('下载管理器初始化完成');
             
+            // 初始化项目管理器
+            this.projectManager = new ProjectManager(this.configManager);
+            console.log('项目管理器初始化完成');
+            
             // 设置全局引用
             window.configManager = this.configManager;
             window.model3DManager = this.model3DManager;
             window.uploadManager = this.uploadManager;
             window.downloadManager = this.downloadManager;
+            window.projectManager = this.projectManager;
             
             // 初始化3D场景
             await this.init3DScene();
@@ -113,6 +119,7 @@ class AppManager {
             hasModel3DManager: !!this.model3DManager,
             hasUploadManager: !!this.uploadManager,
             hasDownloadManager: !!this.downloadManager,
+            hasProjectManager: !!this.projectManager,
             model3DLoaded: this.model3DManager && !!this.model3DManager.getModel()
         };
     }
@@ -137,11 +144,13 @@ class AppManager {
         window.model3DManager = null;
         window.uploadManager = null;
         window.downloadManager = null;
+        window.projectManager = null;
         
         this.configManager = null;
         this.model3DManager = null;
         this.uploadManager = null;
         this.downloadManager = null;
+        this.projectManager = null;
         this.isInitialized = false;
         
         console.log('应用已销毁');

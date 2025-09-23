@@ -304,6 +304,155 @@ class ConfigManager {
         this.applyConfig();
     }
 
+    // 保存作品
+    saveProject(projectName) {
+        const projectData = {
+            id: Date.now().toString(),
+            name: projectName || `设计作品_${new Date().toLocaleString()}`,
+            timestamp: new Date().toISOString(),
+            config: { ...this.config },
+            template: this.getCurrentTemplate(),
+            colorScheme: this.getCurrentColorScheme(),
+            customImages: this.getCustomImages()
+        };
+        
+        // 保存到localStorage
+        const savedProjects = this.getSavedProjects();
+        savedProjects.push(projectData);
+        localStorage.setItem('designProjects', JSON.stringify(savedProjects));
+        
+        console.log('作品已保存:', projectData);
+        return projectData;
+    }
+
+    // 加载作品
+    loadProject(projectId) {
+        const savedProjects = this.getSavedProjects();
+        const project = savedProjects.find(p => p.id === projectId);
+        
+        if (!project) {
+            console.error('找不到指定的作品');
+            return false;
+        }
+        
+        // 恢复配置
+        this.config = { ...project.config };
+        
+        // 恢复模板
+        if (project.template) {
+            this.switchTemplate(project.template);
+            this.setActiveTemplate(project.template);
+        }
+        
+        // 恢复配色方案
+        if (project.colorScheme) {
+            this.applyColorScheme(project.colorScheme);
+            this.setActiveColorScheme(project.colorScheme);
+        }
+        
+        // 恢复自定义图片
+        if (project.customImages) {
+            this.restoreCustomImages(project.customImages);
+        }
+        
+        // 应用配置到界面
+        this.applyConfig();
+        
+        console.log('作品已加载:', project);
+        return true;
+    }
+
+    // 删除作品
+    deleteProject(projectId) {
+        const savedProjects = this.getSavedProjects();
+        const filteredProjects = savedProjects.filter(p => p.id !== projectId);
+        localStorage.setItem('designProjects', JSON.stringify(filteredProjects));
+        console.log('作品已删除:', projectId);
+    }
+
+    // 获取所有保存的作品
+    getSavedProjects() {
+        const saved = localStorage.getItem('designProjects');
+        return saved ? JSON.parse(saved) : [];
+    }
+
+    // 获取当前模板
+    getCurrentTemplate() {
+        const container = document.querySelector('.container');
+        const classList = container.classList;
+        
+        for (let className of classList) {
+            if (className.startsWith('template-')) {
+                return className.replace('template-', '');
+            }
+        }
+        return 'classic'; // 默认模板
+    }
+
+    // 获取当前配色方案
+    getCurrentColorScheme() {
+        const activeScheme = document.querySelector('.color-scheme-item.active');
+        return activeScheme ? activeScheme.dataset.scheme : 'blue';
+    }
+
+    // 获取自定义图片
+    getCustomImages() {
+        const logoIcon = document.querySelector('.logo-icon');
+        const previewImg = document.getElementById('previewImg');
+        
+        return {
+            appIcon: logoIcon.style.backgroundImage || null,
+            screenshot: previewImg.src || null
+        };
+    }
+
+    // 恢复自定义图片
+    restoreCustomImages(images) {
+        if (images.appIcon) {
+            const logoIcon = document.querySelector('.logo-icon');
+            const appIconPreview = document.querySelector('.app-icon-preview');
+            
+            logoIcon.style.backgroundImage = images.appIcon;
+            logoIcon.style.backgroundSize = 'cover';
+            logoIcon.style.backgroundPosition = 'center';
+            logoIcon.textContent = '';
+            
+            appIconPreview.style.backgroundImage = images.appIcon;
+            appIconPreview.style.backgroundSize = 'cover';
+            appIconPreview.style.backgroundPosition = 'center';
+            appIconPreview.textContent = '';
+        }
+        
+        if (images.screenshot) {
+            const previewImg = document.getElementById('previewImg');
+            if (previewImg) {
+                previewImg.src = images.screenshot;
+            }
+        }
+    }
+
+    // 设置活动模板
+    setActiveTemplate(template) {
+        const templateItems = document.querySelectorAll('.template-item');
+        templateItems.forEach(item => item.classList.remove('active'));
+        
+        const targetTemplate = document.querySelector(`[data-template="${template}"]`);
+        if (targetTemplate) {
+            targetTemplate.classList.add('active');
+        }
+    }
+
+    // 设置活动配色方案
+    setActiveColorScheme(scheme) {
+        const colorSchemeItems = document.querySelectorAll('.color-scheme-item');
+        colorSchemeItems.forEach(item => item.classList.remove('active'));
+        
+        const targetScheme = document.querySelector(`[data-scheme="${scheme}"]`);
+        if (targetScheme) {
+            targetScheme.classList.add('active');
+        }
+    }
+
     // 初始化配置面板切换功能
     initConfigPanelToggle() {
         this.isConfigPanelVisible = true;

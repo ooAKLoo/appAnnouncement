@@ -27,9 +27,17 @@
                 <i data-lucide="palette" class="toolbar-tab-icon"></i>
                 <span>设计</span>
             </button>
+            <button class="toolbar-tab" data-tab="projects">
+                <i data-lucide="folder" class="toolbar-tab-icon"></i>
+                <span>我的作品</span>
+            </button>
         </div>
         
         <div class="toolbar-right">
+            <button class="save-btn" onclick="showSaveDialog()">
+                <i data-lucide="save" class="save-icon"></i>
+                <span>保存作品</span>
+            </button>
             <div class="download-dropdown">
                 <button class="download-btn-main" onclick="toggleDownloadMenu()">
                     <i data-lucide="download" class="download-icon"></i>
@@ -243,6 +251,68 @@
                 </div>
             </div>
         </div>
+
+        <!-- 我的作品 -->
+        <div class="config-section" data-section="projects">
+            <div class="config-section-title">
+                <i data-lucide="folder"></i>
+                我的作品
+            </div>
+            
+            <div class="config-group">
+                <div class="config-group-label">已保存的作品</div>
+                <div class="projects-list" id="projectsList">
+                    <div class="no-projects" id="noProjects">
+                        <i data-lucide="folder-x"></i>
+                        <span>暂无保存的作品</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 保存对话框 -->
+    <div class="save-dialog-overlay" id="saveDialogOverlay">
+        <div class="save-dialog">
+            <div class="save-dialog-header">
+                <h3>保存作品</h3>
+                <button class="save-dialog-close" onclick="hideSaveDialog()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="save-dialog-body">
+                <div class="save-dialog-field">
+                    <label for="projectNameInput">作品名称</label>
+                    <input type="text" id="projectNameInput" placeholder="输入作品名称" maxlength="50">
+                </div>
+                <div class="save-dialog-preview">
+                    <div class="save-preview-label">预览</div>
+                    <div class="save-preview-content" id="savePreviewContent">
+                        <!-- 将在这里显示当前设计的缩略图 -->
+                    </div>
+                </div>
+            </div>
+            <div class="save-dialog-footer">
+                <button class="save-dialog-btn cancel" onclick="hideSaveDialog()">取消</button>
+                <button class="save-dialog-btn save" onclick="saveCurrentProject()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认删除对话框 -->
+    <div class="confirm-dialog-overlay" id="confirmDialogOverlay">
+        <div class="confirm-dialog">
+            <div class="confirm-dialog-header">
+                <h3>确认删除</h3>
+            </div>
+            <div class="confirm-dialog-body">
+                <p>确定要删除这个作品吗？此操作无法撤销。</p>
+            </div>
+            <div class="confirm-dialog-footer">
+                <button class="confirm-dialog-btn cancel" onclick="hideConfirmDialog()">取消</button>
+                <button class="confirm-dialog-btn delete" onclick="confirmDeleteProject()">删除</button>
+            </div>
+        </div>
     </div>
 
     <!-- 背景装饰 -->
@@ -344,6 +414,7 @@
     <script src="js/model3d.js"></script>
     <script src="js/upload.js"></script>
     <script src="js/download.js"></script>
+    <script src="js/projects.js"></script>
     <script src="js/app.js"></script>
 
 </body>
