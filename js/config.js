@@ -28,6 +28,7 @@ class ConfigManager {
         this.applyConfig();
         this.initTabSwitching();
         this.initTemplateSwitching();
+        this.initConfigPanelToggle();
     }
 
     // 应用配置到页面
@@ -206,6 +207,11 @@ class ConfigManager {
             tab.addEventListener('click', () => {
                 const targetTab = tab.dataset.tab;
                 
+                // 如果配置面板隐藏，先显示它
+                if (!this.isConfigPanelVisible) {
+                    this.showConfigPanel();
+                }
+                
                 // 移除所有活动状态
                 toolbarTabs.forEach(t => t.classList.remove('active'));
                 configSections.forEach(s => s.classList.remove('active'));
@@ -296,6 +302,52 @@ class ConfigManager {
     updateConfig(newConfig) {
         this.config = { ...this.config, ...newConfig };
         this.applyConfig();
+    }
+
+    // 初始化配置面板切换功能
+    initConfigPanelToggle() {
+        this.isConfigPanelVisible = true;
+    }
+
+    // 切换配置面板显示/隐藏
+    toggleConfigPanel() {
+        const configPanel = document.querySelector('.left-config-panel');
+        if (!configPanel) return;
+
+        if (this.isConfigPanelVisible) {
+            configPanel.style.transform = 'translateX(-100%) translateY(-50%)';
+            configPanel.style.opacity = '0';
+            this.isConfigPanelVisible = false;
+            // 关闭时取消顶部选中状态
+            this.clearActiveToolbarTabs();
+        } else {
+            configPanel.style.transform = 'translateY(-50%)';
+            configPanel.style.opacity = '1';
+            this.isConfigPanelVisible = true;
+        }
+    }
+
+    // 显示配置面板
+    showConfigPanel() {
+        const configPanel = document.querySelector('.left-config-panel');
+        if (!configPanel) return;
+
+        configPanel.style.transform = 'translateY(-50%)';
+        configPanel.style.opacity = '1';
+        this.isConfigPanelVisible = true;
+    }
+
+    // 清除顶部工具栏的选中状态
+    clearActiveToolbarTabs() {
+        const toolbarTabs = document.querySelectorAll('.toolbar-tab');
+        toolbarTabs.forEach(tab => tab.classList.remove('active'));
+    }
+}
+
+// 全局函数，供HTML调用
+function toggleConfigPanel() {
+    if (window.configManager) {
+        window.configManager.toggleConfigPanel();
     }
 }
 
