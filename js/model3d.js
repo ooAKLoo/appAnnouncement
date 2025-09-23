@@ -184,62 +184,86 @@ class Model3DManager {
     }
 
     // 更新屏幕图像
-    updateScreenWithImage(imageSrc) {
-        if (!this.model) {
-            console.warn('3D模型尚未加载完成');
-            return;
-        }
-        
-        let screenFound = false;
-        
-        this.model.traverse((child) => {
-            if (child.isMesh && child.name === 'xXDHkMplTIDAXLN') {
-                console.log('找到iPhone屏幕网格！');
-                
-                const textureLoader = new THREE.TextureLoader();
-                const screenTexture = textureLoader.load(imageSrc, (texture) => {
-                    // 关键修改：调整贴图映射
-                    texture.flipY = true;
-                    texture.wrapS = THREE.RepeatWrapping;
-                    texture.wrapT = THREE.RepeatWrapping;
-                    texture.encoding = THREE.sRGBEncoding;
-                    
-                    // 添加：确保贴图完全覆盖
-                    texture.repeat.set(1, 1);
-                    texture.offset.set(0, 0);
-                    
-                    // 添加：调整贴图中心点
-                    texture.center.set(0.5, 0.5);
-                    
-                    const screenMaterial = new THREE.MeshStandardMaterial({
-                        map: texture,
-                        roughness: 1,
-                        metalness: 0,
-                        envMapIntensity: 0.5,
-                        // 添加：确保不透明
-                        transparent: false,
-                        opacity: 1,
-                        side: THREE.FrontSide
-                    });
-                    
-                    child.material = screenMaterial;
-                    child.material.needsUpdate = true;
-                    
-                    // 添加：检查并调整底部黑色区域
-                    child.geometry.computeBoundingBox();
-                    
-                    this.currentScreenMesh = child;
-                    screenFound = true;
-                });
-            }
-        });
-        
-        if (!screenFound) {
-            console.warn('未找到屏幕网格 xXDHkMplTIDAXLN');
-            // 备用方案：寻找其他可能的屏幕网格
-            this.searchAlternativeScreen(imageSrc);
-        }
+// 更新屏幕图像
+updateScreenWithImage(imageSrc) {
+    if (!this.model) {
+        console.warn('3D模型尚未加载完成');
+        return;
     }
+    
+    let screenMesh = null;
+    
+    // 先找到屏幕网格
+    this.model.traverse((child) => {
+        if (child.isMesh && child.name === 'xXDHkMplTIDAXLN') {
+            screenMesh = child;
+            console.log('找到iPhone屏幕网格！');
+        }
+    });
+    
+    if (screenMesh) {
+        // 直接加载并应用贴图
+        const textureLoader = new THREE.TextureLoader();
+        textureLoader.load(imageSrc, (texture) => {
+            // 使用ClampToEdge避免边缘拉伸
+            texture.wrapS = THREE.ClampToEdgeWrapping;
+            texture.wrapT = THREE.ClampToEdgeWrapping;
+            texture.encoding = THREE.sRGBEncoding;
+            
+            // 创建新材质，只替换贴图
+            const screenMaterial = new THREE.MeshStandardMaterial({
+                map: texture,
+                roughness: 1,
+                metalness: 0
+            });
+            
+            screenMesh.material = screenMaterial;
+            screenMesh.material.needsUpdate = true;
+            
+            this.currentScreenMesh = screenMesh;
+            console.log('屏幕贴图应用成功');
+        });
+    } else {
+        console.warn('未找到屏幕网格 xXDHkMplTIDAXLN，尝试备用方案');
+        this.searchAlternativeScreen(imageSrc);
+    }
+}
+
+// 备用搜索函数 - 更精确的筛选
+searchAlternativeScreen(imageSrc) {
+    let potentialScreen = null;
+    
+    this.model.traverse((child) => {
+        if (child.isMesh && child.material) {
+            // 更严格的筛选条件：检查材质名称
+            if (child.material.name === 'pIJKfZsazmcpEiU') {
+                potentialScreen = child;
+                console.log('找到备用屏幕网格:', child.name);
+            }
+        }
+    });
+    
+    if (potentialScreen) {
+        const textureLoader = new THREE.TextureLoader();
+        textureLoader.load(imageSrc, (texture) => {
+            texture.wrapS = THREE.ClampToEdgeWrapping;
+            texture.wrapT = THREE.ClampToEdgeWrapping;
+            texture.encoding = THREE.sRGBEncoding;
+            
+            const screenMaterial = new THREE.MeshStandardMaterial({
+                map: texture,
+                roughness: 1,
+                metalness: 0
+            });
+            
+            potentialScreen.material = screenMaterial;
+            potentialScreen.material.needsUpdate = true;
+            this.currentScreenMesh = potentialScreen;
+        });
+    } else {
+        console.error('无法找到合适的屏幕网格');
+    }
+}
 
     // 备用搜索函数
     searchAlternativeScreen(imageSrc) {
