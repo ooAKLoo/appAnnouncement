@@ -25,7 +25,7 @@ const initialState = {
   screenImage: null,
   showImagePreview: false,
   projects: [],
-  currentTab: 'app',
+  currentTab: null, // 初始状态下没有选中任何tab
   configPanelOpen: false,
   downloadMenuOpen: false,
   projectMenuOpen: false,
@@ -70,7 +70,9 @@ function appReducer(state, action) {
     case 'TOGGLE_CONFIG_PANEL':
       return {
         ...state,
-        configPanelOpen: !state.configPanelOpen
+        configPanelOpen: !state.configPanelOpen,
+        // 关闭面板时清除当前选中的tab
+        currentTab: !state.configPanelOpen ? state.currentTab : null
       };
     case 'TOGGLE_DOWNLOAD_MENU':
       return {

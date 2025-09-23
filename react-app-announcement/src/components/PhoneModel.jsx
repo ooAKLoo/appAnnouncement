@@ -34,10 +34,10 @@ function PhoneModel3D() {  // Changed component name to avoid conflicts
       
       const size = box.getSize(new THREE.Vector3());
       const maxSize = Math.max(size.x, size.y, size.z);
-      const targetSize = 3; // Match original setting
+      const targetSize = 3.5; // Increased from 3 to 5 for larger display
       clonedScene.scale.multiplyScalar(targetSize / maxSize);
       
-      clonedScene.rotation.y = -Math.PI / 6;
+      clonedScene.rotation.y = Math.PI ;
       
       // Optimize materials for performance
       clonedScene.traverse((child) => {
@@ -143,8 +143,12 @@ function PhoneModel3D() {  // Changed component name to avoid conflicts
         
         const screenMaterial = new THREE.MeshStandardMaterial({
           map: texture,
-          roughness: 1,
-          metalness: 0
+          roughness: 0.1,
+          metalness: 0,
+          emissive: new THREE.Color(0x222222),
+          emissiveIntensity: 0.2,
+          transparent: false,
+          opacity: 1
         });
         
         screenMesh.material = screenMaterial;
@@ -222,12 +226,12 @@ function PhoneModel() {
   const [isLoading, setIsLoading] = useState(true);
 
   return (
-    <div className="relative w-full h-[600px]" id="canvas-container">
+    <div className="relative w-full h-[800px]" id="canvas-container">
       {isLoading && <LoadingIndicator />}
       <Model3DErrorBoundary>
         <Canvas
           camera={{ 
-            fov: 35, 
+            fov: 45, 
             position: [0, 0, 5],
             near: 0.1,
             far: 1000
@@ -241,10 +245,15 @@ function PhoneModel() {
           }}
         >
           {/* Lighting setup matching original */}
-          <ambientLight intensity={0.8} />
+          <ambientLight intensity={2.2} />
           <directionalLight 
             position={[5, 5, 5]} 
-            intensity={0.5}
+            intensity={1.5}
+            castShadow={false}
+          />
+          <directionalLight 
+            position={[-5, -5, -5]} 
+            intensity={0.3}
             castShadow={false}
           />
           
@@ -256,8 +265,8 @@ function PhoneModel() {
             enableDamping={true}
             dampingFactor={0.05}
             rotateSpeed={0.5}
-            minDistance={3}
-            maxDistance={8}
+            minDistance={2}
+            maxDistance={15}
             enablePan={false}
           />
         </Canvas>

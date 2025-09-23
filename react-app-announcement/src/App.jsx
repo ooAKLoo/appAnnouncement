@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { AppProvider } from './context/AppContext';
+import { AppProvider, useApp } from './context/AppContext';
 import TopToolbar from './components/TopToolbar';
 import LeftConfigPanel from './components/LeftConfigPanel';
 import MainContent from './components/MainContent';
@@ -9,6 +9,8 @@ import BackgroundDecorations from './components/BackgroundDecorations';
 import './tailwind.css';
 
 function AppContent() {
+  const { state } = useApp();
+  
   useEffect(() => {
     // Initialize Lucide icons
     if (window.lucide) {
@@ -16,8 +18,12 @@ function AppContent() {
     }
   }, []);
 
+  const backgroundStyle = {
+    background: `linear-gradient(135deg, ${state.design.bgColor} 0%, ${state.design.gradientColor} 100%)`
+  };
+
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden" style={backgroundStyle}>
       <TopToolbar />
       <LeftConfigPanel />
       <BackgroundDecorations />

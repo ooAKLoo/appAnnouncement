@@ -36,10 +36,15 @@ function TopToolbar() {
   }, [state.projectMenuOpen, state.downloadMenuOpen, toggleProjectMenu, toggleDownloadMenu]);
 
   const handleTabClick = (tab) => {
-    setCurrentTab(tab);
-    // 自动打开配置面板
-    if (!state.configPanelOpen) {
-      toggleConfigPanel();
+    // 如果点击当前已选中的tab，则取消选中
+    if (state.currentTab === tab && state.configPanelOpen) {
+      toggleConfigPanel(); // 关闭面板，同时会清除currentTab
+    } else {
+      setCurrentTab(tab);
+      // 自动打开配置面板
+      if (!state.configPanelOpen) {
+        toggleConfigPanel();
+      }
     }
   };
 
@@ -52,6 +57,10 @@ function TopToolbar() {
   const handleSwitchToProjects = () => {
     setCurrentTab('projects');
     toggleProjectMenu();
+    // 如果配置面板未打开，则打开它
+    if (!state.configPanelOpen) {
+      toggleConfigPanel();
+    }
   };
 
   return (

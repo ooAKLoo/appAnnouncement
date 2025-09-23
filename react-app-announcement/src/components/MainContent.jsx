@@ -16,9 +16,6 @@ function MainContent() {
     }
   }, [state.showImagePreview, hideImagePreview]);
 
-  const backgroundStyle = {
-    background: `linear-gradient(135deg, ${state.design.bgColor} 0%, ${state.design.gradientColor} 100%)`
-  };
 
   // 根据模板类型决定布局方式
   const getLayoutClasses = () => {
@@ -73,7 +70,7 @@ function MainContent() {
   const layout = getLayoutClasses();
 
   return (
-    <div className={layout.container} style={backgroundStyle}>
+    <div className={layout.container}>
       {/* Image Preview */}
       {state.showImagePreview && state.screenImage && (
         <div className="fixed top-20 right-5 z-30 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-4 max-w-xs animate-fadeInRight" id="imagePreview">
@@ -144,24 +141,6 @@ function MainContent() {
         {/* Right Side 3D Phone Model */}
         <div className={layout.phoneContainer}>
           <PhoneModel />
-          
-          {/* Phone Screen Content (Optional) */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none" id="screenContent">
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center">
-              <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-white/20 flex items-center justify-center text-lg font-bold text-white">
-                {state.appInfo.iconImage ? (
-                  <img 
-                    src={state.appInfo.iconImage} 
-                    alt="App Icon" 
-                    className="w-full h-full object-cover rounded-2xl"
-                  />
-                ) : (
-                  state.appInfo.icon
-                )}
-              </div>
-              <div className="text-white font-medium">{state.appInfo.name}</div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
