@@ -14,8 +14,8 @@ function TemplateSection({ isActive }) {
 
   return (
     <ConfigPanel type="template" isActive={isActive}>
-      <div className="config-group">
-        <div className="config-group-label">布局样式</div>
+      <div className="mb-6">
+        <div className="text-sm font-medium text-gray-600 mb-4">布局样式</div>
         <TemplateSelector
           templates={availableTemplates}
           selectedTemplate={state.design.template}

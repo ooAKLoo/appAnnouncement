@@ -50,26 +50,26 @@ function TopToolbar() {
   };
 
   return (
-    <div className="top-toolbar" ref={toolbarRef}>
-      <div className="menu-dropdown">
+    <div className="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 bg-white/95 backdrop-blur-xl rounded-xl p-2 shadow-lg border border-white/20 flex items-center gap-3" ref={toolbarRef}>
+      {/* Left - Menu Dropdown */}
+      <div className="relative">
         <button 
-          className="menu-btn-main" 
+          className="p-2.5 rounded-lg bg-transparent hover:bg-black/5 transition-colors duration-200 flex items-center justify-center" 
           onClick={toggleProjectMenu}
         >
-          <Menu className="menu-icon" size={16} />
+          <Menu size={16} className="text-gray-600" />
         </button>
         {state.projectMenuOpen && (
-          <div className={`project-menu ${state.projectMenuOpen ? 'show' : ''}`} id="projectMenu">
+          <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-100 min-w-36 p-2 opacity-100 visible transform translate-y-0 transition-all duration-200 z-10">
             <button 
-              className="menu-option" 
+              className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-50 transition-colors duration-200" 
               onClick={handleCreateNewProject}
             >
               <FilePlus size={16} />
               <span>新建</span>
             </button>
             <button 
-              className="menu-option" 
-              data-tab="projects" 
+              className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-50 transition-colors duration-200" 
               onClick={handleSwitchToProjects}
             >
               <Folder size={16} />
@@ -79,61 +79,72 @@ function TopToolbar() {
         )}
       </div>
       
-      <div className="toolbar-left">
+      {/* Center - Navigation Tabs */}
+      <div className="flex gap-1">
         <button 
-          className={`toolbar-tab ${state.currentTab === 'template' ? 'active' : ''}`}
-          data-tab="template"
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 min-w-20 justify-center ${
+            state.currentTab === 'template' 
+              ? 'bg-primary-blue text-white shadow-md shadow-primary-blue/30' 
+              : 'text-gray-600 hover:bg-black/5'
+          }`}
           onClick={() => handleTabClick('template')}
         >
-          <LayoutTemplate className="toolbar-tab-icon" size={16} />
+          <LayoutTemplate size={16} />
           <span>模板</span>
         </button>
         <button 
-          className={`toolbar-tab ${state.currentTab === 'app' ? 'active' : ''}`}
-          data-tab="app"
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 min-w-20 justify-center ${
+            state.currentTab === 'app' 
+              ? 'bg-primary-blue text-white shadow-md shadow-primary-blue/30' 
+              : 'text-gray-600 hover:bg-black/5'
+          }`}
           onClick={() => handleTabClick('app')}
         >
-          <Smartphone className="toolbar-tab-icon" size={16} />
+          <Smartphone size={16} />
           <span>APP配置</span>
         </button>
         <button 
-          className={`toolbar-tab ${state.currentTab === 'design' ? 'active' : ''}`}
-          data-tab="design"
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 min-w-20 justify-center ${
+            state.currentTab === 'design' 
+              ? 'bg-primary-blue text-white shadow-md shadow-primary-blue/30' 
+              : 'text-gray-600 hover:bg-black/5'
+          }`}
           onClick={() => handleTabClick('design')}
         >
-          <Palette className="toolbar-tab-icon" size={16} />
+          <Palette size={16} />
           <span>设计</span>
         </button>
       </div>
       
-      <div className="toolbar-right">
-        <div className="download-dropdown">
+      {/* Right - Download Dropdown */}
+      <div className="flex items-center">
+        <div className="relative">
           <button 
-            className="download-btn-main" 
+            className="flex items-center gap-1.5 px-4 py-2.5 bg-transparent hover:bg-black/5 rounded-lg transition-all duration-200 text-sm font-medium text-gray-600" 
             onClick={toggleDownloadMenu}
           >
-            <Download className="download-icon" size={16} />
+            <Download size={16} />
             <span>下载</span>
-            <ChevronDown className="chevron-icon" size={16} />
+            <ChevronDown size={12} className={`transform transition-transform duration-200 ${state.downloadMenuOpen ? 'rotate-180' : ''}`} />
           </button>
           {state.downloadMenuOpen && (
-            <div className={`download-menu ${state.downloadMenuOpen ? 'show' : ''}`} id="downloadMenu">
+            <div className="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-100 min-w-36 p-2 opacity-100 visible transform translate-y-0 transition-all duration-200 z-10">
               <button 
-                className="download-option" 
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-50 transition-colors duration-200" 
                 onClick={() => downloadAs('png')}
               >
                 <Image size={16} />
                 <span>PNG 图片</span>
               </button>
               <button 
-                className="download-option" 
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-50 transition-colors duration-200" 
                 onClick={() => downloadAs('jpg')}
               >
                 <Image size={16} />
                 <span>JPG 图片</span>
               </button>
               <button 
-                className="download-option" 
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-50 transition-colors duration-200" 
                 onClick={() => downloadAs('pdf')}
               >
                 <FileText size={16} />

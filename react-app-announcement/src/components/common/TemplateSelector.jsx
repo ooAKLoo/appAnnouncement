@@ -5,27 +5,25 @@ const templateConfigs = {
     name: '经典布局',
     description: '左文右图，适合突出产品特性',
     preview: (
-      <>
-        <div className="template-preview-left">
-          <div className="template-preview-logo"></div>
-          <div className="template-preview-title"></div>
-          <div className="template-preview-desc"></div>
-          <div className="template-preview-btns"></div>
+      <div className="flex items-center gap-2 w-full">
+        <div className="flex-1 space-y-1">
+          <div className="w-6 h-1.5 bg-gray-400 rounded"></div>
+          <div className="w-8 h-1 bg-gray-300 rounded"></div>
+          <div className="w-5 h-0.5 bg-primary-blue rounded"></div>
         </div>
-        <div className="template-preview-phone"></div>
-      </>
+        <div className="w-4 h-8 bg-gray-400 rounded"></div>
+      </div>
     )
   },
   center: {
     name: '居中布局',
     description: '内容居中，简洁现代',
     preview: (
-      <div className="template-preview-center">
-        <div className="template-preview-logo"></div>
-        <div className="template-preview-title"></div>
-        <div className="template-preview-desc"></div>
-        <div className="template-preview-btns"></div>
-        <div className="template-preview-phone-small"></div>
+      <div className="flex flex-col items-center gap-1 w-full">
+        <div className="w-6 h-1.5 bg-gray-400 rounded"></div>
+        <div className="w-8 h-1 bg-gray-300 rounded"></div>
+        <div className="w-5 h-0.5 bg-primary-blue rounded"></div>
+        <div className="w-3 h-5 bg-gray-400 rounded mt-1"></div>
       </div>
     )
   },
@@ -33,39 +31,40 @@ const templateConfigs = {
     name: '极简布局',
     description: '突出产品，最小干扰',
     preview: (
-      <>
-        <div className="template-preview-minimal">
-          <div className="template-preview-title"></div>
-          <div className="template-preview-btns"></div>
+      <div className="flex flex-row-reverse items-center gap-2 w-full">
+        <div className="w-5 h-8 bg-gray-400 rounded"></div>
+        <div className="flex-1 space-y-1">
+          <div className="w-8 h-1.5 bg-gray-400 rounded"></div>
+          <div className="w-5 h-0.5 bg-primary-blue rounded"></div>
         </div>
-        <div className="template-preview-phone-large"></div>
-      </>
+      </div>
     )
   },
   elegant: {
     name: '优雅布局',
     description: '精致设计，商务感强',
     preview: (
-      <>
-        <div className="template-preview-elegant">
-          <div className="template-preview-logo-small"></div>
-          <div className="template-preview-title-elegant"></div>
-          <div className="template-preview-desc-elegant"></div>
-          <div className="template-preview-btns-elegant"></div>
+      <div className="flex items-center gap-2 w-full">
+        <div className="flex-1 space-y-1">
+          <div className="w-4 h-1 bg-gray-300 rounded"></div>
+          <div className="w-8 h-1.5 bg-gray-400 rounded"></div>
+          <div className="w-5 h-0.5 bg-yellow-500 rounded"></div>
         </div>
-        <div className="template-preview-phone-float"></div>
-      </>
+        <div className="w-4 h-8 bg-gray-400 rounded transform rotate-12"></div>
+      </div>
     )
   },
   light: {
     name: '轻盈布局',
     description: '卡片式设计，现代简约',
     preview: (
-      <div className="template-preview-light">
-        <div className="template-preview-title-light"></div>
-        <div className="template-preview-desc-light"></div>
-        <div className="template-preview-btns-light"></div>
-        <div className="template-preview-cards"></div>
+      <div className="flex flex-col gap-1 w-full">
+        <div className="w-8 h-1.5 bg-gray-400 rounded mx-auto"></div>
+        <div className="w-5 h-0.5 bg-primary-blue rounded mx-auto"></div>
+        <div className="grid grid-cols-2 gap-1 mt-1">
+          <div className="h-2 bg-white rounded border border-gray-200"></div>
+          <div className="h-2 bg-white rounded border border-gray-200"></div>
+        </div>
       </div>
     )
   },
@@ -73,22 +72,21 @@ const templateConfigs = {
     name: '高级布局',
     description: '奢华质感，突出品质',
     preview: (
-      <>
-        <div className="template-preview-premium">
-          <div className="template-preview-badge"></div>
-          <div className="template-preview-title-premium"></div>
-          <div className="template-preview-features"></div>
-          <div className="template-preview-btns-premium"></div>
+      <div className="flex items-center gap-2 w-full">
+        <div className="flex-1 space-y-1">
+          <div className="w-2 h-0.5 bg-yellow-500 rounded"></div>
+          <div className="w-8 h-1.5 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded"></div>
+          <div className="w-5 h-0.5 bg-yellow-500 rounded"></div>
         </div>
-        <div className="template-preview-phone-premium"></div>
-      </>
+        <div className="w-4 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded shadow-sm"></div>
+      </div>
     )
   }
 };
 
 function TemplateSelector({ templates, selectedTemplate, onSelect }) {
   return (
-    <div className="template-grid">
+    <div className="space-y-3">
       {templates.map((templateId) => {
         const config = templateConfigs[templateId];
         if (!config) return null;
@@ -96,15 +94,20 @@ function TemplateSelector({ templates, selectedTemplate, onSelect }) {
         return (
           <div 
             key={templateId}
-            className={`template-item ${selectedTemplate === templateId ? 'active' : ''}`}
-            data-template={templateId}
+            className={`cursor-pointer border-2 rounded-xl p-4 transition-all duration-200 hover:shadow-md ${
+              selectedTemplate === templateId 
+                ? 'border-primary-blue bg-primary-blue/5 shadow-md' 
+                : 'border-gray-200 hover:border-primary-blue/50'
+            }`}
             onClick={() => onSelect(templateId)}
           >
-            <div className="template-preview">
-              {config.preview}
+            <div className="h-12 bg-gray-50 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+              <div className="scale-75 transform-gpu w-full">
+                {config.preview}
+              </div>
             </div>
-            <div className="template-name">{config.name}</div>
-            <div className="template-desc">{config.description}</div>
+            <div className="font-medium text-gray-800 text-sm">{config.name}</div>
+            <div className="text-xs text-gray-500 mt-1">{config.description}</div>
           </div>
         );
       })}

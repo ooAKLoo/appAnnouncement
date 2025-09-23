@@ -33,19 +33,22 @@ const colorSchemes = [
 
 function ColorSchemeSelector({ selectedScheme, onSelect }) {
   return (
-    <div className="color-scheme-grid">
+    <div className="grid grid-cols-2 gap-3">
       {colorSchemes.map((scheme) => (
         <div 
           key={scheme.id}
-          className={`color-scheme-item ${selectedScheme === scheme.id ? 'active' : ''}`}
-          data-scheme={scheme.id}
+          className={`cursor-pointer p-3 border-2 rounded-lg transition-all duration-200 hover:shadow-md ${
+            selectedScheme === scheme.id 
+              ? 'border-primary-blue bg-primary-blue/5 shadow-md' 
+              : 'border-gray-200 hover:border-gray-300'
+          }`}
           onClick={() => onSelect(scheme)}
         >
           <div 
-            className="color-scheme-preview" 
+            className="w-full h-12 rounded-md mb-3 shadow-sm" 
             style={{background: scheme.gradient}}
           />
-          <div className="color-scheme-name">{scheme.name}</div>
+          <div className="text-sm font-medium text-gray-800 text-center">{scheme.name}</div>
         </div>
       ))}
     </div>

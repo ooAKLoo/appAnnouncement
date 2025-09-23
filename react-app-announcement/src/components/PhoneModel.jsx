@@ -6,9 +6,9 @@ import { useApp } from '../context/AppContext';
 
 function LoadingIndicator() {
   return (
-    <div className="loading-indicator" id="loading">
-      <div className="loading-spinner"></div>
-      <div>加载3D模型中...</div>
+    <div className="flex flex-col items-center justify-center h-full text-white/60" id="loading">
+      <div className="w-8 h-8 border-2 border-white/20 border-t-white/60 rounded-full animate-spin mb-3"></div>
+      <div className="text-sm">加载3D模型中...</div>
     </div>
   );
 }
@@ -222,7 +222,7 @@ function PhoneModel() {
   const [isLoading, setIsLoading] = useState(true);
 
   return (
-    <div id="canvas-container">
+    <div className="relative w-full h-[600px]" id="canvas-container">
       {isLoading && <LoadingIndicator />}
       <Model3DErrorBoundary>
         <Canvas

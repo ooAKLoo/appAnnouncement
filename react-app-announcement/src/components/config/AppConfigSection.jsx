@@ -20,15 +20,15 @@ function AppConfigSection({ isActive }) {
   return (
     <ConfigPanel type="app" isActive={isActive}>
       {/* 基本信息 */}
-      <div className="config-group">
-        <div className="config-group-label">基本信息</div>
+      <div className="mb-6">
+        <div className="text-sm font-medium text-gray-600 mb-4">基本信息</div>
         <FormField
           type="text"
           placeholder="输入APP名称"
           maxLength={20}
           value={state.appInfo.name}
           onChange={(value) => handleInputChange('name', value)}
-          style={{marginBottom: '8px'}}
+          className="mb-2"
         />
         <FormField
           type="text"
@@ -36,7 +36,7 @@ function AppConfigSection({ isActive }) {
           maxLength={50}
           value={state.appInfo.title}
           onChange={(value) => handleInputChange('title', value)}
-          style={{marginBottom: '8px'}}
+          className="mb-2"
         />
         <FormField
           type="textarea"
@@ -49,20 +49,20 @@ function AppConfigSection({ isActive }) {
       </div>
       
       {/* 媒体资源 */}
-      <div className="config-group">
-        <div className="config-group-label">媒体资源</div>
+      <div className="mb-6">
+        <div className="text-sm font-medium text-gray-600 mb-4">媒体资源</div>
         <input 
           type="file" 
           id="iconUpload" 
           accept="image/*" 
-          style={{display: 'none'}}
+          className="hidden"
           onChange={handleIconUpload}
         />
         <FormField
           type="upload"
           label="选择APP图标"
           onChange={() => document.getElementById('iconUpload').click()}
-          style={{marginBottom: '8px'}}
+          className="mb-2"
         >
           <Image size={16} />
         </FormField>
@@ -71,7 +71,7 @@ function AppConfigSection({ isActive }) {
           type="file" 
           id="screenUpload" 
           accept="image/*" 
-          style={{display: 'none'}}
+          className="hidden"
           onChange={handleScreenUpload}
         />
         <FormField
@@ -84,21 +84,21 @@ function AppConfigSection({ isActive }) {
       </div>
       
       {/* 下载链接 */}
-      <div className="config-group">
-        <div className="config-group-label">下载链接</div>
+      <div className="mb-6">
+        <div className="text-sm font-medium text-gray-600 mb-4">下载链接</div>
         <FormField
           type="checkbox"
           label="显示 App Store"
           value={state.downloads.showAppStore}
           onChange={(value) => handleDownloadChange('showAppStore', value)}
-          style={{marginBottom: '8px'}}
+          className="mb-2"
         />
         <FormField
           type="url"
           placeholder="App Store链接"
           value={state.downloads.appStoreUrl}
           onChange={(value) => handleDownloadChange('appStoreUrl', value)}
-          style={{marginBottom: '12px'}}
+          className="mb-3"
         />
         
         <FormField
@@ -106,7 +106,7 @@ function AppConfigSection({ isActive }) {
           label="显示 Google Play"
           value={state.downloads.showGooglePlay}
           onChange={(value) => handleDownloadChange('showGooglePlay', value)}
-          style={{marginBottom: '8px'}}
+          className="mb-2"
         />
         <FormField
           type="url"

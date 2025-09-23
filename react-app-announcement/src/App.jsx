@@ -6,7 +6,7 @@ import MainContent from './components/MainContent';
 import SaveDialog from './components/SaveDialog';
 import ConfirmDialog from './components/ConfirmDialog';
 import BackgroundDecorations from './components/BackgroundDecorations';
-import './styles.css';
+import './tailwind.css';
 
 function AppContent() {
   useEffect(() => {
@@ -17,7 +17,7 @@ function AppContent() {
   }, []);
 
   return (
-    <div className="App">
+    <div className="relative min-h-screen overflow-hidden">
       <TopToolbar />
       <LeftConfigPanel />
       <BackgroundDecorations />

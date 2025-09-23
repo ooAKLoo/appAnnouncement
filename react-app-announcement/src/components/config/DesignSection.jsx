@@ -21,22 +21,22 @@ function DesignSection({ isActive }) {
 
   return (
     <ConfigPanel type="design" isActive={isActive}>
-      <div className="config-group">
-        <div className="config-group-label">配色方案</div>
+      <div className="mb-6">
+        <div className="text-sm font-medium text-gray-600 mb-4">配色方案</div>
         <ColorSchemeSelector
           selectedScheme={state.design.colorScheme}
           onSelect={handleColorSchemeSelect}
         />
       </div>
 
-      <div className="config-group">
-        <div className="config-group-label">自定义颜色</div>
+      <div className="mb-6">
+        <div className="text-sm font-medium text-gray-600 mb-4">自定义颜色</div>
         <FormField
           type="color"
           label="主色调"
           value={state.design.bgColor}
           onChange={(value) => handleColorChange('bgColor', value)}
-          style={{marginBottom: '12px'}}
+          className="mb-3"
         />
         <FormField
           type="color"

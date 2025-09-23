@@ -23,14 +23,14 @@ const panelConfigs = {
 function ConfigPanel({ type, isActive, children }) {
   const config = panelConfigs[type];
   
-  if (!config || !isActive) return null;
-
+  if (!isActive) return null;
+  
   const IconComponent = config.icon;
 
   return (
-    <div className="config-section active" data-section={type}>
-      <div className="config-section-title">
-        <IconComponent size={16} />
+    <div className="p-5">
+      <div className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-4">
+        <IconComponent size={18} className="text-primary-blue" />
         {config.title}
       </div>
       {children}
