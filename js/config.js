@@ -1,7 +1,7 @@
 // 配置管理模块
 class ConfigManager {
     constructor() {
-        this.config = {
+        this.defaultConfig = {
             // APP信息
             appName: 'Bompay',
             appIcon: 'B',
@@ -19,6 +19,17 @@ class ConfigManager {
             primaryColor: '#667eea',
             secondaryColor: '#764ba2'
         };
+        
+        this.config = { ...this.defaultConfig };
+        this.originalConfig = { ...this.defaultConfig };
+        
+        // 自动保存相关
+        this.autoSaveTimer = null;
+        this.autoSaveDelay = 3000; // 3秒延迟
+        this.currentProjectId = null;
+        
+        // 从localStorage加载最后的项目
+        this.loadLastProject();
         
         this.init();
     }
@@ -76,6 +87,7 @@ class ConfigManager {
                 document.querySelector('.logo-text').textContent = newName;
                 document.querySelector('.app-name-preview').textContent = newName;
                 this.config.appName = newName;
+                this.triggerAutoSave();
             });
         }
 
@@ -85,6 +97,7 @@ class ConfigManager {
                 const newTitle = e.target.value || this.config.mainTitle;
                 document.querySelector('.main-title').textContent = newTitle;
                 this.config.mainTitle = newTitle;
+                this.triggerAutoSave();
             });
         }
 
@@ -94,6 +107,7 @@ class ConfigManager {
                 const newDesc = e.target.value || this.config.subtitle;
                 document.querySelector('.subtitle').textContent = newDesc;
                 this.config.subtitle = newDesc;
+                this.triggerAutoSave();
             });
         }
 
@@ -103,6 +117,7 @@ class ConfigManager {
                 const newColor = e.target.value;
                 this.updateBackgroundColor(newColor, gradientColorInput.value);
                 this.config.primaryColor = newColor;
+                this.triggerAutoSave();
             });
         }
 
@@ -112,6 +127,7 @@ class ConfigManager {
                 const newColor = e.target.value;
                 this.updateBackgroundColor(bgColorInput.value, newColor);
                 this.config.secondaryColor = newColor;
+                this.triggerAutoSave();
             });
         }
 
@@ -121,6 +137,7 @@ class ConfigManager {
                 const newLink = e.target.value || this.config.appStoreLink;
                 document.querySelectorAll('.download-btn')[0].href = newLink;
                 this.config.appStoreLink = newLink;
+                this.triggerAutoSave();
             });
         }
 
@@ -130,6 +147,7 @@ class ConfigManager {
                 const newLink = e.target.value || this.config.googlePlayLink;
                 document.querySelectorAll('.download-btn')[1].href = newLink;
                 this.config.googlePlayLink = newLink;
+                this.triggerAutoSave();
             });
         }
 
@@ -302,6 +320,134 @@ class ConfigManager {
     updateConfig(newConfig) {
         this.config = { ...this.config, ...newConfig };
         this.applyConfig();
+        this.triggerAutoSave();
+    }
+    
+    // 触发自动保存
+    triggerAutoSave() {
+        // 清除之前的定时器
+        if (this.autoSaveTimer) {
+            clearTimeout(this.autoSaveTimer);
+        }
+        
+        // 显示保存中状态
+        this.showSaveStatus('正在保存...');
+        
+        // 设置新的定时器
+        this.autoSaveTimer = setTimeout(() => {
+            this.autoSave();
+        }, this.autoSaveDelay);
+    }
+    
+    // 执行自动保存
+    autoSave() {
+        try {
+            // 如果没有当前项目ID，创建新项目
+            if (!this.currentProjectId) {
+                const projectData = {
+                    id: Date.now().toString(),
+                    name: `自动保存_${new Date().toLocaleDateString()}`,
+                    timestamp: new Date().toISOString(),
+                    config: { ...this.config },
+                    template: this.getCurrentTemplate(),
+                    colorScheme: this.getCurrentColorScheme(),
+                    customImages: this.getCustomImages()
+                };
+                
+                this.currentProjectId = projectData.id;
+                
+                // 保存到localStorage
+                const savedProjects = this.getSavedProjects();
+                savedProjects.push(projectData);
+                localStorage.setItem('designProjects', JSON.stringify(savedProjects));
+                localStorage.setItem('lastProjectId', this.currentProjectId);
+            } else {
+                // 更新现有项目
+                const savedProjects = this.getSavedProjects();
+                const index = savedProjects.findIndex(p => p.id === this.currentProjectId);
+                
+                if (index !== -1) {
+                    savedProjects[index] = {
+                        ...savedProjects[index],
+                        timestamp: new Date().toISOString(),
+                        config: { ...this.config },
+                        template: this.getCurrentTemplate(),
+                        colorScheme: this.getCurrentColorScheme(),
+                        customImages: this.getCustomImages()
+                    };
+                    localStorage.setItem('designProjects', JSON.stringify(savedProjects));
+                }
+            }
+            
+            // 更新原始配置
+            this.originalConfig = { ...this.config };
+            
+            // 显示保存成功
+            this.showSaveStatus('已自动保存', 'success');
+            
+        } catch (error) {
+            console.error('自动保存失败:', error);
+            this.showSaveStatus('保存失败', 'error');
+        }
+    }
+    
+    // 显示保存状态
+    showSaveStatus(message, type = 'info') {
+        // 移除旧的状态提示
+        const oldStatus = document.querySelector('.auto-save-status');
+        if (oldStatus) {
+            oldStatus.remove();
+        }
+        
+        // 创建新的状态提示
+        const status = document.createElement('div');
+        status.className = 'auto-save-status';
+        status.textContent = message;
+        status.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            background: ${type === 'success' ? '#10B981' : type === 'error' ? '#EF4444' : '#6B7280'};
+            color: white;
+            border-radius: 6px;
+            font-size: 14px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        `;
+        
+        document.body.appendChild(status);
+        
+        // 显示动画
+        setTimeout(() => {
+            status.style.opacity = '1';
+            status.style.transform = 'translateY(0)';
+        }, 10);
+        
+        // 自动隐藏
+        if (type !== 'info') {
+            setTimeout(() => {
+                status.style.opacity = '0';
+                status.style.transform = 'translateY(10px)';
+                setTimeout(() => status.remove(), 300);
+            }, 2000);
+        }
+    }
+    
+    // 加载最后的项目
+    loadLastProject() {
+        const lastProjectId = localStorage.getItem('lastProjectId');
+        if (lastProjectId) {
+            const savedProjects = this.getSavedProjects();
+            const project = savedProjects.find(p => p.id === lastProjectId);
+            if (project) {
+                this.currentProjectId = project.id;
+                this.config = { ...project.config };
+                this.originalConfig = { ...project.config };
+            }
+        }
     }
 
     // 保存作品
@@ -322,6 +468,10 @@ class ConfigManager {
         localStorage.setItem('designProjects', JSON.stringify(savedProjects));
         
         console.log('作品已保存:', projectData);
+        
+        // 更新原始配置，表示已保存
+        this.originalConfig = { ...this.config };
+        
         return projectData;
     }
 
@@ -357,6 +507,11 @@ class ConfigManager {
         
         // 应用配置到界面
         this.applyConfig();
+        
+        // 设置当前项目ID
+        this.currentProjectId = projectId;
+        localStorage.setItem('lastProjectId', projectId);
+        this.originalConfig = { ...this.config };
         
         console.log('作品已加载:', project);
         return true;
@@ -490,6 +645,48 @@ class ConfigManager {
     clearActiveToolbarTabs() {
         const toolbarTabs = document.querySelectorAll('.toolbar-tab');
         toolbarTabs.forEach(tab => tab.classList.remove('active'));
+    }
+    
+    // 检查是否有未保存的更改
+    hasUnsavedChanges() {
+        return JSON.stringify(this.config) !== JSON.stringify(this.originalConfig);
+    }
+    
+    // 重置为默认配置
+    resetToDefaults() {
+        this.config = { ...this.defaultConfig };
+        this.originalConfig = { ...this.defaultConfig };
+        this.currentProjectId = null;
+        localStorage.removeItem('lastProjectId');
+        this.applyConfig();
+        
+        // 重置所有输入框的值
+        this.updateAllInputs();
+        
+        // 触发自动保存创建新项目
+        this.triggerAutoSave();
+    }
+    
+    // 更新所有输入框的值
+    updateAllInputs() {
+        const appNameInput = document.getElementById('appNameInput');
+        const mainTitleInput = document.getElementById('mainTitleInput');
+        const appDescInput = document.getElementById('appDescInput');
+        const appStoreInput = document.getElementById('appStoreInput');
+        const googlePlayInput = document.getElementById('googlePlayInput');
+        const primaryColorInput = document.getElementById('primaryColorInput');
+        const secondaryColorInput = document.getElementById('secondaryColorInput');
+        
+        if (appNameInput) appNameInput.value = this.config.appName;
+        if (mainTitleInput) mainTitleInput.value = this.config.mainTitle;
+        if (appDescInput) appDescInput.value = this.config.subtitle;
+        if (appStoreInput) appStoreInput.value = this.config.appStoreLink;
+        if (googlePlayInput) googlePlayInput.value = this.config.googlePlayLink;
+        if (primaryColorInput) primaryColorInput.value = this.config.primaryColor;
+        if (secondaryColorInput) secondaryColorInput.value = this.config.secondaryColor;
+        
+        // 更新颜色渐变
+        this.updateColorGradient();
     }
 }
 

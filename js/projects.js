@@ -406,5 +406,45 @@ window.confirmDeleteProject = function() {
     }
 };
 
+// 新建项目
+window.createNewProject = function() {
+    // 关闭菜单
+    const menu = document.getElementById('projectMenu');
+    if (menu) {
+        menu.classList.remove('show');
+    }
+    
+    // 直接重置为默认配置（会自动保存）
+    if (window.configManager) {
+        window.configManager.resetToDefaults();
+    }
+    
+    // 切换到APP配置页面
+    const appTab = document.querySelector('[data-tab="app"]');
+    if (appTab) {
+        // 移除所有 active 类
+        document.querySelectorAll('.toolbar-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        // 激活APP配置 tab
+        appTab.classList.add('active');
+        
+        // 切换内容区域
+        document.querySelectorAll('.config-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        const appSection = document.querySelector('[data-section="app"]');
+        if (appSection) {
+            appSection.classList.add('active');
+        }
+    }
+    
+    // 显示通知
+    if (window.projectManager) {
+        window.projectManager.showNotification('新建项目成功', 'success');
+    }
+};
+
 // 导出项目管理器
 window.ProjectManager = ProjectManager;

@@ -1366,14 +1366,14 @@ body {
     align-items: center;
     gap: 8px;
     padding: 40px 20px;
-    color: rgba(255, 255, 255, 0.6);
+    color: #999;
     font-size: 14px;
 }
 
 .no-projects i {
     width: 32px;
     height: 32px;
-    opacity: 0.5;
+    color: #ccc;
 }
 
 .project-item {
@@ -1381,16 +1381,17 @@ body {
     align-items: center;
     gap: 12px;
     padding: 12px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
     border-radius: 8px;
     transition: all 0.3s ease;
     cursor: pointer;
 }
 
 .project-item:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.2);
+    background: #f0f0f0;
+    border-color: #d0d0d0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .project-item-thumbnail {
@@ -1398,14 +1399,14 @@ body {
     height: 48px;
     border-radius: 6px;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.1);
+    background: #e8e8e8;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .project-thumbnail-placeholder {
-    color: rgba(255, 255, 255, 0.6);
+    color: #999;
 }
 
 .project-item-info {
@@ -1416,14 +1417,14 @@ body {
 }
 
 .project-item-name {
-    color: white;
+    color: #333;
     font-size: 14px;
     font-weight: 500;
     line-height: 1.2;
 }
 
 .project-item-date {
-    color: rgba(255, 255, 255, 0.7);
+    color: #666;
     font-size: 12px;
 }
 
@@ -1434,8 +1435,8 @@ body {
 }
 
 .project-detail-tag {
-    background: rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.8);
+    background: #667eea;
+    color: white;
     padding: 2px 6px;
     border-radius: 4px;
     font-size: 10px;
@@ -1450,7 +1451,7 @@ body {
 .project-action-btn {
     width: 32px;
     height: 32px;
-    border: none;
+    border: 1px solid transparent;
     border-radius: 6px;
     display: flex;
     align-items: center;
@@ -1460,23 +1461,27 @@ body {
 }
 
 .project-action-btn.load {
-    background: rgba(59, 130, 246, 0.8);
+    background: #3B82F6;
     color: white;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
 }
 
 .project-action-btn.load:hover {
-    background: rgba(59, 130, 246, 1);
+    background: #2563EB;
     transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
 }
 
 .project-action-btn.delete {
-    background: rgba(239, 68, 68, 0.8);
+    background: #EF4444;
     color: white;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
 }
 
 .project-action-btn.delete:hover {
-    background: rgba(239, 68, 68, 1);
+    background: #DC2626;
     transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.4);
 }
 
 .project-action-btn i {
