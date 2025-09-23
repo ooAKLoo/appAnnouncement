@@ -91,7 +91,7 @@ function MainContent() {
         {/* Left Content */}
         <div className={`${layout.leftContent} text-white`}>
           <div className={layout.logo}>
-            <div className="w-15 h-15 rounded-full overflow-hidden bg-white/20 flex items-center justify-center text-2xl font-bold">
+            <div className="w-15 h-15 rounded-2xl overflow-hidden bg-white/20 flex items-center justify-center text-2xl font-bold">
               {state.appInfo.iconImage ? (
                 <img 
                   src={state.appInfo.iconImage} 
