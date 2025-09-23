@@ -326,7 +326,9 @@ body {
 }
 
 .toolbar-right {
-    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .toolbar-tab {
@@ -448,6 +450,81 @@ body {
 .download-option i {
     width: 16px;
     height: 16px;
+}
+
+/* 汉堡菜单样式 */
+.menu-dropdown {
+    position: relative;
+}
+
+.menu-btn-main {
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.menu-btn-main:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.menu-icon {
+    width: 20px;
+    height: 20px;
+    color: #666;
+}
+
+.project-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    background: white;
+    border-radius: 8px;
+    padding: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    min-width: 160px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+}
+
+.project-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.menu-option {
+    width: 100%;
+    padding: 10px 14px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+}
+
+.menu-option:hover {
+    background: #f8f9fa;
+    color: #667eea;
+}
+
+.menu-option i {
+    width: 18px;
+    height: 18px;
 }
 
 /* 左侧配置面板 */
@@ -1272,34 +1349,6 @@ body {
     padding: 6px;
     font-size: 11px;
     text-align: center;
-}
-
-/* 保存按钮样式 */
-.save-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    background: rgba(16, 185, 129, 0.9);
-    border: none;
-    border-radius: 8px;
-    color: white;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-right: 12px;
-}
-
-.save-btn:hover {
-    background: rgba(16, 185, 129, 1);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-}
-
-.save-icon {
-    width: 16px;
-    height: 16px;
 }
 
 /* 项目列表样式 */

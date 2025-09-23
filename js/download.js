@@ -12,13 +12,21 @@ class DownloadManager {
 
     // 设置事件监听器
     setupEventListeners() {
-        // 点击外部关闭下载菜单
+        // 点击外部关闭菜单
         document.addEventListener('click', (e) => {
+            // 关闭下载菜单
             const dropdown = document.querySelector('.download-dropdown');
             if (dropdown && !dropdown.contains(e.target)) {
                 dropdown.classList.remove('active');
                 const menu = document.getElementById('downloadMenu');
                 if (menu) menu.classList.remove('show');
+            }
+            
+            // 关闭项目菜单
+            const menuDropdown = document.querySelector('.menu-dropdown');
+            if (menuDropdown && !menuDropdown.contains(e.target)) {
+                const projectMenu = document.getElementById('projectMenu');
+                if (projectMenu) projectMenu.classList.remove('show');
             }
         });
     }
@@ -269,10 +277,66 @@ class DownloadManager {
     }
 }
 
+// 切换项目菜单
+window.toggleProjectMenu = function() {
+    const menu = document.getElementById('projectMenu');
+    if (menu) {
+        menu.classList.toggle('show');
+    }
+    
+    // 关闭其他菜单
+    const downloadMenu = document.getElementById('downloadMenu');
+    if (downloadMenu) {
+        downloadMenu.classList.remove('show');
+        document.querySelector('.download-dropdown')?.classList.remove('active');
+    }
+};
+
+// 切换到我的作品页面
+window.switchToProjects = function() {
+    // 关闭菜单
+    const menu = document.getElementById('projectMenu');
+    if (menu) {
+        menu.classList.remove('show');
+    }
+    
+    // 切换到我的作品 tab
+    const projectsTab = document.querySelector('[data-tab="projects"]');
+    if (projectsTab) {
+        // 移除所有 active 类
+        document.querySelectorAll('.toolbar-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        // 激活我的作品 tab
+        projectsTab.classList.add('active');
+        
+        // 切换内容区域
+        document.querySelectorAll('.config-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        const projectsSection = document.querySelector('[data-section="projects"]');
+        if (projectsSection) {
+            projectsSection.classList.add('active');
+        }
+        
+        // 触发加载项目列表
+        if (window.projectManager) {
+            window.projectManager.loadProjectsList();
+        }
+    }
+};
+
 // 全局函数，供HTML调用
 window.toggleDownloadMenu = function() {
     if (window.downloadManager) {
         window.downloadManager.toggleDownloadMenu();
+    }
+    
+    // 关闭项目菜单
+    const projectMenu = document.getElementById('projectMenu');
+    if (projectMenu) {
+        projectMenu.classList.remove('show');
     }
 };
 
