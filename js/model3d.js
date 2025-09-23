@@ -11,134 +11,110 @@ class Model3DManager {
     }
 
     // 初始化3D场景
-    init3D() {
-        const container = document.getElementById('canvas-container');
-        const width = container.clientWidth;
-        const height = container.clientHeight;
+// 初始化3D场景
+init3D() {
+    const container = document.getElementById('canvas-container');
+    const width = container.clientWidth;
+    const height = container.clientHeight;
 
-        // 创建场景
-        this.scene = new THREE.Scene();
-        
-        // 创建相机
-        this.camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 1000);
-        this.camera.position.set(0, 0, 5);
+    // 创建场景
+    this.scene = new THREE.Scene();
+    
+    // 创建相机
+    this.camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 1000);
+    this.camera.position.set(0, 0, 5);
 
-        // 创建渲染器 - 添加正确的渲染设置
-        this.renderer = new THREE.WebGLRenderer({ 
-            antialias: true, 
-            alpha: true 
-        });
-        this.renderer.setSize(width, height);
-        this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.renderer.shadowMap.enabled = true;
-        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        
-        // 关键：设置正确的色彩空间和色调映射
-        this.renderer.outputEncoding = THREE.sRGBEncoding;
-        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        this.renderer.toneMappingExposure = 1.4;
-        
-        container.appendChild(this.renderer.domElement);
+    // 创建渲染器 - 关闭阴影
+    this.renderer = new THREE.WebGLRenderer({ 
+        antialias: true, 
+        alpha: true 
+    });
+    this.renderer.setSize(width, height);
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    
+    // 关闭阴影映射
+    this.renderer.shadowMap.enabled = false;
+    
+    // 简化渲染设置
+    this.renderer.outputEncoding = THREE.sRGBEncoding;
+    
+    container.appendChild(this.renderer.domElement);
 
-        // 添加环境光照
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-        this.scene.add(ambientLight);
+    // 简化光照 - 只保留基础照明
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    this.scene.add(ambientLight);
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(5, 5, 5);
-        directionalLight.castShadow = true;
-        this.scene.add(directionalLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight.position.set(5, 5, 5);
+    directionalLight.castShadow = false;
+    this.scene.add(directionalLight);
 
-        const backLight = new THREE.DirectionalLight(0xffffff, 0.5);
-        backLight.position.set(-5, 3, -5);
-        this.scene.add(backLight);
+    // 轨道控制
+    this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+    this.controls.enableDamping = true;
+    this.controls.dampingFactor = 0.05;
+    this.controls.rotateSpeed = 0.5;
+    this.controls.minDistance = 3;
+    this.controls.maxDistance = 8;
+    this.controls.enablePan = false;
 
-        // 添加点光源增强高光
-        const pointLight = new THREE.PointLight(0xffffff, 0.5);
-        pointLight.position.set(2, 3, 4);
-        this.scene.add(pointLight);
-
-        // 创建简单的环境贴图（渐变天空）
-        const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
-        pmremGenerator.compileEquirectangularShader();
-        
-        // 创建渐变环境
-        const envScene = new THREE.Scene();
-        envScene.background = new THREE.Color(0xf0f0f0);
-        const envTexture = pmremGenerator.fromScene(envScene).texture;
-        this.scene.environment = envTexture;
-
-        // 轨道控制
-        this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.enableDamping = true;
-        this.controls.dampingFactor = 0.05;
-        this.controls.rotateSpeed = 0.5;
-        this.controls.minDistance = 3;
-        this.controls.maxDistance = 8;
-        this.controls.enablePan = false;
-
-        // 加载GLTF模型
-        const loader = new THREE.GLTFLoader();
-        const config = this.configManager.getConfig();
-        
-        loader.load(
-            config.modelPath,
-            (gltf) => {
-                this.model = gltf.scene;
-                
-                // 居中和缩放
-                const box = new THREE.Box3().setFromObject(this.model);
-                const center = box.getCenter(new THREE.Vector3());
-                this.model.position.sub(center);
-                
-                const size = box.getSize(new THREE.Vector3());
-                const maxSize = Math.max(size.x, size.y, size.z);
-                const targetSize = 3;
-                this.model.scale.multiplyScalar(targetSize / maxSize);
-                
-                this.model.rotation.y = -Math.PI / 6;
-                
-                // 关键改动：保留原始材质，只调整必要属性
-                this.model.traverse((child) => {
-                    if (child.isMesh) {
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                        
-                        // 不要替换材质！只在必要时修复
-                        if (child.material) {
-                            // 确保材质响应环境光
-                            if (child.material.isMeshStandardMaterial || 
-                                child.material.isMeshPhysicalMaterial) {
-                                child.material.envMapIntensity = 1.5;
-                                child.material.needsUpdate = true;
-                            }
+    // 加载GLTF模型
+    const loader = new THREE.GLTFLoader();
+    const config = this.configManager.getConfig();
+    
+    loader.load(
+        config.modelPath,
+        (gltf) => {
+            this.model = gltf.scene;
+            
+            // 居中和缩放
+            const box = new THREE.Box3().setFromObject(this.model);
+            const center = box.getCenter(new THREE.Vector3());
+            this.model.position.sub(center);
+            
+            const size = box.getSize(new THREE.Vector3());
+            const maxSize = Math.max(size.x, size.y, size.z);
+            const targetSize = 3;
+            this.model.scale.multiplyScalar(targetSize / maxSize);
+            
+            this.model.rotation.y = -Math.PI / 6;
+            
+            // 关闭模型的阴影
+            this.model.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = false;
+                    child.receiveShadow = false;
+                    
+                    if (child.material) {
+                        if (child.material.isMeshStandardMaterial || 
+                            child.material.isMeshPhysicalMaterial) {
+                            child.material.envMapIntensity = 0;
+                            child.material.needsUpdate = true;
                         }
                     }
-                });
-                
-                this.scene.add(this.model);
-                document.getElementById('loading').style.display = 'none';
-                
-                // 清理
-                pmremGenerator.dispose();
-                
-                this.animate();
-            },
-            (xhr) => {
-                if (xhr.total > 0) {
-                    const percentComplete = (xhr.loaded / xhr.total) * 100;
-                    console.log('加载进度：' + percentComplete.toFixed(2) + '%');
                 }
-            },
-            (error) => {
-                console.error('模型加载错误：', error);
-                // 创建简单的几何体作为备用
-                this.createFallbackModel();
+            });
+            
+            this.scene.add(this.model);
+            document.getElementById('loading').style.display = 'none';
+            
+            this.animate();
+        },
+        (xhr) => {
+            if (xhr.total > 0) {
+                const percentComplete = (xhr.loaded / xhr.total) * 100;
+                console.log('加载进度：' + percentComplete.toFixed(2) + '%');
             }
-        );
+        },
+        (error) => {
+            console.error('模型加载错误：', error);
+            // 创建简单的几何体作为备用
+            this.createFallbackModel();
+        }
+    );
 
-        window.addEventListener('resize', () => this.onWindowResize());
-    }
+    window.addEventListener('resize', () => this.onWindowResize());
+}
 
     // 创建备用模型
     createFallbackModel() {
