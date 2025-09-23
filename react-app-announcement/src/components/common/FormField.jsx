@@ -12,7 +12,7 @@ function FormField({
   className = '',
   children 
 }) {
-  const baseInputClasses = 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all duration-200 text-gray-800 placeholder-gray-500';
+  const baseInputClasses = 'w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-blue/30 focus:border-primary-blue/50 transition-all duration-300 text-gray-800 placeholder-gray-400 bg-white/80 backdrop-blur-sm hover:border-gray-300';
   
   if (type === 'textarea') {
     return (
@@ -30,15 +30,35 @@ function FormField({
 
   if (type === 'checkbox') {
     return (
-      <div className={`flex items-center gap-3 ${className}`} style={style}>
-        <input
-          type="checkbox"
-          id={label}
-          checked={value}
-          onChange={(e) => onChange(e.target.checked)}
-          className="w-4 h-4 text-primary-blue bg-gray-100 border-gray-300 rounded focus:ring-primary-blue focus:ring-2 transition-all duration-200"
-        />
-        <label htmlFor={label} className="text-sm font-medium text-gray-700 cursor-pointer">
+      <div className={`flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50/60 transition-all duration-300 border border-transparent hover:border-gray-100 ${className}`} style={style}>
+        <div className="relative">
+          <input
+            type="checkbox"
+            id={label}
+            checked={value}
+            onChange={(e) => onChange(e.target.checked)}
+            className="sr-only"
+          />
+          <div 
+            className={`w-6 h-6 rounded-lg border-2 transition-all duration-300 cursor-pointer flex items-center justify-center ${
+              value 
+                ? 'bg-gradient-to-br from-primary-blue to-primary-blue/90 border-primary-blue shadow-sm' 
+                : 'bg-white border-gray-200 hover:border-gray-300'
+            }`}
+            onClick={() => onChange(!value)}
+          >
+            {value && (
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+              </svg>
+            )}
+          </div>
+        </div>
+        <label 
+          htmlFor={label} 
+          className="text-sm font-medium text-gray-700 cursor-pointer flex-1 select-none"
+          onClick={() => onChange(!value)}
+        >
           {label}
         </label>
       </div>
@@ -64,10 +84,12 @@ function FormField({
       <button
         type="button"
         onClick={onChange}
-        className={`w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-blue hover:bg-primary-blue/5 transition-all duration-200 text-gray-600 hover:text-primary-blue ${className}`}
+        className={`w-full flex items-center justify-center gap-3 px-6 py-4 border-2 border-dashed border-gray-200 rounded-xl hover:border-primary-blue hover:bg-primary-blue/5 transition-all duration-300 text-gray-600 hover:text-primary-blue hover:shadow-sm ${className}`}
         style={style}
       >
-        {children}
+        <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+          {children}
+        </div>
         <span className="text-sm font-medium">{label}</span>
       </button>
     );

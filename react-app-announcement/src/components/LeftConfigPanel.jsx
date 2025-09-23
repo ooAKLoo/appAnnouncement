@@ -14,12 +14,12 @@ function LeftConfigPanel() {
   if (!state.configPanelOpen) return null;
 
   return (
-    <div className="fixed left-5 top-1/2 transform -translate-y-1/2 w-72 max-h-[calc(100vh-120px)] bg-white/95 backdrop-blur-xl rounded-xl shadow-xl border border-white/20 z-40 overflow-y-auto">
+    <div className="fixed left-5 top-1/2 transform -translate-y-1/2 w-80 max-h-[calc(100vh-120px)] bg-white rounded-2xl shadow-2xl border border-white/20 z-40 overflow-y-auto overflow-hidden">
       <button 
-        className="absolute top-3 right-3 w-7 h-7 bg-white/90 hover:bg-white rounded-md cursor-pointer flex items-center justify-center text-gray-600 hover:text-gray-800 transition-all duration-200 hover:shadow-sm z-50" 
+        className="sticky top-4 right-4 w-8 h-8 bg-white/80 hover:bg-white/95 rounded-full cursor-pointer flex items-center justify-center text-gray-500 hover:text-gray-700 transition-all duration-300 hover:shadow-lg hover:scale-105 z-50 ml-auto" 
         onClick={toggleConfigPanel}
       >
-        <X size={16} />
+        <X size={18} />
       </button>
       
       {state.currentTab === 'template' && (

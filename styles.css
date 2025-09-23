@@ -760,11 +760,6 @@ body {
     display: none;
 }
 
-/* 优雅布局样式 */
-.template-elegant .content-wrapper {
-    gap: 80px;
-    padding: 60px 20px;
-}
 
 .template-elegant .left-content {
     max-width: 450px;

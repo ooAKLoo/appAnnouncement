@@ -28,12 +28,16 @@ function ConfigPanel({ type, isActive, children }) {
   const IconComponent = config.icon;
 
   return (
-    <div className="p-5">
-      <div className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-4">
-        <IconComponent size={18} className="text-primary-blue" />
-        {config.title}
+    <div className="p-6">
+      <div className="flex items-center gap-3 text-xl font-medium text-gray-800 mb-6 pb-3 border-b border-gray-100">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-blue/10 to-primary-blue/20 flex items-center justify-center">
+          <IconComponent size={20} className="text-primary-blue" />
+        </div>
+        <span className="tracking-tight">{config.title}</span>
       </div>
-      {children}
+      <div className="space-y-6">
+        {children}
+      </div>
     </div>
   );
 }

@@ -36,7 +36,7 @@ function ThemeSelector({ selectedTheme, onThemeChange }) {
   };
 
   return (
-    <div className="relative w-64" ref={dropdownRef}>
+    <div className="relative w-full" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"

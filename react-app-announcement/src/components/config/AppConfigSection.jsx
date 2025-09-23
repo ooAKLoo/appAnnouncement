@@ -50,37 +50,43 @@ function AppConfigSection({ isActive }) {
   return (
     <ConfigPanel type="app" isActive={isActive}>
       {/* 基本信息 */}
-      <div className="mb-6">
-        <div className="text-sm font-medium text-gray-600 mb-4">基本信息</div>
-        <FormField
-          type="text"
-          placeholder="输入APP名称"
-          maxLength={20}
-          value={state.appInfo.name}
-          onChange={(value) => handleInputChange('name', value)}
-          className="mb-2"
-        />
-        <FormField
-          type="text"
-          placeholder="输入主标题"
-          maxLength={50}
-          value={state.appInfo.title}
-          onChange={(value) => handleInputChange('title', value)}
-          className="mb-2"
-        />
-        <FormField
-          type="textarea"
-          placeholder="输入APP描述"
-          maxLength={100}
-          rows={3}
-          value={state.appInfo.subtitle}
-          onChange={(value) => handleInputChange('subtitle', value)}
-        />
+      <div>
+        <div className="text-base font-medium text-gray-700 mb-4 flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-primary-blue"></div>
+          基本信息
+        </div>
+        <div className="space-y-4">
+          <FormField
+            type="text"
+            placeholder="输入APP名称"
+            maxLength={20}
+            value={state.appInfo.name}
+            onChange={(value) => handleInputChange('name', value)}
+          />
+          <FormField
+            type="text"
+            placeholder="输入主标题"
+            maxLength={50}
+            value={state.appInfo.title}
+            onChange={(value) => handleInputChange('title', value)}
+          />
+          <FormField
+            type="textarea"
+            placeholder="输入APP描述"
+            maxLength={100}
+            rows={3}
+            value={state.appInfo.subtitle}
+            onChange={(value) => handleInputChange('subtitle', value)}
+          />
+        </div>
       </div>
       
       {/* 媒体资源 */}
-      <div className="mb-6">
-        <div className="text-sm font-medium text-gray-600 mb-4">媒体资源</div>
+      <div>
+        <div className="text-base font-medium text-gray-700 mb-4 flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-primary-blue"></div>
+          媒体资源
+        </div>
         <input 
           type="file" 
           id="iconUpload" 
@@ -88,39 +94,43 @@ function AppConfigSection({ isActive }) {
           className="hidden"
           onChange={handleIconUpload}
         />
-        <FormField
-          type="upload"
-          label="选择APP图标"
-          onChange={() => document.getElementById('iconUpload').click()}
-          className="mb-2"
-        >
-          <Image size={16} />
-        </FormField>
-        
-        <input 
-          type="file" 
-          id="screenUpload" 
-          accept="image/*" 
-          className="hidden"
-          onChange={handleScreenUpload}
-        />
-        <FormField
-          type="upload"
-          label="选择APP截图"
-          onChange={() => document.getElementById('screenUpload').click()}
-        >
-          <MonitorSpeaker size={16} />
-        </FormField>
+        <div className="space-y-4">
+          <FormField
+            type="upload"
+            label="选择APP图标"
+            onChange={() => document.getElementById('iconUpload').click()}
+          >
+            <Image size={16} />
+          </FormField>
+          
+          <input 
+            type="file" 
+            id="screenUpload" 
+            accept="image/*" 
+            className="hidden"
+            onChange={handleScreenUpload}
+          />
+          <FormField
+            type="upload"
+            label="选择APP截图"
+            onChange={() => document.getElementById('screenUpload').click()}
+          >
+            <MonitorSpeaker size={16} />
+          </FormField>
+        </div>
       </div>
       
       {/* 功能列表 - 只在功能介绍主题显示 */}
       {contentTypes.includes('features') && (
-        <div className="mb-6">
+        <div>
           <div className="flex items-center justify-between mb-4">
-            <div className="text-sm font-medium text-gray-600">功能列表</div>
+            <div className="text-base font-medium text-gray-700 flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-primary-blue"></div>
+              功能列表
+            </div>
             <button
               onClick={handleAddFeature}
-              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-primary-blue text-white rounded-lg hover:bg-primary-blue/90 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-gradient-to-r from-primary-blue to-primary-blue/90 text-white rounded-xl hover:shadow-md hover:scale-105 transition-all duration-300"
             >
               <Plus size={16} />
               添加功能
@@ -129,7 +139,7 @@ function AppConfigSection({ isActive }) {
 
           <div className="space-y-4">
             {state.features.map((feature, index) => (
-              <div key={index} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div key={index} className="p-5 bg-white/80 backdrop-blur-sm rounded-xl border border-gray-100 hover:shadow-sm transition-all duration-300">
                 <div className="flex items-start gap-3 mb-3">
                   <button
                     className="mt-1 text-gray-400 hover:text-gray-600 cursor-move"
@@ -248,38 +258,29 @@ function AppConfigSection({ isActive }) {
         </div>
       )}
       
-      {/* 下载链接 - 所有主题都显示 */}
+      {/* 下载按钮设置 - 所有主题都显示 */}
       {contentTypes.includes('downloads') && (
-        <div className="mb-6">
-          <div className="text-sm font-medium text-gray-600 mb-4">下载链接</div>
-          <FormField
-            type="checkbox"
-            label="显示 App Store"
-            value={state.downloads.showAppStore}
-            onChange={(value) => handleDownloadChange('showAppStore', value)}
-            className="mb-2"
-          />
-          <FormField
-            type="url"
-            placeholder="App Store链接"
-            value={state.downloads.appStoreUrl}
-            onChange={(value) => handleDownloadChange('appStoreUrl', value)}
-            className="mb-3"
-          />
+        <div>
+          <div className="text-base font-medium text-gray-700 mb-4 flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-primary-blue"></div>
+            下载按钮设置
+          </div>
+          <div className="space-y-3">
+            <FormField
+              type="checkbox"
+              label="显示 App Store 按钮"
+              value={state.downloads.showAppStore}
+              onChange={(value) => handleDownloadChange('showAppStore', value)}
+            />
+            
+            <FormField
+              type="checkbox"
+              label="显示 Google Play 按钮"
+              value={state.downloads.showGooglePlay}
+              onChange={(value) => handleDownloadChange('showGooglePlay', value)}
+            />
+          </div>
           
-          <FormField
-            type="checkbox"
-            label="显示 Google Play"
-            value={state.downloads.showGooglePlay}
-            onChange={(value) => handleDownloadChange('showGooglePlay', value)}
-            className="mb-2"
-          />
-          <FormField
-            type="url"
-            placeholder="Google Play链接"
-            value={state.downloads.googlePlayUrl}
-            onChange={(value) => handleDownloadChange('googlePlayUrl', value)}
-          />
         </div>
       )}
     </ConfigPanel>

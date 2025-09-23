@@ -58,13 +58,6 @@ export const templates = {
     suitableThemes: ['launch', 'feature'], // 更适合发布和功能介绍
     layout: 'horizontal'
   },
-  elegant: {
-    id: 'elegant',
-    name: '优雅布局',
-    preview: '精致优雅，商务风格',
-    suitableThemes: ['launch', 'feature'], // 更适合发布和功能介绍
-    layout: 'horizontal'
-  },
   hero: {
     id: 'hero',
     name: '大标题布局',
