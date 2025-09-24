@@ -9,7 +9,8 @@ function TopToolbar() {
     setCurrentTab, 
     toggleConfigPanel,
     toggleProjectMenu, 
-    toggleDownloadMenu 
+    toggleDownloadMenu,
+    openCreateProjectModal 
   } = useApp();
   
   const { downloadAs } = useDownload();
@@ -49,9 +50,8 @@ function TopToolbar() {
   };
 
   const handleCreateNewProject = () => {
-    if (confirm('确定要创建新项目吗？当前未保存的更改将丢失。')) {
-      window.location.reload();
-    }
+    toggleProjectMenu(); // 关闭菜单
+    openCreateProjectModal(); // 打开创建项目弹窗
   };
 
   const handleSwitchToProjects = () => {

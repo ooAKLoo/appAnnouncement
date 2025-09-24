@@ -68,12 +68,17 @@ function PhoneModel3D() {  // Changed component name to avoid conflicts
     canvas.height = 800;
     const ctx = canvas.getContext('2d');
 
-    // Draw gradient background
-    const gradient = ctx.createLinearGradient(0, 0, 0, 800);
-    gradient.addColorStop(0, state.design.bgColor);
-    gradient.addColorStop(1, state.design.gradientColor);
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, 400, 800);
+    // Draw background (gradient or solid based on colorMode)
+    if (state.design.colorMode === 'solid') {
+      ctx.fillStyle = state.design.bgColor;
+      ctx.fillRect(0, 0, 400, 800);
+    } else {
+      const gradient = ctx.createLinearGradient(0, 0, 0, 800);
+      gradient.addColorStop(0, state.design.bgColor);
+      gradient.addColorStop(1, state.design.gradientColor);
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 400, 800);
+    }
 
     // Draw APP icon
     ctx.fillStyle = '#ffffff';

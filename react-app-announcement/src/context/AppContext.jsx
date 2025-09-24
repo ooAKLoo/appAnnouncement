@@ -14,7 +14,8 @@ const initialState = {
     template: 'classic',
     colorScheme: 'blue',
     bgColor: '#667eea',
-    gradientColor: '#764ba2'
+    gradientColor: '#764ba2',
+    colorMode: 'gradient' // 'gradient' or 'solid'
   },
   downloads: {
     showAppStore: true,
@@ -45,7 +46,8 @@ const initialState = {
   projectMenuOpen: false,
   saveDialogOpen: false,
   confirmDialogOpen: false,
-  projectToDelete: null
+  projectToDelete: null,
+  createProjectModalOpen: false
 };
 
 function appReducer(state, action) {
@@ -155,6 +157,16 @@ function appReducer(state, action) {
         ...state,
         projects: state.projects.filter(p => p.id !== action.payload)
       };
+    case 'OPEN_CREATE_PROJECT_MODAL':
+      return {
+        ...state,
+        createProjectModalOpen: true
+      };
+    case 'CLOSE_CREATE_PROJECT_MODAL':
+      return {
+        ...state,
+        createProjectModalOpen: false
+      };
     case 'LOAD_STATE':
       return {
         ...state,
@@ -214,7 +226,9 @@ export function AppProvider({ children }) {
     closeConfirmDialog: () => dispatch({ type: 'CLOSE_CONFIRM_DIALOG' }),
     setProjects: (projects) => dispatch({ type: 'SET_PROJECTS', payload: projects }),
     addProject: (project) => dispatch({ type: 'ADD_PROJECT', payload: project }),
-    deleteProject: (projectId) => dispatch({ type: 'DELETE_PROJECT', payload: projectId })
+    deleteProject: (projectId) => dispatch({ type: 'DELETE_PROJECT', payload: projectId }),
+    openCreateProjectModal: () => dispatch({ type: 'OPEN_CREATE_PROJECT_MODAL' }),
+    closeCreateProjectModal: () => dispatch({ type: 'CLOSE_CREATE_PROJECT_MODAL' })
   };
 
   return (

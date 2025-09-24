@@ -5,6 +5,7 @@ import LeftConfigPanel from './components/LeftConfigPanel';
 import MainContent from './components/MainContent';
 import SaveDialog from './components/SaveDialog';
 import ConfirmDialog from './components/ConfirmDialog';
+import CreateProjectModal from './components/CreateProjectModal';
 import BackgroundDecorations from './components/BackgroundDecorations';
 import './tailwind.css';
 
@@ -19,7 +20,9 @@ function AppContent() {
   }, []);
 
   const backgroundStyle = {
-    background: `linear-gradient(135deg, ${state.design.bgColor} 0%, ${state.design.gradientColor} 100%)`
+    background: state.design.colorMode === 'solid' 
+      ? state.design.bgColor
+      : `linear-gradient(135deg, ${state.design.bgColor} 0%, ${state.design.gradientColor} 100%)`
   };
 
   return (
@@ -30,6 +33,7 @@ function AppContent() {
       <MainContent />
       <SaveDialog />
       <ConfirmDialog />
+      <CreateProjectModal />
     </div>
   );
 }
