@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { X, LayoutTemplate } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import AppConfigSection from './config/AppConfigSection';
@@ -11,6 +11,23 @@ import { themes } from '../data/templateConfig.jsx';
 
 function LeftConfigPanel() {
   const { state, toggleConfigPanel, updateTheme, updateStyle, updateDesign, updateAppInfo } = useApp();
+  
+  // 相对调节状态
+  const [baseSpacing] = useState(8); // 基础间距值
+  const [relativeValue, setRelativeValue] = useState(0); // 相对调节值 (-50 到 +50)
+  
+  // 防抖更新
+  const [debounceTimer, setDebounceTimer] = useState(null);
+  
+  const debouncedUpdateSpacing = useCallback((newSpacing) => {
+    if (debounceTimer) clearTimeout(debounceTimer);
+    
+    const timer = setTimeout(() => {
+      updateDesign({ spacing: newSpacing });
+    }, 100); // 100ms 防抖延迟
+    
+    setDebounceTimer(timer);
+  }, [debounceTimer, updateDesign]);
 
   if (!state.configPanelOpen) return null;
 
@@ -54,6 +71,29 @@ function LeftConfigPanel() {
           
           <div>
             <div className="text-sm font-medium text-gray-600 mb-3">布局样式</div>
+               {/* 文图间距控制 */}
+            <div className="mt-4 bg-gray-100 backdrop-blur-md mb-5 border border-white/30 rounded-full px-6 py-3 flex items-center gap-4">
+              <span className="text-gray-700 text-sm font-medium whitespace-nowrap">文图间距</span>
+              <div className="relative">
+                <input
+                  type="range"
+                  min="-50"
+                  max="50"
+                  value={relativeValue}
+                  onChange={(e) => {
+                    const newRelativeValue = parseInt(e.target.value);
+                    setRelativeValue(newRelativeValue);
+                    
+                    // 计算实际间距值：基础值 + 相对调节值 * 0.4 (缩放因子)
+                    const actualSpacing = Math.max(2, Math.min(40, baseSpacing + newRelativeValue * 0.4));
+                    debouncedUpdateSpacing(Math.round(actualSpacing));
+                  }}
+                  className="w-32 h-2 bg-white rounded-lg appearance-none cursor-pointer slider"
+                />
+                {/* 中心指示器 */}
+                <div className="absolute top-1/2 left-1/2 w-1 h-4 bg-gray-400 rounded-full transform -translate-x-1/2 -translate-y-1/3 pointer-events-none"></div>
+              </div>
+            </div>
             <TemplateLayoutSelector 
               currentTheme={state.currentTheme || 'launch'}
               selectedTemplate={state.design.template}

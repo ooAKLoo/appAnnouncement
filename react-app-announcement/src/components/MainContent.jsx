@@ -378,37 +378,6 @@ function MainContent() {
 
   return (
     <div className={layout.container}>
-      {/* Spacing Control Slider - Relative Adjustment */}
-      <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-30 bg-white/10 backdrop-blur-md border border-white/30 rounded-full px-6 py-3 flex items-center gap-4">
-        <span className="text-white text-xs opacity-75">紧凑</span>
-        <div className="flex flex-col items-center gap-1">
-          <span className="text-white text-sm font-medium whitespace-nowrap">文图间距</span>
-          <div className="relative">
-            <input
-              type="range"
-              min="-50"
-              max="50"
-              value={relativeValue}
-              onChange={(e) => {
-                const newRelativeValue = parseInt(e.target.value);
-                setRelativeValue(newRelativeValue);
-                
-                // 计算实际间距值：基础值 + 相对调节值 * 0.4 (缩放因子)
-                const actualSpacing = Math.max(2, Math.min(40, baseSpacing + newRelativeValue * 0.4));
-                debouncedUpdateSpacing(Math.round(actualSpacing));
-              }}
-              className="w-32 h-2 bg-white/20 rounded-lg appearance-none cursor-pointer slider"
-            />
-            {/* 中心指示器 */}
-            <div className="absolute top-1/2 left-1/2 w-1 h-4 bg-white/60 rounded-full transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
-          </div>
-          <span className="text-white text-xs opacity-75 min-w-[3rem] text-center">
-            {relativeValue === 0 ? '标准' : `${relativeValue > 0 ? '+' : ''}${Math.round(relativeValue * 0.4)}`}
-          </span>
-        </div>
-        <span className="text-white text-xs opacity-75">宽松</span>
-        
-      </div>
 
       {/* Image Preview */}
       {state.showImagePreview && state.screenImage && (
