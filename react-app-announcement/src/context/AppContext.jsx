@@ -16,7 +16,8 @@ const initialState = {
     colorScheme: 'blue',
     bgColor: '#667eea',
     gradientColor: '#764ba2',
-    colorMode: 'gradient' // 'gradient' or 'solid'
+    colorMode: 'gradient', // 'gradient' or 'solid'
+    spacing: 8 // 控制文字和图片间距，1-20的范围
   },
   downloads: {
     showAppStore: true,

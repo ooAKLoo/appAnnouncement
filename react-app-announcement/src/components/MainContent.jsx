@@ -1,11 +1,28 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useApp } from '../context/AppContext';
 import PhoneModel from './PhoneModel';
 import { getContentTypesForTheme } from '../data/templateConfig.jsx';
 import { getStyleById } from '../data/styleConfig';
 
 function MainContent() {
-  const { state, hideImagePreview } = useApp();
+  const { state, hideImagePreview, updateDesign } = useApp();
+  
+  // 相对调节状态
+  const [baseSpacing] = useState(8); // 基础间距值
+  const [relativeValue, setRelativeValue] = useState(0); // 相对调节值 (-50 到 +50)
+  
+  // 防抖更新
+  const [debounceTimer, setDebounceTimer] = useState(null);
+  
+  const debouncedUpdateSpacing = useCallback((newSpacing) => {
+    if (debounceTimer) clearTimeout(debounceTimer);
+    
+    const timer = setTimeout(() => {
+      updateDesign({ spacing: newSpacing });
+    }, 100); // 100ms 防抖延迟
+    
+    setDebounceTimer(timer);
+  }, [debounceTimer, updateDesign]);
 
   // 自动隐藏截图预览窗口（但保留iPhone上的显示）
   useEffect(() => {
@@ -24,15 +41,50 @@ function MainContent() {
   // 获取当前风格配置
   const currentStyle = getStyleById(state.currentStyle || 'minimal');
 
+  // 根据间距值生成对应的gap类名
+  const getGapClass = (spacing) => {
+    const gapMap = {
+      2: 'gap-2', 3: 'gap-3', 4: 'gap-4', 5: 'gap-5', 6: 'gap-6', 7: 'gap-7', 8: 'gap-8', 
+      9: 'gap-9', 10: 'gap-10', 11: 'gap-11', 12: 'gap-12', 14: 'gap-14', 16: 'gap-16', 
+      20: 'gap-20', 24: 'gap-24', 28: 'gap-28', 32: 'gap-32', 36: 'gap-36', 40: 'gap-40'
+    };
+    return gapMap[spacing] || 'gap-8';
+  };
+
   // 根据模板类型决定布局方式
   const getLayoutClasses = () => {
     const template = state.design.template;
+    const spacing = state.design.spacing || 8; // 默认间距为8
+    const gapClass = getGapClass(spacing);
+    
+    // 使用Transform位移 - 突破Flex空间限制
+    const getTransformStyles = () => {
+      // 计算位移距离，基于间距值
+      const baseTransform = (spacing - 8) * 8; // 每个间距单位移动8px
+      
+      return {
+        wrapper: {
+          width: '90%', // 固定宽度，不再动态调整
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+        },
+        leftContent: {
+          transform: `translateX(${-baseTransform}px)`,
+          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+        },
+        phoneContainer: {
+          transform: `translateX(${baseTransform}px)`,
+          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+        }
+      };
+    };
+    
+    const transformStyles = getTransformStyles();
     
     switch (template) {
       case 'center':
         return {
           container: 'min-h-screen max-w-4xl mx-auto px-5 flex flex-col items-center justify-center relative text-center',
-          wrapper: 'flex flex-col items-center gap-12 w-full',
+          wrapper: `flex flex-col items-center ${gapClass} w-full`,
           leftContent: 'max-w-2xl order-1',
           phoneContainer: 'min-h-[600px] order-2 w-full max-w-xl flex justify-center items-center relative',
           logo: 'flex items-center justify-center gap-4 mb-8',
@@ -46,7 +98,10 @@ function MainContent() {
       case 'minimal':
         return {
           container: 'min-h-screen max-w-6xl mx-auto px-5 flex items-center justify-center relative',
-          wrapper: 'flex flex-row-reverse items-center justify-between w-full gap-15 z-10',
+          wrapper: 'flex flex-row-reverse items-center justify-between z-10',
+          wrapperStyle: transformStyles.wrapper,
+          leftContentStyle: transformStyles.leftContent,
+          phoneContainerStyle: transformStyles.phoneContainer,
           leftContent: 'flex-1 max-w-md text-white',
           phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative',
           logo: 'flex items-center gap-4 mb-8', // 显示logo
@@ -60,7 +115,10 @@ function MainContent() {
       case 'elegant':
         return {
           container: 'min-h-screen max-w-6xl mx-auto px-5 py-15 flex items-center justify-center relative',
-          wrapper: 'flex items-center justify-between w-full gap-20 z-10',
+          wrapper: 'flex items-center justify-between z-10',
+          wrapperStyle: transformStyles.wrapper,
+          leftContentStyle: transformStyles.leftContent,
+          phoneContainerStyle: transformStyles.phoneContainer,
           leftContent: 'flex-1 max-w-lg text-white',
           phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative',
           logo: 'flex items-center gap-4 mb-10',
@@ -102,7 +160,10 @@ function MainContent() {
       case 'film':
         return {
           container: 'min-h-screen max-w-6xl mx-auto px-5 flex items-center justify-center relative',
-          wrapper: 'border-4 border-dashed border-white/40 rounded-3xl p-12 flex items-center justify-between w-full gap-15 z-10 backdrop-blur-sm',
+          wrapper: 'border-4 border-dashed border-white/40 rounded-3xl p-12 flex items-center justify-between z-10 backdrop-blur-sm',
+          wrapperStyle: transformStyles.wrapper,
+          leftContentStyle: transformStyles.leftContent,
+          phoneContainerStyle: transformStyles.phoneContainer,
           leftContent: 'flex-1 max-w-lg text-white',
           phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative',
           logo: 'flex items-center gap-4 mb-10',
@@ -116,7 +177,10 @@ function MainContent() {
       case 'tag':
         return {
           container: 'min-h-screen max-w-6xl mx-auto px-5 flex items-center justify-center relative',
-          wrapper: 'flex items-center justify-between w-full gap-15 z-10',
+          wrapper: 'flex items-center justify-between z-10',
+          wrapperStyle: transformStyles.wrapper,
+          leftContentStyle: transformStyles.leftContent,
+          phoneContainerStyle: transformStyles.phoneContainer,
           leftContent: 'flex-1 max-w-lg text-white relative',
           phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative',
           logo: 'flex items-center gap-4 mb-10 relative',
@@ -130,7 +194,10 @@ function MainContent() {
       case 'diagonal':
         return {
           container: 'min-h-screen max-w-6xl mx-auto px-5 flex items-center justify-center relative overflow-hidden',
-          wrapper: 'flex items-center justify-between w-full gap-15 z-10 relative',
+          wrapper: 'flex items-center justify-between z-10 relative',
+          wrapperStyle: transformStyles.wrapper,
+          leftContentStyle: transformStyles.leftContent,
+          phoneContainerStyle: transformStyles.phoneContainer,
           leftContent: 'flex-1 max-w-lg text-white relative z-10',
           phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative z-10',
           logo: 'flex items-center gap-4 mb-10',
@@ -144,7 +211,10 @@ function MainContent() {
       case 'overlay':
         return {
           container: 'min-h-screen max-w-6xl mx-auto px-5 flex items-center justify-center relative',
-          wrapper: 'flex items-center justify-between w-full gap-15 z-10 relative',
+          wrapper: 'flex items-center justify-between z-10 relative',
+          wrapperStyle: transformStyles.wrapper,
+          leftContentStyle: transformStyles.leftContent,
+          phoneContainerStyle: transformStyles.phoneContainer,
           leftContent: 'flex-1 max-w-lg text-white relative',
           phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative',
           logo: 'flex items-center gap-4 mb-10',
@@ -158,7 +228,10 @@ function MainContent() {
       case 'asymmetric':
         return {
           container: 'min-h-screen max-w-6xl mx-auto px-5 flex items-center justify-center relative',
-          wrapper: 'flex items-start justify-between w-full gap-15 z-10',
+          wrapper: 'flex items-start justify-between z-10',
+          wrapperStyle: transformStyles.wrapper,
+          leftContentStyle: transformStyles.leftContent,
+          phoneContainerStyle: transformStyles.phoneContainer,
           leftContent: 'flex-1 max-w-lg text-white transform rotate-1',
           phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative transform -rotate-3',
           logo: 'flex items-center gap-4 mb-10 transform -rotate-2',
@@ -186,7 +259,10 @@ function MainContent() {
       default: // classic
         return {
           container: 'min-h-screen max-w-6xl mx-auto px-5 flex items-center justify-center relative',
-          wrapper: 'flex items-center justify-between w-full gap-15 z-10',
+          wrapper: 'flex items-center justify-between z-10',
+          wrapperStyle: transformStyles.wrapper,
+          leftContentStyle: transformStyles.leftContent,
+          phoneContainerStyle: transformStyles.phoneContainer,
           leftContent: 'flex-1 max-w-lg text-white animate-fadeInLeft',
           phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative',
           logo: 'flex items-center gap-4 mb-12',
@@ -302,6 +378,38 @@ function MainContent() {
 
   return (
     <div className={layout.container}>
+      {/* Spacing Control Slider - Relative Adjustment */}
+      <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-30 bg-white/10 backdrop-blur-md border border-white/30 rounded-full px-6 py-3 flex items-center gap-4">
+        <span className="text-white text-xs opacity-75">紧凑</span>
+        <div className="flex flex-col items-center gap-1">
+          <span className="text-white text-sm font-medium whitespace-nowrap">文图间距</span>
+          <div className="relative">
+            <input
+              type="range"
+              min="-50"
+              max="50"
+              value={relativeValue}
+              onChange={(e) => {
+                const newRelativeValue = parseInt(e.target.value);
+                setRelativeValue(newRelativeValue);
+                
+                // 计算实际间距值：基础值 + 相对调节值 * 0.4 (缩放因子)
+                const actualSpacing = Math.max(2, Math.min(40, baseSpacing + newRelativeValue * 0.4));
+                debouncedUpdateSpacing(Math.round(actualSpacing));
+              }}
+              className="w-32 h-2 bg-white/20 rounded-lg appearance-none cursor-pointer slider"
+            />
+            {/* 中心指示器 */}
+            <div className="absolute top-1/2 left-1/2 w-1 h-4 bg-white/60 rounded-full transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+          </div>
+          <span className="text-white text-xs opacity-75 min-w-[3rem] text-center">
+            {relativeValue === 0 ? '标准' : `${relativeValue > 0 ? '+' : ''}${Math.round(relativeValue * 0.4)}`}
+          </span>
+        </div>
+        <span className="text-white text-xs opacity-75">宽松</span>
+        
+      </div>
+
       {/* Image Preview */}
       {state.showImagePreview && state.screenImage && (
         <div className="fixed top-20 right-5 z-30 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-4 max-w-xs animate-fadeInRight" id="imagePreview">
@@ -315,9 +423,9 @@ function MainContent() {
         </div>
       )}
 
-      <div className={layout.wrapper}>
+      <div className={layout.wrapper} style={layout.wrapperStyle}>
         {/* Left Content */}
-        <div className={layout.leftContent}>
+        <div className={layout.leftContent} style={layout.leftContentStyle}>
           {/* 基本信息 - 所有主题都有 */}
           {contentTypes.includes('basic') && renderBasicInfo()}
           
@@ -332,7 +440,7 @@ function MainContent() {
         </div>
 
         {/* Right Side 3D Phone Model */}
-        <div className={layout.phoneContainer}>
+        <div className={layout.phoneContainer} style={layout.phoneContainerStyle}>
           <PhoneModel />
         </div>
       </div>
