@@ -71,6 +71,8 @@ function TopToolbar() {
     }
   };
 
+  if (!state.toolbarsVisible) return null;
+
   return (
     <div className="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 bg-white/95 backdrop-blur-xl rounded-xl p-2 shadow-lg border border-white/20 flex items-center gap-3" ref={toolbarRef}>
       {/* Left - Menu Dropdown */}

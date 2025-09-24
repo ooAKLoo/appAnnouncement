@@ -49,7 +49,8 @@ const initialState = {
   saveDialogOpen: false,
   confirmDialogOpen: false,
   projectToDelete: null,
-  createProjectModalOpen: false
+  createProjectModalOpen: false,
+  toolbarsVisible: true
 };
 
 function appReducer(state, action) {
@@ -179,6 +180,11 @@ function appReducer(state, action) {
         ...state,
         createProjectModalOpen: false
       };
+    case 'TOGGLE_TOOLBARS':
+      return {
+        ...state,
+        toolbarsVisible: !state.toolbarsVisible
+      };
     case 'LOAD_STATE':
       return {
         ...state,
@@ -240,7 +246,8 @@ export function AppProvider({ children }) {
     addProject: (project) => dispatch({ type: 'ADD_PROJECT', payload: project }),
     deleteProject: (projectId) => dispatch({ type: 'DELETE_PROJECT', payload: projectId }),
     openCreateProjectModal: () => dispatch({ type: 'OPEN_CREATE_PROJECT_MODAL' }),
-    closeCreateProjectModal: () => dispatch({ type: 'CLOSE_CREATE_PROJECT_MODAL' })
+    closeCreateProjectModal: () => dispatch({ type: 'CLOSE_CREATE_PROJECT_MODAL' }),
+    toggleToolbars: () => dispatch({ type: 'TOGGLE_TOOLBARS' })
   };
 
   return (

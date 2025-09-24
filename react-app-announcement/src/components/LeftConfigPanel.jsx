@@ -29,7 +29,7 @@ function LeftConfigPanel() {
     setDebounceTimer(timer);
   }, [debounceTimer, updateDesign]);
 
-  if (!state.configPanelOpen) return null;
+  if (!state.configPanelOpen || !state.toolbarsVisible) return null;
 
   return (
     <div className="fixed left-5 top-1/2 transform -translate-y-1/2 w-80 max-h-[calc(100vh-120px)] bg-white rounded-2xl shadow-2xl border border-white/20 z-40 flex flex-col overflow-hidden">

@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import PhoneModel from './PhoneModel';
 import { getContentTypesForTheme } from '../data/templateConfig.jsx';
 import { getStyleById } from '../data/styleConfig';
 
 function MainContent() {
-  const { state, hideImagePreview, updateDesign } = useApp();
+  const { state, hideImagePreview, updateDesign, toggleToolbars } = useApp();
   
   // 相对调节状态
   const [baseSpacing] = useState(8); // 基础间距值
@@ -378,6 +379,14 @@ function MainContent() {
 
   return (
     <div className={layout.container}>
+      {/* Eye Toggle Button */}
+      <button 
+        onClick={toggleToolbars}
+        className="fixed top-5 right-5 z-50 w-10 h-10 bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 rounded-full flex items-center justify-center text-white transition-all duration-300 hover:scale-105"
+        title={state.toolbarsVisible ? '隐藏工具栏' : '显示工具栏'}
+      >
+        {state.toolbarsVisible ? <EyeOff size={20} /> : <Eye size={20} />}
+      </button>
 
       {/* Image Preview */}
       {state.showImagePreview && state.screenImage && (
