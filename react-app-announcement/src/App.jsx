@@ -8,6 +8,7 @@ import SaveDialog from './components/SaveDialog';
 import ConfirmDialog from './components/ConfirmDialog';
 import CreateProjectModal from './components/CreateProjectModal';
 import BackgroundDecorations from './components/BackgroundDecorations';
+import StyleProvider from './components/StyleProvider';
 import './tailwind.css';
 
 function AppContent() {
@@ -28,15 +29,17 @@ function AppContent() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden" style={backgroundStyle}>
-      <TopToolbar />
-      <LeftConfigPanel />
-      <BackgroundDecorations />
-      <MainContent />
-      <SaveDialog />
-      <ConfirmDialog />
-      <CreateProjectModal />
-    </div>
+    <StyleProvider>
+      <div className="relative min-h-screen overflow-hidden" style={backgroundStyle}>
+        <TopToolbar />
+        <LeftConfigPanel />
+        <BackgroundDecorations />
+        <MainContent />
+        <SaveDialog />
+        <ConfirmDialog />
+        <CreateProjectModal />
+      </div>
+    </StyleProvider>
   );
 }
 

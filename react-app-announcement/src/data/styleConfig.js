@@ -55,6 +55,9 @@ function hslToHex(h, s, l) {
   return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 }
 
+// 需要在 index.html 中引入的 Google Fonts
+// <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Caveat:wght@400;500;700&family=Poppins:wght@400;500;600;700;800&family=Playfair+Display:wght@400;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 // 风格定义 - 控制内容的视觉样式
 export const styles = {
   minimal: {
@@ -62,6 +65,13 @@ export const styles = {
     name: '简约',
     icon: 'Minus',
     description: '平面设计，简洁干净',
+    // 字体配置
+    fontFamily: 'Inter, SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+    fontWeight: {
+      title: '600', // Semi-bold
+      subtitle: '400', // Regular
+      body: '400' // Regular
+    },
     // 功能列表样式
     featureCard: {
       background: 'bg-white/5',
@@ -89,6 +99,13 @@ export const styles = {
     name: '手绘',
     icon: 'Pencil',
     description: '手绘风格，亲切自然',
+    // 字体配置
+    fontFamily: 'Caveat, Nunito, Comic Sans MS, cursive, sans-serif',
+    fontWeight: {
+      title: '700', // Bold for handwritten style
+      subtitle: '500', // Medium
+      body: '400' // Regular
+    },
     // 功能列表样式
     featureCard: {
       background: 'bg-white/10',
@@ -116,6 +133,13 @@ export const styles = {
     name: '活力撞色',
     icon: 'Zap',
     description: '鲜艳对比，充满活力',
+    // 字体配置
+    fontFamily: 'Poppins, Helvetica Neue, Arial, sans-serif',
+    fontWeight: {
+      title: '800', // Extra Bold
+      subtitle: '600', // Semi-bold
+      body: '500' // Medium
+    },
     // 功能列表样式
     featureCard: {
       background: 'bg-gradient-to-br from-pink-500/20 to-orange-500/20',
@@ -143,6 +167,13 @@ export const styles = {
     name: '复古',
     icon: 'Clock',
     description: '怀旧复古，经典韵味',
+    // 字体配置
+    fontFamily: 'Playfair Display, Georgia, Times New Roman, serif',
+    fontWeight: {
+      title: '700', // Bold
+      subtitle: '400', // Regular
+      body: '400' // Regular
+    },
     // 功能列表样式
     featureCard: {
       background: 'bg-amber-900/20',
@@ -257,4 +288,22 @@ export function getAllStyles() {
 // 根据风格ID获取风格配置
 export function getStyleById(styleId) {
   return styles[styleId] || styles.minimal;
+}
+
+// 获取风格的字体样式
+export function getStyleFontStyles(styleId) {
+  const style = styles[styleId] || styles.minimal;
+  return {
+    fontFamily: style.fontFamily,
+    fontWeight: style.fontWeight
+  };
+}
+
+// 生成基于风格的CSS类名
+export function getStyleFontClass(styleId, element = 'body') {
+  const style = styles[styleId] || styles.minimal;
+  return {
+    fontFamily: style.fontFamily,
+    fontWeight: style.fontWeight[element] || style.fontWeight.body
+  };
 }

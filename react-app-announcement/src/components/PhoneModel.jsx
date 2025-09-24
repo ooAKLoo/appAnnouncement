@@ -3,6 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { useApp } from '../context/AppContext';
+import { getStyleFontClass } from '../data/styleConfig';
 
 function LoadingIndicator() {
   return (
@@ -67,6 +68,10 @@ function PhoneModel3D() {  // Changed component name to avoid conflicts
     canvas.width = 400;
     canvas.height = 800;
     const ctx = canvas.getContext('2d');
+    
+    // 获取当前风格的字体配置
+    const titleFont = getStyleFontClass(state.currentStyle, 'title');
+    const subtitleFont = getStyleFontClass(state.currentStyle, 'subtitle');
 
     // Draw background (gradient or solid based on colorMode)
     if (state.design.colorMode === 'solid') {
@@ -90,11 +95,11 @@ function PhoneModel3D() {  // Changed component name to avoid conflicts
 
     // Draw APP name
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 24px Arial';
+    ctx.font = `${titleFont.fontWeight} 24px ${titleFont.fontFamily.split(',')[0]}`;
     ctx.fillText(state.appInfo.name, 200, 340);
 
     // Draw description
-    ctx.font = '16px Arial';
+    ctx.font = `${subtitleFont.fontWeight} 16px ${subtitleFont.fontFamily.split(',')[0]}`;
     const subtitleLines = state.appInfo.subtitle.split('\n');
     subtitleLines.forEach((line, index) => {
       ctx.fillText(line, 200, 380 + (index * 30));
