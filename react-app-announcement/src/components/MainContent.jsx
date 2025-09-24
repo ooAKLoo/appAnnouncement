@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import PhoneModel from './PhoneModel';
+import PhoneModel2D from './PhoneModel2D';
 import { getContentTypesForTheme } from '../data/templateConfig.jsx';
 import { getStyleById } from '../data/styleConfig';
 
@@ -282,7 +283,7 @@ function MainContent() {
   const renderBasicInfo = () => (
     <>
       <div className={layout.logo}>
-        <div className="w-15 h-15 rounded-2xl overflow-hidden bg-white/20 flex items-center justify-center text-2xl font-bold">
+        <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white/20 flex items-center justify-center text-2xl font-bold">
           {state.appInfo.iconImage ? (
             <img 
               src={state.appInfo.iconImage} 
@@ -417,9 +418,9 @@ function MainContent() {
           {contentTypes.includes('downloads') && renderDownloads()}
         </div>
 
-        {/* Right Side 3D Phone Model */}
+        {/* Right Side Phone Model */}
         <div className={layout.phoneContainer} style={layout.phoneContainerStyle}>
-          <PhoneModel />
+          {state.modelType === '2d' ? <PhoneModel2D /> : <PhoneModel />}
         </div>
       </div>
     </div>

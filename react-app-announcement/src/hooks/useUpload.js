@@ -11,8 +11,8 @@ export function useUpload() {
       return false;
     }
     
-    if (file.size > 10 * 1024 * 1024) { // 10MB limit
-      alert('图片文件不能超过10MB');
+    if (file.size > 20 * 1024 * 1024) { // 20MB limit
+      alert('图片文件不能超过20MB');
       return false;
     }
     

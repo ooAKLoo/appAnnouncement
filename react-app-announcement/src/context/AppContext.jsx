@@ -50,7 +50,8 @@ const initialState = {
   confirmDialogOpen: false,
   projectToDelete: null,
   createProjectModalOpen: false,
-  toolbarsVisible: true
+  toolbarsVisible: true,
+  modelType: '3d' // '3d' or '2d'
 };
 
 function appReducer(state, action) {
@@ -185,6 +186,11 @@ function appReducer(state, action) {
         ...state,
         toolbarsVisible: !state.toolbarsVisible
       };
+    case 'SET_MODEL_TYPE':
+      return {
+        ...state,
+        modelType: action.payload
+      };
     case 'LOAD_STATE':
       return {
         ...state,
@@ -247,7 +253,8 @@ export function AppProvider({ children }) {
     deleteProject: (projectId) => dispatch({ type: 'DELETE_PROJECT', payload: projectId }),
     openCreateProjectModal: () => dispatch({ type: 'OPEN_CREATE_PROJECT_MODAL' }),
     closeCreateProjectModal: () => dispatch({ type: 'CLOSE_CREATE_PROJECT_MODAL' }),
-    toggleToolbars: () => dispatch({ type: 'TOGGLE_TOOLBARS' })
+    toggleToolbars: () => dispatch({ type: 'TOGGLE_TOOLBARS' }),
+    setModelType: (type) => dispatch({ type: 'SET_MODEL_TYPE', payload: type })
   };
 
   return (

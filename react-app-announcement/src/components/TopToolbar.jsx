@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Menu, FilePlus, Folder, LayoutTemplate, Smartphone, Palette, Download, ChevronDown, Image, FileText } from 'lucide-react';
+import { Menu, FilePlus, Folder, LayoutTemplate, Smartphone, Palette, Download, ChevronDown, Image, FileText, Box, RectangleHorizontal } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useDownload } from '../hooks/useDownload';
 
@@ -10,7 +10,8 @@ function TopToolbar() {
     toggleConfigPanel,
     toggleProjectMenu, 
     toggleDownloadMenu,
-    openCreateProjectModal 
+    openCreateProjectModal,
+    setModelType 
   } = useApp();
   
   const { downloadAs } = useDownload();
@@ -151,6 +152,32 @@ function TopToolbar() {
         >
           <Palette size={16} />
           <span>设计</span>
+        </button>
+      </div>
+      
+      {/* Model Type Toggle */}
+      <div className="flex items-center gap-1 bg-gray-100/80 rounded-lg p-1">
+        <button
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+            state.modelType === '3d' 
+              ? 'bg-white text-gray-900 shadow-sm' 
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+          onClick={() => setModelType('3d')}
+        >
+          <Box size={14} />
+          <span>3D</span>
+        </button>
+        <button
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+            state.modelType === '2d' 
+              ? 'bg-white text-gray-900 shadow-sm' 
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+          onClick={() => setModelType('2d')}
+        >
+          <RectangleHorizontal size={14} />
+          <span>2D</span>
         </button>
       </div>
       
