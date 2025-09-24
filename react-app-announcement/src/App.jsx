@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
+import { getGradientDirection } from './data/styleConfig';
 import TopToolbar from './components/TopToolbar';
 import LeftConfigPanel from './components/LeftConfigPanel';
 import MainContent from './components/MainContent';
@@ -19,10 +20,11 @@ function AppContent() {
     }
   }, []);
 
+  const gradientDirection = getGradientDirection(state.currentStyle);
   const backgroundStyle = {
     background: state.design.colorMode === 'solid' 
       ? state.design.bgColor
-      : `linear-gradient(135deg, ${state.design.bgColor} 0%, ${state.design.gradientColor} 100%)`
+      : `linear-gradient(${gradientDirection}, ${state.design.bgColor} 0%, ${state.design.gradientColor} 100%)`
   };
 
   return (

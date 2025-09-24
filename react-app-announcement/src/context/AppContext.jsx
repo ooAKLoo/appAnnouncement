@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import { generateGradientColor, getGradientDirection } from '../data/styleConfig';
 
 const AppContext = createContext();
 
@@ -58,9 +59,24 @@ function appReducer(state, action) {
         appInfo: { ...state.appInfo, ...action.payload }
       };
     case 'UPDATE_DESIGN':
+      const designUpdate = action.payload;
+      let newDesign = { ...state.design, ...designUpdate };
+      
+      // 如果更新了bgColor且当前是渐变模式，自动生成渐变色
+      if (designUpdate.bgColor && newDesign.colorMode === 'gradient') {
+        const { gradientColor } = generateGradientColor(designUpdate.bgColor, state.currentStyle);
+        newDesign.gradientColor = gradientColor;
+      }
+      
+      // 如果切换到渐变模式，自动生成渐变色
+      if (designUpdate.colorMode === 'gradient') {
+        const { gradientColor } = generateGradientColor(newDesign.bgColor, state.currentStyle);
+        newDesign.gradientColor = gradientColor;
+      }
+      
       return {
         ...state,
-        design: { ...state.design, ...action.payload }
+        design: newDesign
       };
     case 'UPDATE_THEME':
       return {
@@ -68,9 +84,19 @@ function appReducer(state, action) {
         currentTheme: action.payload
       };
     case 'UPDATE_STYLE':
+      // 当更新风格时，如果是渐变模式，则自动生成对应的渐变色
+      const newStyle = action.payload;
+      let updatedDesign = { ...state.design };
+      
+      if (state.design.colorMode === 'gradient') {
+        const { gradientColor } = generateGradientColor(state.design.bgColor, newStyle);
+        updatedDesign.gradientColor = gradientColor;
+      }
+      
       return {
         ...state,
-        currentStyle: action.payload
+        currentStyle: newStyle,
+        design: updatedDesign
       };
     case 'UPDATE_FEATURES':
       return {

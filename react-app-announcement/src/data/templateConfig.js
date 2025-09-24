@@ -22,15 +22,15 @@ export const themes = {
       subtitle: '全新创作工具，让你的故事更加生动精彩'
     }
   },
-  event: {
-    id: 'event',
-    name: '运营活动',
+  beta: {
+    id: 'beta',
+    name: '内测邀请',
     icon: 'PartyPopper',
-    description: '节日活动、优惠信息',
+    description: '内测邀请、Beta测试',
     contentTypes: ['basic', 'event', 'downloads'], // 基本信息 + 活动信息 + 下载按钮
     defaultConfig: {
-      title: 'Postory特别活动',
-      subtitle: '限时优惠正在进行，创作你的精彩故事！'
+      title: 'Postory内测邀请',
+      subtitle: '限量邀请，抢先体验最新功能！'
     }
   }
 };
@@ -41,14 +41,14 @@ export const templates = {
     id: 'classic',
     name: '经典布局',
     preview: '左右对称，经典大气',
-    suitableThemes: ['launch', 'feature', 'event'], // 适合所有主题
+    suitableThemes: ['launch', 'feature', 'beta'], // 适合所有主题
     layout: 'horizontal' // 水平布局
   },
   center: {
     id: 'center',
     name: '居中布局',
     preview: '内容居中，简洁明了',
-    suitableThemes: ['launch', 'feature', 'event'], // 适合所有主题
+    suitableThemes: ['launch', 'feature', 'beta'], // 适合所有主题
     layout: 'vertical' // 垂直布局
   },
   minimal: {
@@ -62,7 +62,7 @@ export const templates = {
     id: 'hero',
     name: '大标题布局',
     preview: '突出标题，震撼视觉',
-    suitableThemes: ['launch', 'event'], // 更适合发布和活动
+    suitableThemes: ['launch', 'beta'], // 更适合发布和内测邀请
     layout: 'vertical'
   },
   grid: {

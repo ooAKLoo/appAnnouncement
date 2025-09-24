@@ -1,13 +1,13 @@
 import React from 'react';
-import { Circle, Square, Hexagon, Triangle } from 'lucide-react';
+import { Minus, Pencil, Zap, Clock } from 'lucide-react';
 import { getAllStyles } from '../../data/styleConfig';
 
 // Icon mapping
 const iconMap = {
-  Circle,
-  Square, 
-  Hexagon,
-  Triangle
+  Minus,
+  Pencil,
+  Zap,
+  Clock
 };
 
 function StyleSelector({ selectedStyle, onStyleChange }) {
