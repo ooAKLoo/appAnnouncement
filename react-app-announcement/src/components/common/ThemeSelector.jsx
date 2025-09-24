@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Rocket, Sparkles, PartyPopper } from 'lucide-react';
-import { themes } from '../../data/templateConfig';
+import { themes } from '../../data/templateConfig.jsx';
 
 const themeList = Object.values(themes);
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import TemplateSelector from './TemplateSelector';
-import { getTemplatesForTheme, themes } from '../../data/templateConfig';
+import { getTemplatesForTheme, themes } from '../../data/templateConfig.jsx';
 
 function TemplateLayoutSelector({ currentTheme, selectedTemplate, onTemplateSelect }) {
   const themeData = themes[currentTheme];

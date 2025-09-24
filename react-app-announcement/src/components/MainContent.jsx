@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import PhoneModel from './PhoneModel';
-import { getContentTypesForTheme } from '../data/templateConfig';
+import { getContentTypesForTheme } from '../data/templateConfig.jsx';
 import { getStyleById } from '../data/styleConfig';
 
 function MainContent() {
@@ -49,9 +49,9 @@ function MainContent() {
           wrapper: 'flex flex-row-reverse items-center justify-between w-full gap-15 z-10',
           leftContent: 'flex-1 max-w-md text-white',
           phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative',
-          logo: 'hidden', // 隐藏logo
+          logo: 'flex items-center gap-4 mb-8', // 显示logo
           title: 'text-4xl font-bold leading-tight mb-6',
-          subtitle: 'hidden', // 隐藏副标题
+          subtitle: 'text-lg text-white/90 leading-relaxed mb-8', // 显示副标题
           features: 'space-y-4 mb-6',
           event: 'bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl p-6 mb-6',
           buttons: 'flex flex-col sm:flex-row gap-4'

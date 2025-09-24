@@ -2,7 +2,7 @@ import React from 'react';
 import { Image, MonitorSpeaker, Plus, Trash2, GripVertical } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useUpload } from '../../hooks/useUpload';
-import { getContentTypesForTheme } from '../../data/templateConfig';
+import { getContentTypesForTheme } from '../../data/templateConfig.jsx';
 import ConfigPanel from '../common/ConfigPanel';
 import FormField from '../common/FormField';
 

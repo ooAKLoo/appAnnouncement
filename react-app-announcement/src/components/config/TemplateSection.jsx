@@ -2,7 +2,7 @@ import React from 'react';
 import { useApp } from '../../context/AppContext';
 import ConfigPanel from '../common/ConfigPanel';
 import TemplateSelector from '../common/TemplateSelector';
-import { getTemplatesForTheme, themes } from '../../data/templateConfig';
+import { getTemplatesForTheme, themes } from '../../data/templateConfig.jsx';
 
 function TemplateSection({ isActive }) {
   const { state, updateDesign, updateAppInfo } = useApp();

@@ -7,7 +7,7 @@ import ProjectsSection from './config/ProjectsSection';
 import ThemeSelector from './common/ThemeSelector';
 import StyleSelector from './common/StyleSelector';
 import TemplateLayoutSelector from './common/TemplateLayoutSelector';
-import { themes } from '../data/templateConfig';
+import { themes } from '../data/templateConfig.jsx';
 
 function LeftConfigPanel() {
   const { state, toggleConfigPanel, updateTheme, updateStyle, updateDesign, updateAppInfo } = useApp();
