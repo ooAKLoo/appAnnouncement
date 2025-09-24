@@ -30,25 +30,29 @@ function ConfigPanel({ type, isActive, children }) {
   const IconComponent = config.icon;
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between text-xl font-medium text-gray-800 mb-6 pb-3 border-b border-gray-100">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-blue/10 to-primary-blue/20 flex items-center justify-center">
-            <IconComponent size={20} className="text-primary-blue" />
+    <>
+      <div className="sticky top-0 bg-white px-6 pt-6 pb-3 border-b border-gray-100">
+        <div className="flex items-center justify-between text-xl font-medium text-gray-800">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-blue/10 to-primary-blue/20 flex items-center justify-center">
+              <IconComponent size={20} className="text-primary-blue" />
+            </div>
+            <span className="tracking-tight">{config.title}</span>
           </div>
-          <span className="tracking-tight">{config.title}</span>
+          <button 
+            className="w-8 h-8 bg-white/80 hover:bg-gray-100 rounded-full cursor-pointer flex items-center justify-center text-gray-500 hover:text-gray-700 transition-all duration-300 hover:shadow-md hover:scale-105" 
+            onClick={toggleConfigPanel}
+          >
+            <X size={18} />
+          </button>
         </div>
-        <button 
-          className="w-8 h-8 bg-white/80 hover:cursor-pointer flex items-center justify-center text-gray-500 hover:text-gray-700 transition-all duration-300 " 
-          onClick={toggleConfigPanel}
-        >
-          <X size={18} />
-        </button>
       </div>
-      <div className="space-y-6">
-        {children}
+      <div className="flex-1 overflow-y-auto px-6 pb-6">
+        <div className="space-y-6 mt-6">
+          {children}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
