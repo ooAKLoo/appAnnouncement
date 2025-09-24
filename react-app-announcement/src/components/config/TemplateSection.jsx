@@ -2,7 +2,7 @@ import React from 'react';
 import { useApp } from '../../context/AppContext';
 import ConfigPanel from '../common/ConfigPanel';
 import TemplateSelector from '../common/TemplateSelector';
-import { getTemplatesForTheme, themes } from '../../data/templateConfig.jsx';
+import { getAllTemplates, themes } from '../../data/templateConfig.jsx';
 
 function TemplateSection({ isActive }) {
   const { state, updateDesign, updateAppInfo } = useApp();
@@ -11,8 +11,8 @@ function TemplateSection({ isActive }) {
   const currentTheme = state.currentTheme || 'launch';
   const themeData = themes[currentTheme];
   
-  // 获取适合当前主题的模板
-  const availableTemplates = getTemplatesForTheme(currentTheme);
+  // 获取所有可用的模板
+  const availableTemplates = getAllTemplates();
   const templateIds = availableTemplates.map(t => t.id);
 
   const handleTemplateSelect = (templateId) => {
@@ -31,20 +31,14 @@ function TemplateSection({ isActive }) {
     <ConfigPanel type="template" isActive={isActive}>
       <div className="mb-6">
         <div className="text-sm font-medium text-gray-600 mb-4">
-          {themeData ? `${themeData.name} - 布局样式` : '布局样式'}
+          布局样式
         </div>
         
-        {availableTemplates.length > 0 ? (
-          <TemplateSelector
-            templates={templateIds}
-            selectedTemplate={state.design.template}
-            onSelect={handleTemplateSelect}
-          />
-        ) : (
-          <div className="text-sm text-gray-500 text-center py-8">
-            暂无适合当前主题的模板
-          </div>
-        )}
+        <TemplateSelector
+          templates={templateIds}
+          selectedTemplate={state.design.template}
+          onSelect={handleTemplateSelect}
+        />
         
       </div>
     </ConfigPanel>

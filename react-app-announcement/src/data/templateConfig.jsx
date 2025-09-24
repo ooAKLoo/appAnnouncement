@@ -174,7 +174,6 @@ export const templates = {
     name: '左文右图',
     description: '文字内容在左，手机演示在右',
     preview: TemplatePreview.classic,
-    suitableThemes: ['launch', 'feature', 'beta'], // 适合所有主题
     layout: 'horizontal' // 水平布局
   },
   center: {
@@ -182,7 +181,6 @@ export const templates = {
     name: '居中布局',
     description: '内容居中，简洁明了',
     preview: TemplatePreview.center,
-    suitableThemes: ['launch', 'feature', 'beta'], // 适合所有主题
     layout: 'vertical' // 垂直布局
   },
   minimal: {
@@ -190,7 +188,6 @@ export const templates = {
     name: '左图右文',
     description: '手机演示在左，文字内容在右',
     preview: TemplatePreview.minimal,
-    suitableThemes: ['launch', 'feature'], // 更适合发布和功能介绍
     layout: 'horizontal'
   },
   hero: {
@@ -198,7 +195,6 @@ export const templates = {
     name: '大标题布局',
     description: '突出标题，震撼视觉',
     preview: TemplatePreview.hero,
-    suitableThemes: ['launch', 'beta'], // 更适合发布和内测邀请
     layout: 'vertical'
   },
   grid: {
@@ -206,7 +202,6 @@ export const templates = {
     name: '网格布局',
     description: '网格排列，信息丰富',
     preview: TemplatePreview.grid,
-    suitableThemes: ['feature'], // 专门适合功能介绍
     layout: 'grid'
   },
   film: {
@@ -214,7 +209,6 @@ export const templates = {
     name: '胶片边框',
     description: '边框限定，内容在胶片框内',
     preview: TemplatePreview.film,
-    suitableThemes: ['launch', 'feature', 'beta'],
     layout: 'film'
   },
   tag: {
@@ -222,7 +216,6 @@ export const templates = {
     name: '手写标签',
     description: '手写标签式，关键信息用“标签”突出',
     preview: TemplatePreview.tag,
-    suitableThemes: ['launch', 'feature', 'beta'],
     layout: 'tag'
   },
   diagonal: {
@@ -230,7 +223,6 @@ export const templates = {
     name: '色块分割',
     description: '对角线/阶梯式色块分割',
     preview: TemplatePreview.diagonal,
-    suitableThemes: ['launch', 'feature', 'beta'],
     layout: 'diagonal'
   },
   overlay: {
@@ -238,7 +230,6 @@ export const templates = {
     name: '文字压图',
     description: '大字报式标题覆盖背景',
     preview: TemplatePreview.overlay,
-    suitableThemes: ['launch', 'beta'],
     layout: 'overlay'
   },
   asymmetric: {
@@ -246,7 +237,6 @@ export const templates = {
     name: '不对称环绕',
     description: '不对称图文环绕，文字绕插画',
     preview: TemplatePreview.asymmetric,
-    suitableThemes: ['feature', 'beta'],
     layout: 'asymmetric'
   },
   sticky: {
@@ -254,16 +244,18 @@ export const templates = {
     name: '便签式分块',
     description: '内容像贴在画板上的便签',
     preview: TemplatePreview.sticky,
-    suitableThemes: ['launch', 'feature', 'beta'],
     layout: 'sticky'
   }
 };
 
-// 根据主题获取合适的模板
+// 获取所有可用的模板 (不再与主题关联)
 export function getTemplatesForTheme(themeId) {
-  return Object.values(templates).filter(template => 
-    template.suitableThemes.includes(themeId)
-  );
+  return Object.values(templates);
+}
+
+// 获取所有模板 (新函数名更直观)
+export function getAllTemplates() {
+  return Object.values(templates);
 }
 
 // 获取主题的内容类型
