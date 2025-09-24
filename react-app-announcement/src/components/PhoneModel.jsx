@@ -51,35 +51,34 @@ const RotatingModel = ({ customImage, ...props }) => {
       : 0.5 * Math.pow(2 * t - 2, 3) + 1;
   };
   
-  useFrame((_, delta) => {
-    if (groupRef.current) {
-      const transitionDirection = isHovered ? -1 : 1;
-      
-      transitionProgressRef.current = Math.max(
-        0, 
-        Math.min(
-          1, 
-          transitionProgressRef.current + transitionDirection * delta * 1.5
-        )
-      );
-      
-      const easedProgress = cubicInOut(transitionProgressRef.current);
-      
-      rotationSpeedRef.current = THREE.MathUtils.lerp(
-        hoverSpeed,
-        normalSpeed,
-        easedProgress
-      );
-      
-      groupRef.current.rotation.y += rotationSpeedRef.current;
-    }
-  });
+  // 注释掉自动旋转功能
+  // useFrame((_, delta) => {
+  //   if (groupRef.current) {
+  //     const transitionDirection = isHovered ? -1 : 1;
+  //     
+  //     transitionProgressRef.current = Math.max(
+  //       0, 
+  //       Math.min(
+  //         1, 
+  //         transitionProgressRef.current + transitionDirection * delta * 1.5
+  //       )
+  //     );
+  //     
+  //     const easedProgress = cubicInOut(transitionProgressRef.current);
+  //     
+  //     rotationSpeedRef.current = THREE.MathUtils.lerp(
+  //       hoverSpeed,
+  //       normalSpeed,
+  //       easedProgress
+  //     );
+  //     
+  //     groupRef.current.rotation.y += rotationSpeedRef.current;
+  //   }
+  // });
   
   return (
     <group 
       ref={groupRef}
-      onPointerOver={() => setIsHovered(true)}
-      onPointerOut={() => setIsHovered(false)}
     >
       <PhoneModel3D 
         position={[0, 0, 0]} 
@@ -544,7 +543,408 @@ function PhoneModel3D({ customImage, ...props }) {
                           />
                         </group>
                       </group>
-                      {/* 为了保持代码简洁，这里只包含关键的mesh，完整版本需要包含所有mesh */}
+                      <group name="AeiRnzwRtMFJBlp" userData={{ name: 'AeiRnzwRtMFJBlp' }}>
+                        <group name="lFhazxDamUcxZIL" userData={{ name: 'lFhazxDamUcxZIL' }}>
+                          <mesh
+                            name="TakBsdEjEytCAMK"
+                            castShadow
+                            receiveShadow
+                            geometry={nodes.TakBsdEjEytCAMK?.geometry}
+                            material={materials.ZQfGMLaFcpPaLMU}
+                            userData={{ name: 'TakBsdEjEytCAMK' }}
+                          />
+                          <mesh
+                            name="IykfmVvLplTsTEW"
+                            castShadow
+                            receiveShadow
+                            geometry={nodes.IykfmVvLplTsTEW?.geometry}
+                            material={materials.dwrMminMXjXXeek}
+                            userData={{ name: 'IykfmVvLplTsTEW' }}
+                          />
+                        </group>
+                        <group name="PzwwYtxiYzbngZl" userData={{ name: 'PzwwYtxiYzbngZl' }}>
+                          <mesh
+                            name="wLfSXtbwRlBrwof"
+                            castShadow
+                            receiveShadow
+                            geometry={nodes.wLfSXtbwRlBrwof?.geometry}
+                            material={materials.oZRkkORNzkufnGD}
+                            userData={{ name: 'wLfSXtbwRlBrwof' }}
+                          />
+                          <mesh
+                            name="WJwwVjsahIXbJpU"
+                            castShadow
+                            receiveShadow
+                            geometry={nodes.WJwwVjsahIXbJpU?.geometry}
+                            material={materials.yhcAXNGcJWCqtIS}
+                            userData={{ name: 'WJwwVjsahIXbJpU' }}
+                          />
+                          <mesh
+                            name="cibcwsZWGgGfpme"
+                            castShadow
+                            receiveShadow
+                            geometry={nodes.cibcwsZWGgGfpme?.geometry}
+                            material={materials.ZQfGMLaFcpPaLMU}
+                            userData={{ name: 'cibcwsZWGgGfpme' }}
+                          />
+                          <mesh
+                            name="YfrJNXgMvGOAfzz"
+                            castShadow
+                            receiveShadow
+                            geometry={nodes.YfrJNXgMvGOAfzz?.geometry}
+                            material={materials.bCgzXjHOanGdTFV}
+                            userData={{ name: 'YfrJNXgMvGOAfzz' }}
+                          />
+                          <mesh
+                            name="DCLCbjzqejuvsqH"
+                            castShadow
+                            receiveShadow
+                            geometry={nodes.DCLCbjzqejuvsqH?.geometry}
+                            material={materials.vhaEJjZoqGtyLdo}
+                            userData={{ name: 'DCLCbjzqejuvsqH' }}
+                          />
+                          <mesh
+                            name="dkQXkqysxzfHFiP"
+                            castShadow
+                            receiveShadow
+                            geometry={nodes.dkQXkqysxzfHFiP?.geometry}
+                            material={materials.hUlRcbieVuIiOXG}
+                            userData={{ name: 'dkQXkqysxzfHFiP' }}
+                          />
+                          <mesh
+                            name="FscwyiLIVNWUuKe"
+                            castShadow
+                            receiveShadow
+                            geometry={nodes.FscwyiLIVNWUuKe?.geometry}
+                            material={materials.fkUApOHLQsMUdfd}
+                            userData={{ name: 'FscwyiLIVNWUuKe' }}
+                          />
+                        </group>
+                        <group name="DkixFPrDptubOHd" userData={{ name: 'DkixFPrDptubOHd' }}>
+                          <group name="UWqABIyaOofdVYc" userData={{ name: 'UWqABIyaOofdVYc' }}>
+                            <mesh
+                              name="CdalkzDVnwgdEhS"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.CdalkzDVnwgdEhS?.geometry}
+                              material={materials.jlzuBkUzuJqgiAK}
+                              userData={{ name: 'CdalkzDVnwgdEhS' }}
+                            />
+                            <mesh
+                              name="NtjcIgolNGgYlCg"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.NtjcIgolNGgYlCg?.geometry}
+                              material={materials.PpwUTnTFZJXxCoE}
+                              userData={{ name: 'NtjcIgolNGgYlCg' }}
+                            />
+                            <mesh
+                              name="zOPceDOPdLNSscX"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.zOPceDOPdLNSscX?.geometry}
+                              material={materials.eShKpuMNVJTRrgg}
+                              userData={{ name: 'zOPceDOPdLNSscX' }}
+                            />
+                            <mesh
+                              name="bxjlJpbNESedyat"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.bxjlJpbNESedyat?.geometry}
+                              material={materials.xNrofRCqOXXHVZt}
+                              userData={{ name: 'bxjlJpbNESedyat' }}
+                            />
+                            <mesh
+                              name="ehFpgEdYijLjwka"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.ehFpgEdYijLjwka?.geometry}
+                              material={materials.xNrofRCqOXXHVZt}
+                              userData={{ name: 'ehFpgEdYijLjwka' }}
+                            />
+                            <mesh
+                              name="IXWuqsIeTqBFLIy"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.IXWuqsIeTqBFLIy?.geometry}
+                              material={materials.EuTsEfyoAnyJIih}
+                              userData={{ name: 'IXWuqsIeTqBFLIy' }}
+                            />
+                            <mesh
+                              name="qlwPlhojsxIgqwa"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.qlwPlhojsxIgqwa?.geometry}
+                              material={materials.EszxgwYUTxbhBrC}
+                              userData={{ name: 'qlwPlhojsxIgqwa' }}
+                            />
+                            <mesh
+                              name="bpqFtgUKAOOPYpk"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.bpqFtgUKAOOPYpk?.geometry}
+                              material={materials.yQQySPTfbEJufve}
+                              userData={{ name: 'bpqFtgUKAOOPYpk' }}
+                            />
+                            <mesh
+                              name="dxVZiHfQBLkPYHO"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.dxVZiHfQBLkPYHO?.geometry}
+                              material={materials.hUlRcbieVuIiOXG}
+                              userData={{ name: 'dxVZiHfQBLkPYHO' }}
+                            />
+                            <mesh
+                              name="guvLdFXlBjMoNra"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.guvLdFXlBjMoNra?.geometry}
+                              material={materials.fkUApOHLQsMUdfd}
+                              userData={{ name: 'guvLdFXlBjMoNra' }}
+                            />
+                          </group>
+                          <group name="opnyVnejEsnQETV" userData={{ name: 'opnyVnejEsnQETV' }}>
+                            <mesh
+                              name="PRPzbUhYhabBDYt"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.PRPzbUhYhabBDYt?.geometry}
+                              material={materials.jlzuBkUzuJqgiAK}
+                              userData={{ name: 'PRPzbUhYhabBDYt' }}
+                            />
+                            <mesh
+                              name="oOTDgAlTGbFYzBo"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.oOTDgAlTGbFYzBo?.geometry}
+                              material={materials.PpwUTnTFZJXxCoE}
+                              userData={{ name: 'oOTDgAlTGbFYzBo' }}
+                            />
+                            <mesh
+                              name="hGKQDeRmDnGNdjb"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.hGKQDeRmDnGNdjb?.geometry}
+                              material={materials.eShKpuMNVJTRrgg}
+                              userData={{ name: 'hGKQDeRmDnGNdjb' }}
+                            />
+                            <mesh
+                              name="XRoKUoMkItkzNYL"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.XRoKUoMkItkzNYL?.geometry}
+                              material={materials.jlzuBkUzuJqgiAK}
+                              userData={{ name: 'XRoKUoMkItkzNYL' }}
+                            />
+                            <mesh
+                              name="FjtgRCsnzEoHpCy"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.FjtgRCsnzEoHpCy?.geometry}
+                              material={materials.xNrofRCqOXXHVZt}
+                              userData={{ name: 'FjtgRCsnzEoHpCy' }}
+                            />
+                            <mesh
+                              name="gJeeYWdxrKsnsVD"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.gJeeYWdxrKsnsVD?.geometry}
+                              material={materials.xNrofRCqOXXHVZt}
+                              userData={{ name: 'gJeeYWdxrKsnsVD' }}
+                            />
+                            <mesh
+                              name="KOgQmlOdVEyKocf"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.KOgQmlOdVEyKocf?.geometry}
+                              material={materials.jlzuBkUzuJqgiAK}
+                              userData={{ name: 'KOgQmlOdVEyKocf' }}
+                            />
+                            <mesh
+                              name="gTmqYtKthFeRVJL"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.gTmqYtKthFeRVJL?.geometry}
+                              material={materials.xNrofRCqOXXHVZt}
+                              userData={{ name: 'gTmqYtKthFeRVJL' }}
+                            />
+                            <mesh
+                              name="obVkazjvaXyXFtA"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.obVkazjvaXyXFtA?.geometry}
+                              material={materials.EuTsEfyoAnyJIih}
+                              userData={{ name: 'obVkazjvaXyXFtA' }}
+                            />
+                            <mesh
+                              name="zFlMfSCaOdRDBFx"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.zFlMfSCaOdRDBFx?.geometry}
+                              material={materials.EszxgwYUTxbhBrC}
+                              userData={{ name: 'zFlMfSCaOdRDBFx' }}
+                            />
+                            <mesh
+                              name="ooeiSEXgcJckXsp"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.ooeiSEXgcJckXsp?.geometry}
+                              material={materials.yQQySPTfbEJufve}
+                              userData={{ name: 'ooeiSEXgcJckXsp' }}
+                            />
+                            <mesh
+                              name="lfXEACUihtLFGfq"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.lfXEACUihtLFGfq?.geometry}
+                              material={materials.hUlRcbieVuIiOXG}
+                              userData={{ name: 'lfXEACUihtLFGfq' }}
+                            />
+                            <mesh
+                              name="eWbcqPskBBXuZDe"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.eWbcqPskBBXuZDe?.geometry}
+                              material={materials.fkUApOHLQsMUdfd}
+                              userData={{ name: 'eWbcqPskBBXuZDe' }}
+                            />
+                          </group>
+                          <group name="GekGWBPcEuQbIrR" userData={{ name: 'GekGWBPcEuQbIrR' }}>
+                            <mesh
+                              name="AdjkxvMXIDEHBMM"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.AdjkxvMXIDEHBMM?.geometry}
+                              material={materials.eShKpuMNVJTRrgg}
+                              userData={{ name: 'AdjkxvMXIDEHBMM' }}
+                            />
+                            <mesh
+                              name="drpRvcOgsocXGbn"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.drpRvcOgsocXGbn?.geometry}
+                              material={materials.PpwUTnTFZJXxCoE}
+                              userData={{ name: 'drpRvcOgsocXGbn' }}
+                            />
+                            <mesh
+                              name="KXVnYLSfTdVnSOf"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.KXVnYLSfTdVnSOf?.geometry}
+                              material={materials.jlzuBkUzuJqgiAK}
+                              userData={{ name: 'KXVnYLSfTdVnSOf' }}
+                            />
+                            <mesh
+                              name="FFAjDZTPwYrUKAV"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.FFAjDZTPwYrUKAV?.geometry}
+                              material={materials.xNrofRCqOXXHVZt}
+                              userData={{ name: 'FFAjDZTPwYrUKAV' }}
+                            />
+                            <mesh
+                              name="AwsQCWysocWlYzN"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.AwsQCWysocWlYzN?.geometry}
+                              material={materials.xNrofRCqOXXHVZt}
+                              userData={{ name: 'AwsQCWysocWlYzN' }}
+                            />
+                            <mesh
+                              name="wJqHahKxdxecSAC"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.wJqHahKxdxecSAC?.geometry}
+                              material={materials.EuTsEfyoAnyJIih}
+                              userData={{ name: 'wJqHahKxdxecSAC' }}
+                            />
+                            <mesh
+                              name="SRYqzKwamLGuEGm"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.SRYqzKwamLGuEGm?.geometry}
+                              material={materials.EszxgwYUTxbhBrC}
+                              userData={{ name: 'SRYqzKwamLGuEGm' }}
+                            />
+                            <mesh
+                              name="yxqQUnbopbiRvZr"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.yxqQUnbopbiRvZr?.geometry}
+                              material={materials.yQQySPTfbEJufve}
+                              userData={{ name: 'yxqQUnbopbiRvZr' }}
+                            />
+                            <mesh
+                              name="xtMgDHhPqFLAHyB"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.xtMgDHhPqFLAHyB?.geometry}
+                              material={materials.hUlRcbieVuIiOXG}
+                              userData={{ name: 'xtMgDHhPqFLAHyB' }}
+                            />
+                            <mesh
+                              name="nnqwwoLVdMJlHIF"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.nnqwwoLVdMJlHIF?.geometry}
+                              material={materials.fkUApOHLQsMUdfd}
+                              userData={{ name: 'nnqwwoLVdMJlHIF' }}
+                            />
+                          </group>
+                          <group name="rMbqHxTbHeRAIuc" userData={{ name: 'rMbqHxTbHeRAIuc' }}>
+                            <mesh
+                              name="pXBNoLiaMwsDHRF"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.pXBNoLiaMwsDHRF?.geometry}
+                              material={materials.yiDkEwDSyEhavuP}
+                              userData={{ name: 'pXBNoLiaMwsDHRF' }}
+                            />
+                            <mesh
+                              name="SCoTCDlNLPQMMyt"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.SCoTCDlNLPQMMyt?.geometry}
+                              material={materials.yiDkEwDSyEhavuP}
+                              userData={{ name: 'SCoTCDlNLPQMMyt' }}
+                            />
+                            <mesh
+                              name="fdZyCEcqJDKBWVW"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.fdZyCEcqJDKBWVW?.geometry}
+                              material={materials.hUlRcbieVuIiOXG}
+                              userData={{ name: 'fdZyCEcqJDKBWVW' }}
+                            />
+                          </group>
+                          <group name="iVIwUpzUeaqgBWi" userData={{ name: 'iVIwUpzUeaqgBWi' }}>
+                            <mesh
+                              name="IkoiNqATMVoZFKD"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.IkoiNqATMVoZFKD?.geometry}
+                              material={materials.hiVunnLeAHkwGEo}
+                              userData={{ name: 'IkoiNqATMVoZFKD' }}
+                            />
+                            <mesh
+                              name="rqgRAGHOwnuBypi"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.rqgRAGHOwnuBypi?.geometry}
+                              material={materials.HGhEhpqSBZRnjHC}
+                              userData={{ name: 'rqgRAGHOwnuBypi' }}
+                            />
+                            <mesh
+                              name="npMJxzurVJQlumk"
+                              castShadow
+                              receiveShadow
+                              geometry={nodes.npMJxzurVJQlumk?.geometry}
+                              material={materials.JJvGZqtXqnnFakR}
+                              userData={{ name: 'npMJxzurVJQlumk' }}
+                            />
+                          </group>
+                        </group>
+                      </group>
                     </group>
                   </group>
                 </group>
@@ -575,7 +975,7 @@ function PhoneModel() {
         gl={{ antialias: true }}
         shadows // 启用阴影
       >
-        <color attach="background" args={['#000000']} />
+        {/* 移除黑色背景 */}
         <ambientLight intensity={0.5} />
         
         <directionalLight 
