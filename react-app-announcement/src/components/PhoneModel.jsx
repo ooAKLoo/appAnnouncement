@@ -976,18 +976,19 @@ function PhoneModel() {
         shadows // 启用阴影
       >
         {/* 移除黑色背景 */}
-        <ambientLight intensity={0.5} />
+        <ambientLight intensity={0.8} />
         
+        {/* 降低光线强度以减少反射 */}
         <directionalLight 
           position={[5, 5, 5]} 
-          intensity={1.5} 
+          intensity={0.3} 
           castShadow 
           shadow-mapSize={[1024, 1024]}
         />
         
         <directionalLight 
           position={[-5, 3, -5]} 
-          intensity={0.8} 
+          intensity={0.2} 
         />
         
         <Suspense fallback={
@@ -1006,9 +1007,10 @@ function PhoneModel() {
           maxDistance={10}
         />
         
-        <Suspense fallback={null}>
+        {/* 移除HDR环境光照以减少反射 */}
+        {/* <Suspense fallback={null}>
           <Environment files="/studio_small_03_4k.hdr" />
-        </Suspense>
+        </Suspense> */}
         
       </WebGPUCanvas>
     </div>
