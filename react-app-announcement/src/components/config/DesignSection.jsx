@@ -2,7 +2,7 @@ import React from 'react';
 import { useApp } from '../../context/AppContext';
 import ConfigPanel from '../common/ConfigPanel';
 import ColorSchemeSelector from '../common/ColorSchemeSelector';
-import FormField from '../common/FormField';
+import SmartColorPicker from '../common/SmartColorPicker';
 
 function DesignSection({ isActive }) {
   const { state, updateDesign } = useApp();
@@ -24,13 +24,20 @@ function DesignSection({ isActive }) {
     updateDesign({ [field]: value });
   };
 
+  const handleSmartColorChange = (field, value) => {
+    updateDesign({ [field]: value });
+  };
+
+  const handleSmartColorModeChange = (mode) => {
+    updateDesign({ colorMode: mode });
+  };
+
   return (
     <ConfigPanel type="design" isActive={isActive}>
+      {/* 配色模式选择 */}
       <div className="mb-6">
         <div className="text-sm font-medium text-gray-600 mb-4">配色方案</div>
-        
-        {/* Color mode toggle */}
-        <div className="flex bg-gray-100 rounded-lg p-1 mb-4">
+        <div className="flex bg-gray-100 rounded-lg p-1">
           <button
             className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
               state.design.colorMode === 'gradient'
@@ -52,7 +59,11 @@ function DesignSection({ isActive }) {
             纯色
           </button>
         </div>
+      </div>
 
+      {/* 快速配色方案 */}
+      <div className="mb-6">
+        <div className="text-sm font-medium text-gray-600 mb-4">快速配色</div>
         <ColorSchemeSelector
           selectedScheme={state.design.colorScheme}
           colorMode={state.design.colorMode}
@@ -60,23 +71,20 @@ function DesignSection({ isActive }) {
         />
       </div>
 
+      {/* 智能颜色选择器 */}
       <div className="mb-6">
-        <div className="text-sm font-medium text-gray-600 mb-4">自定义颜色</div>
-        <FormField
-          type="color"
-          label={state.design.colorMode === 'solid' ? '颜色' : '主色调'}
-          value={state.design.bgColor}
-          onChange={(value) => handleColorChange('bgColor', value)}
-          className="mb-3"
+        <div className="text-sm font-medium text-gray-600 mb-4 flex items-center">
+          <span>自定义颜色</span>
+          <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">智能推荐</span>
+        </div>
+        <SmartColorPicker
+          currentStyle={state.currentStyle}
+          colorMode={state.design.colorMode}
+          bgColor={state.design.bgColor}
+          gradientColor={state.design.gradientColor}
+          onColorChange={handleSmartColorChange}
+          onColorModeChange={handleSmartColorModeChange}
         />
-        {state.design.colorMode === 'gradient' && (
-          <FormField
-            type="color"
-            label="渐变色"
-            value={state.design.gradientColor}
-            onChange={(value) => handleColorChange('gradientColor', value)}
-          />
-        )}
       </div>
     </ConfigPanel>
   );

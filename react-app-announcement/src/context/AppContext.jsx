@@ -62,14 +62,8 @@ function appReducer(state, action) {
       const designUpdate = action.payload;
       let newDesign = { ...state.design, ...designUpdate };
       
-      // 如果更新了bgColor且当前是渐变模式，自动生成渐变色
-      if (designUpdate.bgColor && newDesign.colorMode === 'gradient') {
-        const { gradientColor } = generateGradientColor(designUpdate.bgColor, state.currentStyle);
-        newDesign.gradientColor = gradientColor;
-      }
-      
-      // 如果切换到渐变模式，自动生成渐变色
-      if (designUpdate.colorMode === 'gradient') {
+      // 只在切换到渐变模式时才自动生成渐变色，其他情况不自动更改
+      if (designUpdate.colorMode === 'gradient' && state.design.colorMode !== 'gradient') {
         const { gradientColor } = generateGradientColor(newDesign.bgColor, state.currentStyle);
         newDesign.gradientColor = gradientColor;
       }
@@ -84,19 +78,10 @@ function appReducer(state, action) {
         currentTheme: action.payload
       };
     case 'UPDATE_STYLE':
-      // 当更新风格时，如果是渐变模式，则自动生成对应的渐变色
-      const newStyle = action.payload;
-      let updatedDesign = { ...state.design };
-      
-      if (state.design.colorMode === 'gradient') {
-        const { gradientColor } = generateGradientColor(state.design.bgColor, newStyle);
-        updatedDesign.gradientColor = gradientColor;
-      }
-      
+      // 更新风格，但不自动更改颜色，由用户手动选择
       return {
         ...state,
-        currentStyle: newStyle,
-        design: updatedDesign
+        currentStyle: action.payload
       };
     case 'UPDATE_FEATURES':
       return {
