@@ -99,6 +99,90 @@ function MainContent() {
           buttons: 'flex flex-col sm:flex-row gap-4 justify-center'
         };
       
+      case 'film':
+        return {
+          container: 'min-h-screen max-w-6xl mx-auto px-5 flex items-center justify-center relative',
+          wrapper: 'border-4 border-dashed border-white/40 rounded-3xl p-12 flex items-center justify-between w-full gap-15 z-10 backdrop-blur-sm',
+          leftContent: 'flex-1 max-w-lg text-white',
+          phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative',
+          logo: 'flex items-center gap-4 mb-10',
+          title: 'text-4xl font-bold leading-tight mb-6',
+          subtitle: 'text-lg text-white/90 leading-relaxed mb-10',
+          features: 'space-y-6 mb-10',
+          event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mb-10',
+          buttons: 'flex flex-col sm:flex-row gap-4'
+        };
+      
+      case 'tag':
+        return {
+          container: 'min-h-screen max-w-6xl mx-auto px-5 flex items-center justify-center relative',
+          wrapper: 'flex items-center justify-between w-full gap-15 z-10',
+          leftContent: 'flex-1 max-w-lg text-white relative',
+          phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative',
+          logo: 'flex items-center gap-4 mb-10 relative',
+          title: 'text-4xl font-bold leading-tight mb-6 relative',
+          subtitle: 'text-lg text-white/90 leading-relaxed mb-10',
+          features: 'space-y-6 mb-10',
+          event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mb-10 relative',
+          buttons: 'flex flex-col sm:flex-row gap-4'
+        };
+      
+      case 'diagonal':
+        return {
+          container: 'min-h-screen max-w-6xl mx-auto px-5 flex items-center justify-center relative overflow-hidden',
+          wrapper: 'flex items-center justify-between w-full gap-15 z-10 relative',
+          leftContent: 'flex-1 max-w-lg text-white relative z-10',
+          phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative z-10',
+          logo: 'flex items-center gap-4 mb-10',
+          title: 'text-4xl font-bold leading-tight mb-6',
+          subtitle: 'text-lg text-white/90 leading-relaxed mb-10',
+          features: 'space-y-6 mb-10',
+          event: 'bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md border border-white/30 rounded-2xl p-8 mb-10 transform skew-y-1',
+          buttons: 'flex flex-col sm:flex-row gap-4'
+        };
+      
+      case 'overlay':
+        return {
+          container: 'min-h-screen max-w-6xl mx-auto px-5 flex items-center justify-center relative',
+          wrapper: 'flex items-center justify-between w-full gap-15 z-10 relative',
+          leftContent: 'flex-1 max-w-lg text-white relative',
+          phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative',
+          logo: 'flex items-center gap-4 mb-10',
+          title: 'text-6xl font-black leading-none mb-8 absolute top-0 left-0 right-0 text-center text-white/20 pointer-events-none z-0',
+          subtitle: 'text-lg text-white/90 leading-relaxed mb-10 relative z-10',
+          features: 'space-y-6 mb-10 relative z-10',
+          event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mb-10 relative z-10',
+          buttons: 'flex flex-col sm:flex-row gap-4 relative z-10'
+        };
+      
+      case 'asymmetric':
+        return {
+          container: 'min-h-screen max-w-6xl mx-auto px-5 flex items-center justify-center relative',
+          wrapper: 'flex items-start justify-between w-full gap-15 z-10',
+          leftContent: 'flex-1 max-w-lg text-white transform rotate-1',
+          phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative transform -rotate-3',
+          logo: 'flex items-center gap-4 mb-10 transform -rotate-2',
+          title: 'text-4xl font-bold leading-tight mb-6 transform rotate-1',
+          subtitle: 'text-lg text-white/90 leading-relaxed mb-10',
+          features: 'space-y-6 mb-10',
+          event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mb-10 transform rotate-2',
+          buttons: 'flex flex-col sm:flex-row gap-4 transform -rotate-1'
+        };
+      
+      case 'sticky':
+        return {
+          container: 'min-h-screen max-w-6xl mx-auto px-5 py-16 flex flex-col items-center justify-center relative',
+          wrapper: 'w-full max-w-4xl',
+          leftContent: 'grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 text-white',
+          phoneContainer: 'max-w-md min-h-[600px] flex justify-center items-center relative mx-auto transform rotate-2',
+          logo: 'bg-yellow-100/90 border-2 border-yellow-300 rounded-xl p-6 shadow-lg transform rotate-3 backdrop-blur-sm',
+          title: 'bg-pink-100/90 border-2 border-pink-300 rounded-xl p-6 shadow-lg transform -rotate-2 text-gray-800 backdrop-blur-sm',
+          subtitle: 'bg-blue-100/90 border-2 border-blue-300 rounded-xl p-6 shadow-lg transform rotate-1 text-gray-800 backdrop-blur-sm',
+          features: 'grid grid-cols-1 md:grid-cols-2 gap-6 mb-8',
+          event: 'bg-green-100/90 border-2 border-green-300 rounded-xl p-8 shadow-lg transform -rotate-1 text-gray-800 backdrop-blur-sm mb-10',
+          buttons: 'flex flex-col sm:flex-row gap-4 justify-center'
+        };
+      
       default: // classic
         return {
           container: 'min-h-screen max-w-6xl mx-auto px-5 flex items-center justify-center relative',
