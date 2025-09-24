@@ -1,15 +1,16 @@
 import React from 'react';
 import { X, LayoutTemplate } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import TemplateSection from './config/TemplateSection';
 import AppConfigSection from './config/AppConfigSection';
 import DesignSection from './config/DesignSection';
 import ProjectsSection from './config/ProjectsSection';
 import ThemeSelector from './common/ThemeSelector';
 import StyleSelector from './common/StyleSelector';
+import TemplateLayoutSelector from './common/TemplateLayoutSelector';
+import { themes } from '../data/templateConfig';
 
 function LeftConfigPanel() {
-  const { state, toggleConfigPanel, updateTheme, updateStyle } = useApp();
+  const { state, toggleConfigPanel, updateTheme, updateStyle, updateDesign, updateAppInfo } = useApp();
 
   if (!state.configPanelOpen) return null;
 
@@ -46,15 +47,30 @@ function LeftConfigPanel() {
               selectedStyle={state.currentStyle || 'minimal'}
               onStyleChange={(style) => updateStyle(style)}
             />
-            </div>
+          </div>
+          
+          <div>
+            <div className="text-sm font-medium text-gray-600 mb-3">布局样式</div>
+            <TemplateLayoutSelector 
+              currentTheme={state.currentTheme || 'launch'}
+              selectedTemplate={state.design.template}
+              onTemplateSelect={(templateId) => {
+                updateDesign({ template: templateId });
+                
+                const themeData = themes[state.currentTheme || 'launch'];
+                if (themeData && themeData.defaultConfig) {
+                  updateAppInfo({
+                    title: themeData.defaultConfig.title,
+                    subtitle: themeData.defaultConfig.subtitle
+                  });
+                }
+              }}
+            />
+          </div>
           </div>
         </div>
       )}
 
-      <TemplateSection 
-        isActive={state.currentTab === 'template'} 
-      />
-      
       <AppConfigSection 
         isActive={state.currentTab === 'app'} 
       />
