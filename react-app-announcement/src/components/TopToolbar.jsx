@@ -37,6 +37,14 @@ function TopToolbar() {
   }, [state.projectMenuOpen, state.downloadMenuOpen, toggleProjectMenu, toggleDownloadMenu]);
 
   const handleTabClick = (tab) => {
+    // 关闭所有下拉菜单
+    if (state.projectMenuOpen) {
+      toggleProjectMenu();
+    }
+    if (state.downloadMenuOpen) {
+      toggleDownloadMenu();
+    }
+    
     // 如果点击当前已选中的tab，则取消选中
     if (state.currentTab === tab && state.configPanelOpen) {
       toggleConfigPanel(); // 关闭面板，同时会清除currentTab
@@ -68,10 +76,24 @@ function TopToolbar() {
       {/* Left - Menu Dropdown */}
       <div className="relative">
         <button 
-          className="p-2.5 rounded-lg bg-transparent hover:bg-black/5 transition-colors duration-200 flex items-center justify-center" 
-          onClick={toggleProjectMenu}
+          className={`p-2.5 rounded-lg transition-colors duration-200 flex items-center justify-center ${
+            state.projectMenuOpen 
+              ? 'bg-primary-blue text-white shadow-md shadow-primary-blue/30' 
+              : 'bg-transparent hover:bg-black/5'
+          }`}
+          onClick={() => {
+            // 关闭下载菜单
+            if (state.downloadMenuOpen) {
+              toggleDownloadMenu();
+            }
+            // 清除当前选中的标签
+            if (state.currentTab && state.configPanelOpen) {
+              toggleConfigPanel();
+            }
+            toggleProjectMenu();
+          }}
         >
-          <Menu size={16} className="text-gray-600" />
+          <Menu size={16} className={state.projectMenuOpen ? 'text-white' : 'text-gray-600'} />
         </button>
         {state.projectMenuOpen && (
           <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-100 min-w-36 p-2 opacity-100 visible transform translate-y-0 transition-all duration-200 z-10">
@@ -134,8 +156,22 @@ function TopToolbar() {
       <div className="flex items-center">
         <div className="relative">
           <button 
-            className="flex items-center gap-1.5 px-4 py-2.5 bg-transparent hover:bg-black/5 rounded-lg transition-all duration-200 text-sm font-medium text-gray-600" 
-            onClick={toggleDownloadMenu}
+            className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium ${
+              state.downloadMenuOpen 
+                ? 'bg-primary-blue text-white shadow-md shadow-primary-blue/30' 
+                : 'bg-transparent hover:bg-black/5 text-gray-600'
+            }`}
+            onClick={() => {
+              // 关闭项目菜单
+              if (state.projectMenuOpen) {
+                toggleProjectMenu();
+              }
+              // 清除当前选中的标签
+              if (state.currentTab && state.configPanelOpen) {
+                toggleConfigPanel();
+              }
+              toggleDownloadMenu();
+            }}
           >
             <Download size={16} />
             <span>下载</span>
