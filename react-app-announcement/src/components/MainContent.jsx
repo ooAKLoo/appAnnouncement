@@ -657,8 +657,16 @@ function MainContent() {
         </div>
 
         {/* Right Side Phone Model */}
-        <div className={`layout.phoneContainer bg-red-600`} style={layout.phoneContainerStyle}>
-          {state.modelType === '2d' ? <PhoneModel2D /> : <PhoneModel />}
+        <div 
+          className="fixed inset-0 w-screen h-screen pointer-events-none"
+          style={{
+            ...layout.phoneContainerStyle,
+            zIndex: 1, // 确保在背景之上，但低于侧边面板
+          }}
+        >
+          <div className="w-full h-full pointer-events-auto">
+            {state.modelType === '2d' ? <PhoneModel2D /> : <PhoneModel />}
+          </div>
         </div>
       </div>
     </div>

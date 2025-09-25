@@ -49,7 +49,7 @@ function DesignPanel({ isActive }) {
   };
 
   return (
-    <div className="fixed left-4 top-20 bottom-4 w-80 bg-white rounded-xl shadow-xl border border-gray-200/50 flex flex-col overflow-hidden">
+    <div className="fixed left-4 top-20 bottom-4 w-80 bg-white rounded-xl shadow-xl border border-gray-200/50 flex flex-col overflow-hidden z-50">
       {/* Panel Header */}
       <div className="sticky top-0 bg-white px-6 pt-6 pb-4 border-b border-gray-100">
         <div className="flex items-center gap-3 mb-4">

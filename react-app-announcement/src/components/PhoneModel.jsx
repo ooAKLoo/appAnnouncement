@@ -967,7 +967,11 @@ function PhoneModel() {
   const [modelPosition, setModelPosition] = useState([0, 0, 0]);
   const [modelRotation, setModelRotation] = useState(0); // 3D模型的Y轴旋转角度
   const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [dragStart, setDragStart] = useState({ 
+    x: 0, 
+    y: 0,
+    initialPosition: [0, 0, 0] // 新增：记录拖拽开始时的模型位置
+  });
   
   // 控制图标相关状态
   const [showControlIcons, setShowControlIcons] = useState(false);
@@ -1014,6 +1018,23 @@ function PhoneModel() {
     return Math.atan2(deltaY, deltaX) * (180 / Math.PI);
   };
 
+  // 添加动态计算转换系数的函数
+  const calculateSensitivity = () => {
+    // 根据容器大小和相机FOV动态计算
+    if (!containerRef.current) return 0.01;
+    
+    const containerHeight = containerRef.current.offsetHeight;
+    const fov = 45; // 相机FOV
+    const distance = 3; // 相机距离
+    
+    // 计算3D空间中可见区域的高度
+    const vFov = (fov * Math.PI) / 180;
+    const visibleHeight = 2 * Math.tan(vFov / 2) * distance;
+    
+    // 像素到3D单位的转换系数
+    return visibleHeight / containerHeight;
+  };
+
   // 获取元素中心点坐标
   const getElementCenter = () => {
     if (!containerRef.current) return { x: 0, y: 0 };
@@ -1032,7 +1053,8 @@ function PhoneModel() {
         setIsDragging(true);
         setDragStart({
           x: e.clientX,
-          y: e.clientY
+          y: e.clientY,
+          initialPosition: [...modelPosition] // 记录当前模型位置
         });
       } else if (interactionMode === 'rotate') {
         setIsRotating(true);
@@ -1047,21 +1069,24 @@ function PhoneModel() {
   };
 
   // 处理鼠标移动
-  const handleMouseMove = (e) => {
-    if (isDragging && interactionMode === 'move') {
-      // 平移使用3D模型位置，不用CSS
-      const deltaX = (e.clientX - dragStart.x) * 0.005;
-      const deltaY = -(e.clientY - dragStart.y) * 0.005; // Y轴反向
-      setModelPosition([deltaX, deltaY, 0]);
-    } else if (isRotating) {
-      // 3D旋转：基于水平鼠标移动距离
-      const deltaX = e.clientX - rotateStart.startX;
-      const rotationSpeed = 0.5; // 旋转敏感度
-      const newRotation = rotateStart.angle + deltaX * rotationSpeed;
-      
-      setModelRotation(newRotation);
-    }
-  };
+const handleMouseMove = (e) => {
+  if (isDragging && interactionMode === 'move') {
+    const sensitivity = calculateSensitivity(); // 动态计算
+    const deltaX = (e.clientX - dragStart.x) * sensitivity;
+    const deltaY = -(e.clientY - dragStart.y) * sensitivity;
+    
+    setModelPosition([
+      dragStart.initialPosition[0] + deltaX,
+      dragStart.initialPosition[1] + deltaY,
+      dragStart.initialPosition[2]
+    ]);
+  } else if (isRotating) {
+    const deltaX = e.clientX - rotateStart.startX;
+    const rotationSpeed = 0.5;
+    const newRotation = rotateStart.angle + deltaX * rotationSpeed;
+    setModelRotation(newRotation);
+  }
+};
 
   // 处理鼠标释放结束交互
   const handleMouseUp = () => {
@@ -1079,7 +1104,8 @@ function PhoneModel() {
         setIsDragging(true);
         setDragStart({
           x: touch.clientX,
-          y: touch.clientY
+          y: touch.clientY,
+          initialPosition: [...modelPosition] // 记录当前位置
         });
       } else if (interactionMode === 'rotate') {
         setIsRotating(true);
@@ -1093,25 +1119,28 @@ function PhoneModel() {
     }
   };
 
-  const handleTouchMove = (e) => {
-    e.preventDefault();
-    if (e.touches.length === 1) {
-      const touch = e.touches[0];
-      if (isDragging) {
-        // 平移使用3D模型位置，不用CSS
-        const deltaX = (touch.clientX - dragStart.x) * 0.005;
-        const deltaY = -(touch.clientY - dragStart.y) * 0.005; // Y轴反向
-        setModelPosition([deltaX, deltaY, 0]);
-      } else if (isRotating) {
-        // 3D旋转：基于水平触摸移动距离
-        const deltaX = touch.clientX - rotateStart.startX;
-        const rotationSpeed = 0.5; // 旋转敏感度
-        const newRotation = rotateStart.angle + deltaX * rotationSpeed;
-        
-        setModelRotation(newRotation);
-      }
+const handleTouchMove = (e) => {
+  e.preventDefault();
+  if (e.touches.length === 1) {
+    const touch = e.touches[0];
+    if (isDragging) {
+      const sensitivity = 0.5; // 同样提高到 0.05
+      const deltaX = (touch.clientX - dragStart.x) * sensitivity;
+      const deltaY = -(touch.clientY - dragStart.y) * sensitivity;
+      
+      setModelPosition([
+        dragStart.initialPosition[0] + deltaX,
+        dragStart.initialPosition[1] + deltaY,
+        dragStart.initialPosition[2]
+      ]);
+    } else if (isRotating) {
+      const deltaX = touch.clientX - rotateStart.startX;
+      const rotationSpeed = 0.5;
+      const newRotation = rotateStart.angle + deltaX * rotationSpeed;
+      setModelRotation(newRotation);
     }
-  };
+  }
+};
 
   const handleTouchEnd = () => {
     setIsDragging(false);
@@ -1143,7 +1172,7 @@ function PhoneModel() {
   return (
     <div 
       ref={containerRef}
-      className={`relative w-full h-[800px] select-none ${
+      className={`relative w-full h-full select-none ${
         interactionMode === 'move' ? 'cursor-grab' : 'cursor-crosshair'
       } ${isDragging && interactionMode === 'move' ? 'cursor-grabbing' : ''}`} 
       id="canvas-container"
@@ -1155,7 +1184,7 @@ function PhoneModel() {
     >
       {/* 控制图标组 - 使用百分比定位，更贴近3D模型实际位置 */}
       {showControlIcons && (
-        <div className="absolute top-[25%] right-[15%] z-30 flex gap-1">
+        <div className="absolute  top-[25%] right-[15%] z-30 flex gap-1">
             {/* 拖拽图标 */}
             <button
               className={`w-8 h-8 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-all duration-200 hover:scale-110 shadow-lg ${
