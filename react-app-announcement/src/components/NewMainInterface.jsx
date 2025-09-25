@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import TopToolbar from './TopToolbar';
 import ContentPanel from './panels/ContentPanel';
 import DesignPanel from './panels/DesignPanel';
-import AssetsPanel from './panels/AssetsPanel';
+import TemplatesPanel from './panels/TemplatesPanel';
 import LayoutPanel from './panels/LayoutPanel';
 import MainContent from './MainContent';
 import BackgroundDecorations from './BackgroundDecorations';
@@ -27,7 +27,7 @@ function NewMainInterface() {
       {/* 侧边面板系统 */}
       <ContentPanel isActive={state.currentPanel === 'content'} />
       <DesignPanel isActive={state.currentPanel === 'design'} />
-      <AssetsPanel isActive={state.currentPanel === 'assets'} />
+      <TemplatesPanel isActive={state.currentPanel === 'templates'} />
       <LayoutPanel isActive={state.currentPanel === 'layout'} />
       
       {/* 主内容区域 */}

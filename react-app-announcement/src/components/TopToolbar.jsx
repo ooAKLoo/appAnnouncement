@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Menu, FilePlus, Folder, LayoutTemplate, Smartphone, Palette, Download, ChevronDown, Image, FileText, Box, RectangleHorizontal } from 'lucide-react';
+import { Menu, FilePlus, Folder, LayoutTemplate, Smartphone, Palette, Download, ChevronDown, Image, FileText, Box, RectangleHorizontal, Grid3x3 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useDownload } from '../hooks/useDownload';
 
@@ -145,7 +145,7 @@ function TopToolbar() {
           <FileText size={15} />
           <span>内容</span>
           {state.currentPanel === 'content' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-700 rounded-full transition-all duration-300" />
+            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-gray-600 rounded-full transition-all duration-300" />
           )}
         </button>
         <button 
@@ -159,21 +159,21 @@ function TopToolbar() {
           <Palette size={15} />
           <span>设计</span>
           {state.currentPanel === 'design' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-700 rounded-full transition-all duration-300" />
+            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-gray-600 rounded-full transition-all duration-300" />
           )}
         </button>
         <button 
           className={`relative flex items-center gap-1.5 px-4 py-2.5 text-sm font-normal transition-all duration-300 ${
-            state.currentPanel === 'assets' 
+            state.currentPanel === 'templates' 
               ? 'text-gray-700' 
               : 'text-gray-400 hover:text-gray-600'
           }`}
-          onClick={() => handlePanelClick('assets')}
+          onClick={() => handlePanelClick('templates')}
         >
-          <Image size={15} />
-          <span>素材</span>
-          {state.currentPanel === 'assets' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-700 rounded-full transition-all duration-300" />
+          <Grid3x3 size={15} />
+          <span>模板</span>
+          {state.currentPanel === 'templates' && (
+            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-gray-600 rounded-full transition-all duration-300" />
           )}
         </button>
         <button 
@@ -187,7 +187,7 @@ function TopToolbar() {
           <LayoutTemplate size={15} />
           <span>布局</span>
           {state.currentPanel === 'layout' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-700 rounded-full transition-all duration-300" />
+            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-gray-600 rounded-full transition-all duration-300" />
           )}
         </button>
       </div>

@@ -222,6 +222,14 @@ function appReducer(state, action) {
         ...state,
         modelType: action.payload
       };
+    case 'SET_TEMPLATE':
+      return {
+        ...state,
+        design: {
+          ...state.design,
+          template: action.payload
+        }
+      };
     case 'LOAD_STATE':
       return {
         ...state,
@@ -287,7 +295,8 @@ export function AppProvider({ children }) {
     openCreateProjectModal: () => dispatch({ type: 'OPEN_CREATE_PROJECT_MODAL' }),
     closeCreateProjectModal: () => dispatch({ type: 'CLOSE_CREATE_PROJECT_MODAL' }),
     toggleToolbars: () => dispatch({ type: 'TOGGLE_TOOLBARS' }),
-    setModelType: (type) => dispatch({ type: 'SET_MODEL_TYPE', payload: type })
+    setModelType: (type) => dispatch({ type: 'SET_MODEL_TYPE', payload: type }),
+    setTemplate: (template) => dispatch({ type: 'SET_TEMPLATE', payload: template })
   };
 
   return (
