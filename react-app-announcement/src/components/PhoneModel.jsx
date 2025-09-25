@@ -36,7 +36,7 @@ function LoadingIndicator() {
   );
 }
 
-const RotatingModel = ({ customImage, ...props }) => {
+const RotatingModel = ({ customImage, dragPosition, ...props }) => {
   const groupRef = useRef();
   const [isHovered, setIsHovered] = useState(false);
   const rotationSpeedRef = useRef(0.005);
@@ -51,30 +51,19 @@ const RotatingModel = ({ customImage, ...props }) => {
       : 0.5 * Math.pow(2 * t - 2, 3) + 1;
   };
   
-  // 注释掉自动旋转功能
-  // useFrame((_, delta) => {
-  //   if (groupRef.current) {
-  //     const transitionDirection = isHovered ? -1 : 1;
-  //     
-  //     transitionProgressRef.current = Math.max(
-  //       0, 
-  //       Math.min(
-  //         1, 
-  //         transitionProgressRef.current + transitionDirection * delta * 1.5
-  //       )
-  //     );
-  //     
-  //     const easedProgress = cubicInOut(transitionProgressRef.current);
-  //     
-  //     rotationSpeedRef.current = THREE.MathUtils.lerp(
-  //       hoverSpeed,
-  //       normalSpeed,
-  //       easedProgress
-  //     );
-  //     
-  //     groupRef.current.rotation.y += rotationSpeedRef.current;
-  //   }
-  // });
+  // 应用拖拽位置到3D模型
+  useFrame(() => {
+    if (groupRef.current && dragPosition) {
+      // 将屏幕坐标转换为3D世界坐标的近似值
+      const scaleX = dragPosition.x * 0.003; // 调整比例因子
+      const scaleY = -dragPosition.y * 0.003; // Y轴反向
+      
+      groupRef.current.position.x = scaleX;
+      groupRef.current.position.y = scaleY;
+      groupRef.current.scale.setScalar(10 * dragPosition.scale);
+      groupRef.current.rotation.z = dragPosition.rotation * Math.PI / 180;
+    }
+  });
   
   return (
     <group 
@@ -83,7 +72,7 @@ const RotatingModel = ({ customImage, ...props }) => {
       <PhoneModel3D 
         position={[0, 0, 0]} 
         rotation={[0, Math.PI, 0]} 
-        scale={10}
+        scale={1}
         customImage={customImage}
         {...props}
       />
@@ -981,9 +970,110 @@ function PhoneModel3D({ customImage, ...props }) {
 function PhoneModel() {
   const { state } = useApp();
   const [isLoading, setIsLoading] = useState(true);
+  const [transform, setTransform] = useState({ 
+    scale: 1, 
+    rotation: 0, 
+    x: 0, 
+    y: 0 
+  });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const containerRef = useRef(null);
+
+  // 处理鼠标滚轮缩放
+  const handleWheel = (e) => {
+    e.preventDefault();
+    
+    const scaleFactor = 0.1;
+    const delta = e.deltaY > 0 ? (1 - scaleFactor) : (1 + scaleFactor);
+    
+    setTransform(prev => ({
+      ...prev,
+      scale: Math.max(0.3, Math.min(3, prev.scale * delta))
+    }));
+  };
+
+  // 处理鼠标按下开始拖拽
+  const handleMouseDown = (e) => {
+    if (e.target.tagName === 'CANVAS') {
+      setIsDragging(true);
+      setDragStart({
+        x: e.clientX - transform.x,
+        y: e.clientY - transform.y
+      });
+    }
+  };
+
+  // 处理鼠标移动拖拽
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    setTransform(prev => ({
+      ...prev,
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y
+    }));
+  };
+
+  // 处理鼠标释放结束拖拽
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // 处理触摸事件
+  const handleTouchStart = (e) => {
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      setIsDragging(true);
+      setDragStart({
+        x: touch.clientX - transform.x,
+        y: touch.clientY - transform.y
+      });
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    e.preventDefault();
+    if (e.touches.length === 1 && isDragging) {
+      const touch = e.touches[0];
+      setTransform(prev => ({
+        ...prev,
+        x: touch.clientX - dragStart.x,
+        y: touch.clientY - dragStart.y
+      }));
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
+  // 监听全局鼠标事件
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, dragStart]);
 
   return (
-    <div className="relative w-full h-[800px]" id="canvas-container">
+    <div 
+      ref={containerRef}
+      className="relative w-full h-[800px] cursor-grab select-none" 
+      id="canvas-container"
+      style={{
+        transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale}) rotate(${transform.rotation}deg)`,
+        transition: isDragging ? 'none' : 'transform 0.1s ease-out'
+      }}
+      onWheel={handleWheel}
+      onMouseDown={handleMouseDown}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       {isLoading && <LoadingIndicator />}
       <WebGPUCanvas
         camera={{ 
@@ -1012,10 +1102,18 @@ function PhoneModel() {
         />
         
         <Suspense fallback={null}>
-          <RotatingModel key={state.screenImage} customImage={state.screenImage} />
+          <RotatingModel 
+            key={state.screenImage} 
+            customImage={state.screenImage}
+            dragPosition={transform}
+          />
         </Suspense>
         
+        {/* 保留OrbitControls但限制其功能 */}
         <OrbitControls 
+          enablePan={false}  // 禁用平移，由外部拖拽处理
+          enableRotate={false}  // 保持旋转功能
+          enableZoom={false}   // 禁用缩放，由外部滚轮处理
           enableDamping
           dampingFactor={0.05}
           minDistance={1.5}

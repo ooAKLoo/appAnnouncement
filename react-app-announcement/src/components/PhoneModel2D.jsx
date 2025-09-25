@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { RotateCw } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { getStyleFontClass } from '../data/styleConfig';
 
@@ -18,6 +19,12 @@ function PhoneModel2D() {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const imgRef = useRef(null);
   const containerRef = useRef(null);
+  
+  // 旋转图标相关状态
+  const [showRotateIcon, setShowRotateIcon] = useState(false);
+  const [isRotating, setIsRotating] = useState(false);
+  const [rotateStart, setRotateStart] = useState({ angle: 0, startAngle: 0 });
+  const hideIconTimeoutRef = useRef(null);
 
   // Update phone dimensions when image loads
   useEffect(() => {
@@ -52,6 +59,9 @@ function PhoneModel2D() {
       ...prev,
       scale: Math.max(0.5, Math.min(3, prev.scale * delta))
     }));
+    
+    // 显示旋转图标
+    showRotateIconWithTimeout();
   };
 
   // 处理鼠标按下开始拖拽
@@ -61,6 +71,8 @@ function PhoneModel2D() {
       x: e.clientX - transform.x,
       y: e.clientY - transform.y
     });
+    // 显示旋转图标
+    showRotateIconWithTimeout();
   };
 
   // 处理鼠标移动拖拽
@@ -87,6 +99,8 @@ function PhoneModel2D() {
         x: touch.clientX - transform.x,
         y: touch.clientY - transform.y
       });
+      // 显示旋转图标
+      showRotateIconWithTimeout();
     }
   };
 
@@ -111,6 +125,113 @@ function PhoneModel2D() {
     setTransform({ scale: 1, rotation: 0, x: 0, y: 0 });
   };
 
+  // 显示旋转图标并设置自动隐藏
+  const showRotateIconWithTimeout = () => {
+    setShowRotateIcon(true);
+    
+    // 清除之前的定时器
+    if (hideIconTimeoutRef.current) {
+      clearTimeout(hideIconTimeoutRef.current);
+    }
+    
+    // 3秒后自动隐藏
+    hideIconTimeoutRef.current = setTimeout(() => {
+      setShowRotateIcon(false);
+    }, 3000);
+  };
+
+  // 计算鼠标相对于元素中心的角度
+  const calculateAngle = (clientX, clientY, centerX, centerY) => {
+    const deltaX = clientX - centerX;
+    const deltaY = clientY - centerY;
+    return Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+  };
+
+  // 获取元素中心点坐标
+  const getElementCenter = () => {
+    if (!containerRef.current) return { x: 0, y: 0 };
+    
+    const rect = containerRef.current.getBoundingClientRect();
+    return {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2
+    };
+  };
+
+  // 处理旋转按钮鼠标按下
+  const handleRotateMouseDown = (e) => {
+    e.stopPropagation(); // 防止触发拖拽
+    setIsRotating(true);
+    
+    const center = getElementCenter();
+    const startAngle = calculateAngle(e.clientX, e.clientY, center.x, center.y);
+    
+    setRotateStart({
+      angle: transform.rotation,
+      startAngle: startAngle
+    });
+  };
+
+  // 处理旋转拖拽
+  const handleRotateMouseMove = (e) => {
+    if (!isRotating) return;
+    
+    const center = getElementCenter();
+    const currentAngle = calculateAngle(e.clientX, e.clientY, center.x, center.y);
+    const angleDiff = currentAngle - rotateStart.startAngle;
+    const newRotation = rotateStart.angle + angleDiff;
+    
+    setTransform(prev => ({
+      ...prev,
+      rotation: newRotation
+    }));
+  };
+
+  // 处理旋转结束
+  const handleRotateMouseUp = () => {
+    setIsRotating(false);
+    // 重新显示图标并重置隐藏定时器
+    showRotateIconWithTimeout();
+  };
+
+  // 处理旋转触摸事件
+  const handleRotateTouchStart = (e) => {
+    e.stopPropagation();
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      setIsRotating(true);
+      
+      const center = getElementCenter();
+      const startAngle = calculateAngle(touch.clientX, touch.clientY, center.x, center.y);
+      
+      setRotateStart({
+        angle: transform.rotation,
+        startAngle: startAngle
+      });
+    }
+  };
+
+  const handleRotateTouchMove = (e) => {
+    e.stopPropagation();
+    if (!isRotating || e.touches.length !== 1) return;
+    
+    const touch = e.touches[0];
+    const center = getElementCenter();
+    const currentAngle = calculateAngle(touch.clientX, touch.clientY, center.x, center.y);
+    const angleDiff = currentAngle - rotateStart.startAngle;
+    const newRotation = rotateStart.angle + angleDiff;
+    
+    setTransform(prev => ({
+      ...prev,
+      rotation: newRotation
+    }));
+  };
+
+  const handleRotateTouchEnd = () => {
+    setIsRotating(false);
+    showRotateIconWithTimeout();
+  };
+
   // 监听全局鼠标事件
   useEffect(() => {
     if (isDragging) {
@@ -122,6 +243,27 @@ function PhoneModel2D() {
       };
     }
   }, [isDragging, dragStart]);
+
+  // 监听旋转鼠标事件
+  useEffect(() => {
+    if (isRotating) {
+      document.addEventListener('mousemove', handleRotateMouseMove);
+      document.addEventListener('mouseup', handleRotateMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleRotateMouseMove);
+        document.removeEventListener('mouseup', handleRotateMouseUp);
+      };
+    }
+  }, [isRotating, rotateStart]);
+
+  // 清理定时器
+  useEffect(() => {
+    return () => {
+      if (hideIconTimeoutRef.current) {
+        clearTimeout(hideIconTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // 保持原始图片质量 - 不进行任何压缩处理
   const preprocessImage = (imageSrc) => {
@@ -275,7 +417,7 @@ function PhoneModel2D() {
         className="relative inline-block cursor-grab select-none"
         style={{
           transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale}) rotate(${transform.rotation}deg)`,
-          transition: isDragging ? 'none' : 'transform 0.1s ease-out'
+          transition: isDragging || isRotating ? 'none' : 'transform 0.3s ease-out'
         }}
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
@@ -283,6 +425,29 @@ function PhoneModel2D() {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
+        
+        {/* 旋转控制按钮 */}
+        {showRotateIcon && (
+          <div
+            className={`absolute -top-2 -right-2 z-30 w-8 h-8 bg-white/90 hover:bg-white backdrop-blur-sm border border-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-all duration-200 hover:scale-110 shadow-lg cursor-grab ${
+              isRotating ? 'cursor-grabbing' : ''
+            }`}
+            title="拖拽旋转模型"
+            onMouseDown={handleRotateMouseDown}
+            onTouchStart={handleRotateTouchStart}
+            onTouchMove={handleRotateTouchMove}
+            onTouchEnd={handleRotateTouchEnd}
+          >
+            <RotateCw size={16} />
+          </div>
+        )}
+        
+        {/* 旋转角度提示 */}
+        {isRotating && (
+          <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 z-40 px-2 py-1 bg-gray-800 text-white text-xs rounded shadow-lg">
+            {Math.round(((transform.rotation % 360) + 360) % 360)}°
+          </div>
+        )}
         {/* Screen overlay - 作为背景层，位置在样机下方 */}
         {screenContent && (
           <div 
