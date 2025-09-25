@@ -6,10 +6,19 @@ function StyleProvider({ children }) {
   const { state } = useApp();
 
   useEffect(() => {
-    // 获取当前风格的字体配置
-    const titleFont = getStyleFontClass(state.currentStyle, 'title');
-    const subtitleFont = getStyleFontClass(state.currentStyle, 'subtitle');
-    const bodyFont = getStyleFontClass(state.currentStyle, 'body');
+    // 使用独立的typography配置而不是风格绑定的配置
+    const titleFont = {
+      fontFamily: state.typography.fontFamily,
+      fontWeight: state.typography.titleWeight
+    };
+    const subtitleFont = {
+      fontFamily: state.typography.fontFamily,
+      fontWeight: state.typography.subtitleWeight
+    };
+    const bodyFont = {
+      fontFamily: state.typography.fontFamily,
+      fontWeight: state.typography.bodyWeight
+    };
 
     // 创建或更新 CSS 自定义属性
     const root = document.documentElement;
@@ -18,16 +27,16 @@ function StyleProvider({ children }) {
     root.style.setProperty('--style-font-family', titleFont.fontFamily);
     
     // 设置不同元素的字重
-    root.style.setProperty('--style-font-weight-title', titleFont.fontWeight);
-    root.style.setProperty('--style-font-weight-subtitle', subtitleFont.fontWeight);
-    root.style.setProperty('--style-font-weight-body', bodyFont.fontWeight);
+    root.style.setProperty('--style-font-weight-title', titleFont.fontWeight.toString());
+    root.style.setProperty('--style-font-weight-subtitle', subtitleFont.fontWeight.toString());
+    root.style.setProperty('--style-font-weight-body', bodyFont.fontWeight.toString());
 
     // 为界面元素添加对应的样式类
     const addStyleClass = (selector, fontConfig) => {
       const elements = document.querySelectorAll(selector);
       elements.forEach(el => {
         el.style.fontFamily = fontConfig.fontFamily;
-        el.style.fontWeight = fontConfig.fontWeight;
+        el.style.fontWeight = fontConfig.fontWeight.toString();
       });
     };
 
@@ -44,7 +53,7 @@ function StyleProvider({ children }) {
       addStyleClass('.main-content-text', bodyFont);
     }, 100);
 
-  }, [state.currentStyle]);
+  }, [state.typography]);
 
   return <>{children}</>;
 }

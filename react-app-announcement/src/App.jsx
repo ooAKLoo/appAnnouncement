@@ -21,11 +21,10 @@ function AppContent() {
     }
   }, []);
 
-  const gradientDirection = getGradientDirection(state.currentStyle);
   const backgroundStyle = {
     background: state.design.colorMode === 'solid' 
       ? state.design.bgColor
-      : `linear-gradient(${gradientDirection}, ${state.design.bgColor} 0%, ${state.design.gradientColor} 100%)`
+      : `linear-gradient(${state.design.gradientAngle}, ${state.design.bgColor} 0%, ${state.design.gradientColor} 100%)`
   };
 
   return (

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { generateGradientColor, getGradientDirection } from '../data/styleConfig';
+import { generateGradientColor, getGradientDirection, getStyleConfig } from '../data/styleConfig';
 
 const AppContext = createContext();
 
@@ -17,7 +17,14 @@ const initialState = {
     bgColor: '#667eea',
     gradientColor: '#764ba2',
     colorMode: 'gradient', // 'gradient' or 'solid'
+    gradientAngle: '135deg', // 渐变角度，独立于风格
     spacing: 8 // 控制文字和图片间距，1-20的范围
+  },
+  typography: {
+    fontFamily: 'Inter, SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif', // 独立字体配置
+    titleWeight: 600,
+    subtitleWeight: 400,
+    bodyWeight: 400
   },
   downloads: {
     showAppStore: true,
@@ -81,10 +88,27 @@ function appReducer(state, action) {
         currentTheme: action.payload
       };
     case 'UPDATE_STYLE':
-      // 更新风格，但不自动更改颜色，由用户手动选择
+      // 更新风格时，同时应用对应的渐变角度和字体配置作为默认值
+      const styleConfig = getStyleConfig(action.payload);
       return {
         ...state,
-        currentStyle: action.payload
+        currentStyle: action.payload,
+        design: {
+          ...state.design,
+          gradientAngle: styleConfig.gradientDirection || state.design.gradientAngle
+        },
+        typography: {
+          ...state.typography,
+          fontFamily: styleConfig.fontFamily || state.typography.fontFamily,
+          titleWeight: styleConfig.titleWeight || state.typography.titleWeight,
+          subtitleWeight: styleConfig.subtitleWeight || state.typography.subtitleWeight,
+          bodyWeight: styleConfig.bodyWeight || state.typography.bodyWeight
+        }
+      };
+    case 'UPDATE_TYPOGRAPHY':
+      return {
+        ...state,
+        typography: { ...state.typography, ...action.payload }
       };
     case 'UPDATE_FEATURES':
       return {
@@ -233,6 +257,7 @@ export function AppProvider({ children }) {
     // Helper functions
     updateAppInfo: (info) => dispatch({ type: 'UPDATE_APP_INFO', payload: info }),
     updateDesign: (design) => dispatch({ type: 'UPDATE_DESIGN', payload: design }),
+    updateTypography: (typography) => dispatch({ type: 'UPDATE_TYPOGRAPHY', payload: typography }),
     updateTheme: (theme) => dispatch({ type: 'UPDATE_THEME', payload: theme }),
     updateStyle: (style) => dispatch({ type: 'UPDATE_STYLE', payload: style }),
     updateFeatures: (features) => dispatch({ type: 'UPDATE_FEATURES', payload: features }),

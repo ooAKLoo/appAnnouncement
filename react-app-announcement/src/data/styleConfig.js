@@ -307,3 +307,17 @@ export function getStyleFontClass(styleId, element = 'body') {
     fontWeight: style.fontWeight[element] || style.fontWeight.body
   };
 }
+
+// 获取风格的完整配置（包括渐变角度和字体配置）
+export function getStyleConfig(styleId) {
+  const style = styles[styleId] || styles.minimal;
+  const colorConfig = styleColorConfigs[styleId] || styleColorConfigs.minimal;
+  
+  return {
+    ...style,
+    gradientDirection: colorConfig.gradientDirection,
+    titleWeight: parseInt(style.fontWeight.title),
+    subtitleWeight: parseInt(style.fontWeight.subtitle),
+    bodyWeight: parseInt(style.fontWeight.body)
+  };
+}
