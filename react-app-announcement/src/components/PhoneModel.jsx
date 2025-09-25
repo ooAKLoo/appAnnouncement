@@ -1276,9 +1276,14 @@ const handleTouchMove = (e) => {
     <div 
       ref={containerRef}
       className={`relative w-full h-full select-none ${
-        isHovered ? 'cursor-pointer' : 
-        interactionMode === 'move' ? 'cursor-grab' : 'cursor-crosshair'
-      } ${isDragging && interactionMode === 'move' ? 'cursor-grabbing' : ''}`} 
+        isDragging && interactionMode === 'move' 
+          ? 'cursor-grabbing' 
+          : isHovered 
+            ? 'cursor-pointer' 
+            : showControlIcons 
+              ? (interactionMode === 'move' ? 'cursor-grab' : 'cursor-crosshair')
+              : 'cursor-default'
+      }`} 
       id="canvas-container"
       // onWheel={handleWheel}
       onMouseDown={handleMouseDown}
