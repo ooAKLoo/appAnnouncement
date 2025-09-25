@@ -134,10 +134,10 @@ function PhoneModel2D() {
       clearTimeout(hideIconTimeoutRef.current);
     }
     
-    // 3秒后自动隐藏
+    // 1.5秒后自动隐藏
     hideIconTimeoutRef.current = setTimeout(() => {
       setShowRotateIcon(false);
-    }, 3000);
+    }, 1500);
   };
 
   // 计算鼠标相对于元素中心的角度

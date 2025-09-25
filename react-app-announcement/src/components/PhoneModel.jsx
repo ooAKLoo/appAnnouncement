@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState, Suspense, useMemo } from 'react';
 import { Canvas, useLoader, useFrame, extend } from '@react-three/fiber';
 import { OrbitControls, useTexture, Environment } from '@react-three/drei';
+import { Move, RotateCw } from 'lucide-react';
 import * as THREE from 'three/webgpu';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
@@ -36,32 +37,21 @@ function LoadingIndicator() {
   );
 }
 
-const RotatingModel = ({ customImage, dragPosition, ...props }) => {
+const RotatingModel = ({ customImage, modelRotation, isDiagonalLayout, ...props }) => {
   const groupRef = useRef();
-  const [isHovered, setIsHovered] = useState(false);
-  const rotationSpeedRef = useRef(0.005);
-  const transitionProgressRef = useRef(0);
   
-  const normalSpeed = 0.005;
-  const hoverSpeed = 0.0015;
-  
-  const cubicInOut = (t) => {
-    return t < 0.5
-      ? 4 * t * t * t
-      : 0.5 * Math.pow(2 * t - 2, 3) + 1;
-  };
-  
-  // 应用拖拽位置到3D模型
+  // 应用3D模型的旋转
   useFrame(() => {
-    if (groupRef.current && dragPosition) {
-      // 将屏幕坐标转换为3D世界坐标的近似值
-      const scaleX = dragPosition.x * 0.003; // 调整比例因子
-      const scaleY = -dragPosition.y * 0.003; // Y轴反向
-      
-      groupRef.current.position.x = scaleX;
-      groupRef.current.position.y = scaleY;
-      groupRef.current.scale.setScalar(10 * dragPosition.scale);
-      groupRef.current.rotation.z = dragPosition.rotation * Math.PI / 180;
+    if (groupRef.current) {
+      // Y轴旋转（用户控制）
+      if (modelRotation !== undefined) {
+        groupRef.current.rotation.y = modelRotation * Math.PI / 180;
+      }
+      // Z轴倾斜（diagonal模板效果）
+      if (isDiagonalLayout) {
+        groupRef.current.rotation.z = -12 * Math.PI / 180; // -12度倾斜
+        groupRef.current.position.y = 1; // 略微向上偏移
+      }
     }
   });
   
@@ -72,7 +62,7 @@ const RotatingModel = ({ customImage, dragPosition, ...props }) => {
       <PhoneModel3D 
         position={[0, 0, 0]} 
         rotation={[0, Math.PI, 0]} 
-        scale={1}
+        scale={10}
         customImage={customImage}
         {...props}
       />
@@ -970,86 +960,168 @@ function PhoneModel3D({ customImage, ...props }) {
 function PhoneModel() {
   const { state } = useApp();
   const [isLoading, setIsLoading] = useState(true);
-  const [transform, setTransform] = useState({ 
-    scale: 1, 
-    rotation: 0, 
-    x: 0, 
-    y: 0 
-  });
+  const orbitRef = useRef();
+  const containerRef = useRef(null);
+  
+  // 使用3D模型位置代替CSS平移
+  const [modelPosition, setModelPosition] = useState([0, 0, 0]);
+  const [modelRotation, setModelRotation] = useState(0); // 3D模型的Y轴旋转角度
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const containerRef = useRef(null);
+  
+  // 控制图标相关状态
+  const [showControlIcons, setShowControlIcons] = useState(false);
+  const [interactionMode, setInteractionMode] = useState('move'); // 'move' | 'rotate'
+  const [isRotating, setIsRotating] = useState(false);
+  const [rotateStart, setRotateStart] = useState({ angle: 0, startAngle: 0 });
+  const hideIconTimeoutRef = useRef(null);
 
-  // 处理鼠标滚轮缩放
-  const handleWheel = (e) => {
-    e.preventDefault();
+  // 显示控制图标并设置自动隐藏
+  const showControlIconsWithTimeout = () => {
+    setShowControlIcons(true);
     
-    const scaleFactor = 0.1;
-    const delta = e.deltaY > 0 ? (1 - scaleFactor) : (1 + scaleFactor);
+    // 清除之前的定时器
+    if (hideIconTimeoutRef.current) {
+      clearTimeout(hideIconTimeoutRef.current);
+    }
     
-    setTransform(prev => ({
-      ...prev,
-      scale: Math.max(0.3, Math.min(3, prev.scale * delta))
-    }));
+    // 1.5秒后自动隐藏
+    hideIconTimeoutRef.current = setTimeout(() => {
+      setShowControlIcons(false);
+    }, 1500);
   };
 
-  // 处理鼠标按下开始拖拽
+  // 移除handleWheel，让OrbitControls处理缩放
+  // 只显示控制图标
+  const handleWheel = (e) => {
+    showControlIconsWithTimeout();
+  };
+
+  // 设置OrbitControls参数
+  useEffect(() => {
+    if (orbitRef.current) {
+      orbitRef.current.minDistance = 1.5;
+      orbitRef.current.maxDistance = 10;
+      orbitRef.current.zoomSpeed = 1;
+      orbitRef.current.update();
+    }
+  }, []);
+
+  // 计算鼠标相对于元素中心的角度
+  const calculateAngle = (clientX, clientY, centerX, centerY) => {
+    const deltaX = clientX - centerX;
+    const deltaY = clientY - centerY;
+    return Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+  };
+
+  // 获取元素中心点坐标
+  const getElementCenter = () => {
+    if (!containerRef.current) return { x: 0, y: 0 };
+    
+    const rect = containerRef.current.getBoundingClientRect();
+    return {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2
+    };
+  };
+
+  // 处理鼠标按下开始交互
   const handleMouseDown = (e) => {
     if (e.target.tagName === 'CANVAS') {
-      setIsDragging(true);
-      setDragStart({
-        x: e.clientX - transform.x,
-        y: e.clientY - transform.y
-      });
+      if (interactionMode === 'move') {
+        setIsDragging(true);
+        setDragStart({
+          x: e.clientX,
+          y: e.clientY
+        });
+      } else if (interactionMode === 'rotate') {
+        setIsRotating(true);
+        setRotateStart({
+          angle: modelRotation,
+          startX: e.clientX
+        });
+      }
+      // 显示控制图标
+      showControlIconsWithTimeout();
     }
   };
 
-  // 处理鼠标移动拖拽
+  // 处理鼠标移动
   const handleMouseMove = (e) => {
-    if (!isDragging) return;
-    setTransform(prev => ({
-      ...prev,
-      x: e.clientX - dragStart.x,
-      y: e.clientY - dragStart.y
-    }));
+    if (isDragging && interactionMode === 'move') {
+      // 平移使用3D模型位置，不用CSS
+      const deltaX = (e.clientX - dragStart.x) * 0.005;
+      const deltaY = -(e.clientY - dragStart.y) * 0.005; // Y轴反向
+      setModelPosition([deltaX, deltaY, 0]);
+    } else if (isRotating) {
+      // 3D旋转：基于水平鼠标移动距离
+      const deltaX = e.clientX - rotateStart.startX;
+      const rotationSpeed = 0.5; // 旋转敏感度
+      const newRotation = rotateStart.angle + deltaX * rotationSpeed;
+      
+      setModelRotation(newRotation);
+    }
   };
 
-  // 处理鼠标释放结束拖拽
+  // 处理鼠标释放结束交互
   const handleMouseUp = () => {
     setIsDragging(false);
+    setIsRotating(false);
+    // 重新显示图标并重置隐藏定时器
+    showControlIconsWithTimeout();
   };
 
   // 处理触摸事件
   const handleTouchStart = (e) => {
     if (e.touches.length === 1) {
       const touch = e.touches[0];
-      setIsDragging(true);
-      setDragStart({
-        x: touch.clientX - transform.x,
-        y: touch.clientY - transform.y
-      });
+      if (interactionMode === 'move') {
+        setIsDragging(true);
+        setDragStart({
+          x: touch.clientX,
+          y: touch.clientY
+        });
+      } else if (interactionMode === 'rotate') {
+        setIsRotating(true);
+        setRotateStart({
+          angle: modelRotation,
+          startX: touch.clientX
+        });
+      }
+      // 显示控制图标
+      showControlIconsWithTimeout();
     }
   };
 
   const handleTouchMove = (e) => {
     e.preventDefault();
-    if (e.touches.length === 1 && isDragging) {
+    if (e.touches.length === 1) {
       const touch = e.touches[0];
-      setTransform(prev => ({
-        ...prev,
-        x: touch.clientX - dragStart.x,
-        y: touch.clientY - dragStart.y
-      }));
+      if (isDragging) {
+        // 平移使用3D模型位置，不用CSS
+        const deltaX = (touch.clientX - dragStart.x) * 0.005;
+        const deltaY = -(touch.clientY - dragStart.y) * 0.005; // Y轴反向
+        setModelPosition([deltaX, deltaY, 0]);
+      } else if (isRotating) {
+        // 3D旋转：基于水平触摸移动距离
+        const deltaX = touch.clientX - rotateStart.startX;
+        const rotationSpeed = 0.5; // 旋转敏感度
+        const newRotation = rotateStart.angle + deltaX * rotationSpeed;
+        
+        setModelRotation(newRotation);
+      }
     }
   };
 
   const handleTouchEnd = () => {
     setIsDragging(false);
+    setIsRotating(false);
+    showControlIconsWithTimeout();
   };
 
   // 监听全局鼠标事件
   useEffect(() => {
-    if (isDragging) {
+    if (isDragging || isRotating) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
       return () => {
@@ -1057,31 +1129,86 @@ function PhoneModel() {
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [isDragging, dragStart]);
+  }, [isDragging, isRotating, dragStart, rotateStart, modelPosition, modelRotation]);
+
+  // 清理定时器
+  useEffect(() => {
+    return () => {
+      if (hideIconTimeoutRef.current) {
+        clearTimeout(hideIconTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div 
       ref={containerRef}
-      className="relative w-full h-[800px] cursor-grab select-none" 
+      className={`relative w-full h-[800px] select-none ${
+        interactionMode === 'move' ? 'cursor-grab' : 'cursor-crosshair'
+      } ${isDragging && interactionMode === 'move' ? 'cursor-grabbing' : ''}`} 
       id="canvas-container"
-      style={{
-        transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale}) rotate(${transform.rotation}deg)`,
-        transition: isDragging ? 'none' : 'transform 0.1s ease-out'
-      }}
       onWheel={handleWheel}
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
+      {/* 控制图标组 - 使用百分比定位，更贴近3D模型实际位置 */}
+      {showControlIcons && (
+        <div className="absolute top-[25%] right-[15%] z-30 flex gap-1">
+            {/* 拖拽图标 */}
+            <button
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-all duration-200 hover:scale-110 shadow-lg ${
+                interactionMode === 'move' 
+                  ? 'bg-blue-100 border border-blue-300 text-blue-700' 
+                  : 'bg-white/90 hover:bg-white border border-gray-200'
+              }`}
+              title="拖拽模式"
+              onClick={(e) => {
+                e.stopPropagation();
+                setInteractionMode('move');
+                showControlIconsWithTimeout();
+              }}
+            >
+              <Move size={16} />
+            </button>
+            
+            {/* 旋转图标 */}
+            <button
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-all duration-200 hover:scale-110 shadow-lg ${
+                interactionMode === 'rotate' 
+                  ? 'bg-blue-100 border border-blue-300 text-blue-700' 
+                  : 'bg-white/90 hover:bg-white border border-gray-200'
+              }`}
+              title="旋转模式"
+              onClick={(e) => {
+                e.stopPropagation();
+                setInteractionMode('rotate');
+                showControlIconsWithTimeout();
+              }}
+            >
+              <RotateCw size={16} />
+            </button>
+          </div>
+        )}
+        
+      {/* 旋转角度提示 */}
+      {isRotating && (
+        <div className="absolute top-[20%] left-1/2 transform -translate-x-1/2 z-40 px-2 py-1 bg-gray-800 text-white text-xs rounded shadow-lg">
+          {Math.round(((modelRotation % 360) + 360) % 360)}°
+        </div>
+      )}
+      
+      {/* 当前模式提示 */}
+      {showControlIcons && (
+        <div className="absolute top-[20%] right-[15%] z-40 px-2 py-1 bg-gray-800 text-white text-xs rounded shadow-lg">
+          {interactionMode === 'move' ? '拖拽模式' : '旋转模式'}
+        </div>
+      )}
+      
       {isLoading && <LoadingIndicator />}
       <WebGPUCanvas
-        camera={{ 
-          fov: 45, 
-          position: [0, 0, 3],
-          near: 0.1,
-          far: 1000
-        }}
+        camera={{ position: [0, 0, 3], fov: 45 }} // 固定初始值
         style={{ width: '100%', height: '100%' }}
         onCreated={() => setIsLoading(false)}
         gl={{ antialias: true }}
@@ -1102,22 +1229,27 @@ function PhoneModel() {
         />
         
         <Suspense fallback={null}>
-          <RotatingModel 
-            key={state.screenImage} 
-            customImage={state.screenImage}
-            dragPosition={transform}
-          />
+          <group position={modelPosition}>
+            <RotatingModel 
+              key={state.screenImage} 
+              customImage={state.screenImage}
+              modelRotation={modelRotation}
+              isDiagonalLayout={state.design.template === 'diagonal'}
+            />
+          </group>
         </Suspense>
         
-        {/* 保留OrbitControls但限制其功能 */}
+        {/* 启用OrbitControls的缩放功能，禁用其他控制 */}
         <OrbitControls 
-          enablePan={false}  // 禁用平移，由外部拖拽处理
-          enableRotate={false}  // 保持旋转功能
-          enableZoom={false}   // 禁用缩放，由外部滚轮处理
-          enableDamping
-          dampingFactor={0.05}
+          ref={orbitRef}
+          enablePan={false}    // 禁用平移，使用自定义3D模型位置
+          enableRotate={false} // 禁用旋转，使用自定义Y轴旋转
+          enableZoom={true}    // ✅ 启用3D缩放
           minDistance={1.5}
           maxDistance={10}
+          zoomSpeed={1}
+          enableDamping
+          dampingFactor={0.05}
         />
       </WebGPUCanvas>
     </div>

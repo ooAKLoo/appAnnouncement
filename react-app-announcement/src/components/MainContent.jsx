@@ -66,7 +66,8 @@ function MainContent() {
           transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         },
         phoneContainer: {
-          transform: `translateX(${baseTransform}px)`,
+          // 移除transform，避免裁剪3D内容
+          // transform: `translateX(${baseTransform}px)`,
           transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         }
       };
@@ -256,8 +257,9 @@ function MainContent() {
             display: 'flex',
             alignItems: 'flex-end',
             justifyContent: 'flex-end',
-            transform: 'rotate(-12deg) translateY(10%)',
-            transformOrigin: 'bottom right',
+            // 移除transform，改为在3D空间内处理倾斜效果
+            // transform: 'rotate(-12deg) translateY(10%)',
+            // transformOrigin: 'bottom right',
             zIndex: 10
           },
           leftContent: 'flex flex-col justify-between h-full',
@@ -655,7 +657,7 @@ function MainContent() {
         </div>
 
         {/* Right Side Phone Model */}
-        <div className={layout.phoneContainer} style={layout.phoneContainerStyle}>
+        <div className={`layout.phoneContainer bg-red-600`} style={layout.phoneContainerStyle}>
           {state.modelType === '2d' ? <PhoneModel2D /> : <PhoneModel />}
         </div>
       </div>
