@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, Suspense, useMemo } from 'react';
 import { Canvas, useLoader, useFrame, extend } from '@react-three/fiber';
-import { OrbitControls, useTexture, Environment } from '@react-three/drei';
+import { OrbitControls, useTexture, Environment, Html } from '@react-three/drei';
 import { Move, RotateCw } from 'lucide-react';
 import * as THREE from 'three/webgpu';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -37,7 +37,7 @@ function LoadingIndicator() {
   );
 }
 
-const RotatingModel = ({ customImage, modelRotation, isDiagonalLayout, ...props }) => {
+const RotatingModel = ({ customImage, modelRotation, isDiagonalLayout, showControlIcons, interactionMode, onModeChange, onShowIcons, ...props }) => {
   const groupRef = useRef();
   
   // 应用3D模型的旋转
@@ -56,9 +56,7 @@ const RotatingModel = ({ customImage, modelRotation, isDiagonalLayout, ...props 
   });
   
   return (
-    <group 
-      ref={groupRef}
-    >
+    <group ref={groupRef}>
       <PhoneModel3D 
         position={[0, 0, 0]} 
         rotation={[0, Math.PI, 0]} 
@@ -66,6 +64,69 @@ const RotatingModel = ({ customImage, modelRotation, isDiagonalLayout, ...props 
         customImage={customImage}
         {...props}
       />
+      
+      {/* HTML元素会自动跟随3D模型，但始终面向屏幕 */}
+      <Html
+        position={[0.5, 1, 0]} // 相对于模型的3D位置（右上角）
+        distanceFactor={8} // 缩放因子
+        occlude // 可被3D物体遮挡
+        style={{
+          transition: 'opacity 0.3s',
+          opacity: showControlIcons ? 1 : 0,
+          pointerEvents: showControlIcons ? 'auto' : 'none'
+        }}
+      >
+        <div className="flex gap-1">
+          {/* 拖拽图标 */}
+          <button
+            className={`w-8 h-8 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-all duration-200 hover:scale-110 shadow-lg ${
+              interactionMode === 'move' 
+                ? 'bg-blue-100 border border-blue-300 text-blue-700' 
+                : 'bg-white/90 hover:bg-white border border-gray-200'
+            }`}
+            title="拖拽模式"
+            onClick={(e) => {
+              e.stopPropagation();
+              onModeChange('move');
+              onShowIcons();
+            }}
+          >
+            <Move size={16} />
+          </button>
+          
+          {/* 旋转图标 */}
+          <button
+            className={`w-8 h-8 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-all duration-200 hover:scale-110 shadow-lg ${
+              interactionMode === 'rotate' 
+                ? 'bg-blue-100 border border-blue-300 text-blue-700' 
+                : 'bg-white/90 hover:bg-white border border-gray-200'
+            }`}
+            title="旋转模式"
+            onClick={(e) => {
+              e.stopPropagation();
+              onModeChange('rotate');
+              onShowIcons();
+            }}
+          >
+            <RotateCw size={16} />
+          </button>
+        </div>
+      </Html>
+      
+      {/* 模式提示 */}
+      <Html
+        position={[0.5, 1.3, 0]} // 稍微在上方
+        distanceFactor={8}
+        style={{
+          transition: 'opacity 0.3s',
+          opacity: showControlIcons ? 1 : 0,
+          pointerEvents: 'none'
+        }}
+      >
+        <div className="px-2 py-1 bg-gray-800 text-white text-xs rounded shadow-lg whitespace-nowrap">
+          {interactionMode === 'move' ? '拖拽模式' : '旋转模式'}
+        </div>
+      </Html>
     </group>
   );
 };
@@ -979,6 +1040,7 @@ function PhoneModel() {
   const [isRotating, setIsRotating] = useState(false);
   const [rotateStart, setRotateStart] = useState({ angle: 0, startAngle: 0 });
   const hideIconTimeoutRef = useRef(null);
+  
 
   // 显示控制图标并设置自动隐藏
   const showControlIconsWithTimeout = () => {
@@ -1034,6 +1096,7 @@ function PhoneModel() {
     // 像素到3D单位的转换系数
     return visibleHeight / containerHeight;
   };
+
 
   // 获取元素中心点坐标
   const getElementCenter = () => {
@@ -1160,6 +1223,7 @@ const handleTouchMove = (e) => {
     }
   }, [isDragging, isRotating, dragStart, rotateStart, modelPosition, modelRotation]);
 
+
   // 清理定时器
   useEffect(() => {
     return () => {
@@ -1182,44 +1246,6 @@ const handleTouchMove = (e) => {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* 控制图标组 - 使用百分比定位，更贴近3D模型实际位置 */}
-      {showControlIcons && (
-        <div className="absolute  top-[25%] right-[15%] z-30 flex gap-1">
-            {/* 拖拽图标 */}
-            <button
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-all duration-200 hover:scale-110 shadow-lg ${
-                interactionMode === 'move' 
-                  ? 'bg-blue-100 border border-blue-300 text-blue-700' 
-                  : 'bg-white/90 hover:bg-white border border-gray-200'
-              }`}
-              title="拖拽模式"
-              onClick={(e) => {
-                e.stopPropagation();
-                setInteractionMode('move');
-                showControlIconsWithTimeout();
-              }}
-            >
-              <Move size={16} />
-            </button>
-            
-            {/* 旋转图标 */}
-            <button
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-all duration-200 hover:scale-110 shadow-lg ${
-                interactionMode === 'rotate' 
-                  ? 'bg-blue-100 border border-blue-300 text-blue-700' 
-                  : 'bg-white/90 hover:bg-white border border-gray-200'
-              }`}
-              title="旋转模式"
-              onClick={(e) => {
-                e.stopPropagation();
-                setInteractionMode('rotate');
-                showControlIconsWithTimeout();
-              }}
-            >
-              <RotateCw size={16} />
-            </button>
-          </div>
-        )}
         
       {/* 旋转角度提示 */}
       {isRotating && (
@@ -1228,12 +1254,6 @@ const handleTouchMove = (e) => {
         </div>
       )}
       
-      {/* 当前模式提示 */}
-      {showControlIcons && (
-        <div className="absolute top-[20%] right-[15%] z-40 px-2 py-1 bg-gray-800 text-white text-xs rounded shadow-lg">
-          {interactionMode === 'move' ? '拖拽模式' : '旋转模式'}
-        </div>
-      )}
       
       {isLoading && <LoadingIndicator />}
       <WebGPUCanvas
@@ -1264,6 +1284,10 @@ const handleTouchMove = (e) => {
               customImage={state.screenImage}
               modelRotation={modelRotation}
               isDiagonalLayout={state.design.template === 'diagonal'}
+              showControlIcons={showControlIcons}
+              interactionMode={interactionMode}
+              onModeChange={setInteractionMode}
+              onShowIcons={showControlIconsWithTimeout}
             />
           </group>
         </Suspense>
