@@ -70,7 +70,7 @@ function DesignPanel({ isActive }) {
         <section>
           <div className="flex items-center gap-2 mb-4">
             <Droplets size={16} className="text-gray-600" />
-            <h3 className="font-medium text-gray-900">配色方案</h3>
+            <h3 className="font-medium text-gray-900">背景色</h3>
           </div>
           
           {/* 色彩模式切换 */}

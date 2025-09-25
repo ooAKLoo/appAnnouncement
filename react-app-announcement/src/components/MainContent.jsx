@@ -219,35 +219,69 @@ function MainContent() {
           buttons: 'flex flex-col sm:flex-row gap-4 relative z-10'
         };
       
-      case 'asymmetric':
+      case 'topBottom':
         return {
-          container: 'min-h-screen max-w-6xl mx-auto px-5 flex items-center justify-center relative',
-          wrapper: 'flex items-start justify-between z-10',
-          wrapperStyle: transformStyles.wrapper,
-          leftContentStyle: transformStyles.leftContent,
-          phoneContainerStyle: transformStyles.phoneContainer,
-          leftContent: 'flex-1 max-w-lg text-white transform rotate-1',
-          phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative transform -rotate-3',
-          logo: 'flex items-center gap-4 mb-10 transform -rotate-2',
-          title: 'text-4xl font-bold leading-tight mb-6 transform rotate-1',
-          subtitle: 'text-lg text-white/90 leading-relaxed mb-10',
-          features: 'space-y-6 mb-10',
-          event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mb-10 transform rotate-2',
-          buttons: 'flex flex-col sm:flex-row gap-4 transform -rotate-1'
+          container: 'min-h-screen max-w-4xl mx-auto px-5 py-16 flex flex-col items-center justify-center relative',
+          wrapper: 'flex flex-col items-center gap-16 w-full',
+          phoneContainer: 'max-w-md min-h-[600px] flex justify-center items-center relative order-1',
+          leftContent: 'w-full max-w-2xl order-2',
+          logo: 'flex items-center gap-6 justify-center', // 特殊的水平布局
+          title: '', // 标题会在logo中处理
+          subtitle: '', // 副标题会在logo中处理
+          features: 'mt-8 space-y-4',
+          event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mt-8',
+          buttons: 'flex flex-col sm:flex-row gap-4 justify-center mt-8'
         };
       
-      case 'sticky':
+      case 'diagonal':
         return {
-          container: 'min-h-screen max-w-6xl mx-auto px-5 py-16 flex flex-col items-center justify-center relative',
-          wrapper: 'w-full max-w-4xl',
-          leftContent: 'grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 text-white',
-          phoneContainer: 'max-w-md min-h-[600px] flex justify-center items-center relative mx-auto transform rotate-2',
-          logo: 'bg-yellow-100/90 border-2 border-yellow-300 rounded-xl p-6 shadow-lg transform rotate-3 backdrop-blur-sm',
-          title: 'bg-pink-100/90 border-2 border-pink-300 rounded-xl p-6 shadow-lg transform -rotate-2 text-gray-800 backdrop-blur-sm',
-          subtitle: 'bg-blue-100/90 border-2 border-blue-300 rounded-xl p-6 shadow-lg transform rotate-1 text-gray-800 backdrop-blur-sm',
-          features: 'grid grid-cols-1 md:grid-cols-2 gap-6 mb-8',
-          event: 'bg-green-100/90 border-2 border-green-300 rounded-xl p-8 shadow-lg transform -rotate-1 text-gray-800 backdrop-blur-sm mb-10',
-          buttons: 'flex flex-col sm:flex-row gap-4 justify-center'
+          container: 'min-h-screen max-w-7xl mx-auto px-8 flex items-center justify-center relative overflow-hidden',
+          wrapper: 'relative w-full h-screen flex items-center',
+          wrapperStyle: { width: '100%', height: '100vh', padding: '60px 0' },
+          leftContentStyle: { 
+            width: '50%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            height: '80vh',
+            paddingRight: '60px',
+            zIndex: 20
+          },
+          phoneContainerStyle: {
+            position: 'absolute',
+            right: '0',
+            bottom: '0',
+            width: '50%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'flex-end',
+            transform: 'rotate(-12deg) translateY(10%)',
+            transformOrigin: 'bottom right',
+            zIndex: 10
+          },
+          leftContent: 'flex flex-col justify-between h-full',
+          phoneContainer: '',
+          logo: '', // 在renderBasicInfo中处理
+          title: '', // 在renderBasicInfo中处理
+          subtitle: '', // 在renderBasicInfo中处理
+          features: '', // 在renderBasicInfo中处理
+          event: '', // 不显示活动信息
+          buttons: 'flex gap-4' // 底部按钮
+        };
+      
+      case 'featureGrid':
+        return {
+          container: 'min-h-screen max-w-5xl mx-auto px-5 py-16 flex flex-col items-center justify-center relative',
+          wrapper: 'flex flex-col items-center w-full',
+          leftContent: 'w-full max-w-4xl text-center mb-16',
+          phoneContainer: 'max-w-lg min-h-[600px] flex justify-center items-center relative',
+          logo: 'flex items-center justify-center gap-4 mb-8',
+          title: 'text-4xl font-bold leading-tight mb-8',
+          subtitle: 'text-lg leading-relaxed mb-12',
+          features: 'grid grid-cols-1 md:grid-cols-3 gap-8 mb-16', // 横排特性展示
+          event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mb-12',
+          buttons: 'flex flex-col sm:flex-row gap-4 justify-center mb-16'
         };
       
       default: // classic
@@ -272,30 +306,151 @@ function MainContent() {
   const layout = getLayoutClasses();
 
   // 渲染基本信息（logo + 标题 + 副标题）
-  const renderBasicInfo = () => (
-    <>
-      <div className={layout.logo}>
-        <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white/20 flex items-center justify-center text-2xl font-bold">
-          {state.appInfo.iconImage ? (
-            <img 
-              src={state.appInfo.iconImage} 
-              alt="App Icon" 
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            state.appInfo.icon
-          )}
+  const renderBasicInfo = () => {
+    // topBottom模板的特殊布局
+    if (state.design.template === 'topBottom') {
+      return (
+        <div className={layout.logo}>
+          {/* App Icon */}
+          <div className="w-20 h-20 rounded-3xl overflow-hidden bg-white/20 flex items-center justify-center text-3xl font-bold flex-shrink-0">
+            {state.appInfo.iconImage ? (
+              <img 
+                src={state.appInfo.iconImage} 
+                alt="App Icon" 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              state.appInfo.icon
+            )}
+          </div>
+          
+          {/* 中间内容区域：标题和副标题 */}
+          <div className="flex-1 flex flex-col justify-center min-h-[80px]">
+            <h1 className="text-3xl font-bold leading-tight mb-2 main-content-title" style={getTextColorStyle()}>
+              {state.appInfo.title}
+            </h1>
+            <p className="text-lg leading-relaxed main-content-subtitle" style={getTextColorStyle()}>
+              {state.appInfo.subtitle}
+            </p>
+          </div>
+          
+          {/* 右侧：App名称，与icon底部对齐 */}
+          <div className="flex items-end h-20">
+            <div className="text-2xl font-semibold main-content-subtitle" style={getTextColorStyle()}>
+              {state.appInfo.name}
+            </div>
+          </div>
         </div>
-        <div className="text-xl font-semibold main-content-subtitle" style={getTextColorStyle()}>{state.appInfo.name}</div>
-      </div>
+      );
+    }
 
-      <h1 className={`${layout.title} main-content-title`} style={getTextColorStyle()}>{state.appInfo.title}</h1>
+    // diagonal模板的特殊布局
+    if (state.design.template === 'diagonal') {
+      return (
+        <div className="flex flex-col h-full justify-between">
+          {/* 顶部内容区域 */}
+          <div className="space-y-4">
+            {/* App Icon和名称 - 底边对齐 */}
+            <div className="flex items-end gap-3">
+              <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/20 flex items-center justify-center text-lg font-bold flex-shrink-0">
+                {state.appInfo.iconImage ? (
+                  <img 
+                    src={state.appInfo.iconImage} 
+                    alt="App Icon" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  state.appInfo.icon || '📱'
+                )}
+              </div>
+              <div className="text-xl font-semibold" style={getTextColorStyle()}>
+                {state.appInfo.name}
+              </div>
+            </div>
 
-      <p className={`${layout.subtitle} main-content-subtitle`} style={getTextColorStyle()}>
-        {state.appInfo.subtitle}
-      </p>
-    </>
-  );
+            {/* 主标题 */}
+            <h1 className="text-5xl md:text-6xl font-black leading-tight main-content-title" style={getTextColorStyle()}>
+              {state.appInfo.title}
+            </h1>
+
+            {/* 副标题/描述 */}
+            <p className="text-xl leading-relaxed opacity-90 main-content-subtitle" style={getTextColorStyle()}>
+              {state.appInfo.subtitle}
+            </p>
+
+            {/* 功能列表 - 如果启用 */}
+            {state.contentSections.features && state.features.length > 0 && (
+              <div className="space-y-2 text-lg opacity-90 mt-6" style={getTextColorStyle()}>
+                {state.features.map((feature, index) => (
+                  <div key={index} className="flex items-start gap-2">
+                    <span>•</span>
+                    <span>{feature.title}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 底部下载按钮区域 - 这部分会由renderDownloads处理 */}
+          <div></div>
+        </div>
+      );
+    }
+
+    // featureGrid模板的特殊布局
+    if (state.design.template === 'featureGrid') {
+      return (
+        <>
+          <div className={layout.logo}>
+            <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white/20 flex items-center justify-center text-2xl font-bold">
+              {state.appInfo.iconImage ? (
+                <img 
+                  src={state.appInfo.iconImage} 
+                  alt="App Icon" 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                state.appInfo.icon
+              )}
+            </div>
+            <div className="text-xl font-semibold main-content-subtitle" style={getTextColorStyle()}>{state.appInfo.name}</div>
+          </div>
+
+          <h1 className={`${layout.title} main-content-title`} style={getTextColorStyle()}>{state.appInfo.title}</h1>
+
+          <p className={`${layout.subtitle} main-content-subtitle`} style={getTextColorStyle()}>
+            {state.appInfo.subtitle}
+          </p>
+        </>
+      );
+    }
+
+    // 其他模板的默认布局
+    return (
+      <>
+        <div className={layout.logo}>
+          <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white/20 flex items-center justify-center text-2xl font-bold">
+            {state.appInfo.iconImage ? (
+              <img 
+                src={state.appInfo.iconImage} 
+                alt="App Icon" 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              state.appInfo.icon
+            )}
+          </div>
+          <div className="text-xl font-semibold main-content-subtitle" style={getTextColorStyle()}>{state.appInfo.name}</div>
+        </div>
+
+        <h1 className={`${layout.title} main-content-title`} style={getTextColorStyle()}>{state.appInfo.title}</h1>
+
+        <p className={`${layout.subtitle} main-content-subtitle`} style={getTextColorStyle()}>
+          {state.appInfo.subtitle}
+        </p>
+      </>
+    );
+  };
 
   // 渲染功能列表
   const renderFeatures = () => {

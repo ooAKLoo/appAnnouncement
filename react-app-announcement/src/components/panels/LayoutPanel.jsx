@@ -123,22 +123,58 @@ function LayoutPanel({ isActive }) {
         {/* 响应式预览 */}
         <section>
           <h3 className="font-medium text-gray-900 mb-4">预览尺寸</h3>
-          <div className="space-y-2">
-            {[
-              { name: 'iPhone 15 Pro', size: '393×852' },
-              { name: 'iPad', size: '820×1180' },
-              { name: 'Desktop', size: '1920×1080' }
-            ].map((device) => (
-              <button
-                key={device.name}
-                className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
-              >
-                <span className="text-sm font-medium text-gray-900">{device.name}</span>
-                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                  {device.size}
-                </span>
-              </button>
-            ))}
+          
+          {/* 设备尺寸 */}
+          <div className="mb-4">
+            <h4 className="text-sm font-medium text-gray-700 mb-2">设备</h4>
+            <div className="space-y-2">
+              {[
+                { name: 'iPhone 15 Pro', size: '393×852', desc: '移动端' },
+                { name: 'iPad Air', size: '820×1180', desc: '平板端' },
+                { name: 'MacBook Air', size: '1440×900', desc: '桌面端' }
+              ].map((device) => (
+                <button
+                  key={device.name}
+                  className="w-full flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
+                >
+                  <div className="flex flex-col items-start">
+                    <span className="text-sm font-medium text-gray-900">{device.name}</span>
+                    <span className="text-xs text-gray-500">{device.desc}</span>
+                  </div>
+                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded font-mono">
+                    {device.size}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 社交媒体尺寸 */}
+          <div>
+            <h4 className="text-sm font-medium text-gray-700 mb-2">社交媒体</h4>
+            <div className="space-y-2">
+              {[
+                { name: 'Instagram 动态', size: '1080×1920', desc: 'Story' },
+                { name: 'Instagram 帖子', size: '1080×1080', desc: 'Post' },
+                { name: '微信朋友圈', size: '1200×900', desc: '横版图片' },
+                { name: '小红书封面', size: '1242×1660', desc: '竖版封面' },
+                { name: 'Twitter 卡片', size: '1200×630', desc: 'Card' },
+                { name: 'Facebook 封面', size: '1200×630', desc: 'Cover' }
+              ].map((social) => (
+                <button
+                  key={social.name}
+                  className="w-full flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
+                >
+                  <div className="flex flex-col items-start">
+                    <span className="text-sm font-medium text-gray-900">{social.name}</span>
+                    <span className="text-xs text-gray-500">{social.desc}</span>
+                  </div>
+                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded font-mono">
+                    {social.size}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
         </section>
 
