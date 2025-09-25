@@ -7,33 +7,6 @@ function LayoutPanel({ isActive }) {
 
   if (!isActive) return null;
 
-  // 布局模板
-  const layoutTemplates = [
-    { 
-      id: 'classic', 
-      name: '经典布局', 
-      preview: '/layout-classic.svg',
-      description: '居中对齐，图标在上方'
-    },
-    { 
-      id: 'modern', 
-      name: '现代布局', 
-      preview: '/layout-modern.svg',
-      description: '左右分布，图标在左侧'
-    },
-    { 
-      id: 'minimal', 
-      name: '极简布局', 
-      preview: '/layout-minimal.svg',
-      description: '大面积留白，突出重点'
-    },
-    { 
-      id: 'feature-rich', 
-      name: '功能丰富', 
-      preview: '/layout-feature.svg',
-      description: '展示更多应用特性'
-    },
-  ];
 
   // 视图模式选项
   const viewModes = [
@@ -51,7 +24,7 @@ function LayoutPanel({ isActive }) {
           </div>
           <div>
             <h2 className="text-lg font-semibold text-gray-900">布局设置</h2>
-            <p className="text-sm text-gray-500">选择模板和展示方式</p>
+            <p className="text-sm text-gray-500">调整展示方式和间距</p>
           </div>
         </div>
       </div>
@@ -94,48 +67,6 @@ function LayoutPanel({ isActive }) {
           </div>
         </section>
 
-        {/* 布局模板 */}
-        <section>
-          <div className="flex items-center gap-2 mb-4">
-            <LayoutTemplate size={16} className="text-gray-600" />
-            <h3 className="font-medium text-gray-900">布局模板</h3>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            {layoutTemplates.map((template) => (
-              <button
-                key={template.id}
-                className={`group relative w-full h-20 rounded-lg border-2 transition-all ${
-                  state.design.template === template.id
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-                onClick={() => updateDesign({ template: template.id })}
-              >
-                {/* 布局预览占位符 */}
-                <div className={`w-full h-full rounded-md flex items-center justify-center ${
-                  state.design.template === template.id ? 'bg-blue-100' : 'bg-gray-100'
-                }`}>
-                  <div className={`text-xs font-mono ${
-                    state.design.template === template.id ? 'text-blue-600' : 'text-gray-400'
-                  }`}>
-                    {template.id}
-                  </div>
-                </div>
-                <div className="absolute inset-x-0 bottom-0 p-2 bg-white/90 backdrop-blur-sm">
-                  <div className="text-xs font-medium text-gray-900">{template.name}</div>
-                </div>
-              </button>
-            ))}
-          </div>
-          {/* 当前选中模板的描述 */}
-          {layoutTemplates.find(t => t.id === state.design.template) && (
-            <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">
-                {layoutTemplates.find(t => t.id === state.design.template).description}
-              </p>
-            </div>
-          )}
-        </section>
 
         {/* 布局调整 */}
         <section>
