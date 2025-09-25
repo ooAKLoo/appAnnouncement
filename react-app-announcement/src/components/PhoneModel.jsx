@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, Suspense } from 'react';
+import React, { useRef, useEffect, useState, Suspense, useMemo } from 'react';
 import { Canvas, useLoader, useFrame, extend } from '@react-three/fiber';
 import { OrbitControls, useTexture, Environment } from '@react-three/drei';
 import * as THREE from 'three/webgpu';
@@ -93,6 +93,8 @@ const RotatingModel = ({ customImage, ...props }) => {
 
 function PhoneModel3D({ customImage, ...props }) {
   const { state } = useApp();
+  const [textureReady, setTextureReady] = useState(false);
+  const textureRef = useRef(null);
 
   // 使用与 model.tsx 完全相同的方式加载 GLTF（DRACO压缩版本）
   const gltf = useLoader(GLTFLoader, '/models/apple_iphone_15_pro_max_black_draco.glb', (loader) => {
@@ -155,24 +157,43 @@ function PhoneModel3D({ customImage, ...props }) {
     return canvas.toDataURL('image/png');
   };
 
-  // 使用与 model.tsx 完全相同的方式处理纹理 - 优先使用 customImage
   const defaultScreen = state.screenImage || generateDefaultScreen();
-  const imageTexture = useTexture(customImage || defaultScreen);
+  const imageSource = customImage || defaultScreen;
   
-  imageTexture.colorSpace = THREE.SRGBColorSpace;
-
-  // 使用MeshBasicMaterial，不受光照影响，模拟真实的自发光屏幕
-  const imageMaterial = new THREE.MeshBasicMaterial({ 
-    map: imageTexture,
-    transparent: true,
-  })
-
+  // 预加载纹理
   useEffect(() => {
-    if (imageTexture) {
-      imageTexture.flipY = true  // 改为true来翻转图片
-      imageTexture.needsUpdate = true
+    const loader = new THREE.TextureLoader();
+    loader.load(
+      imageSource,
+      (texture) => {
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.flipY = true;
+        texture.needsUpdate = true;
+        textureRef.current = texture;
+        setTextureReady(true);
+      },
+      undefined,
+      (error) => {
+        console.error('Failed to load texture:', error);
+        setTextureReady(true); // 即使失败也设置为ready，使用默认材质
+      }
+    );
+  }, [imageSource]);
+
+  // 创建材质
+  const imageMaterial = useMemo(() => {
+    if (textureReady && textureRef.current) {
+      return new THREE.MeshBasicMaterial({ 
+        map: textureRef.current,
+        transparent: true,
+      });
     }
-  }, [imageTexture, customImage])
+    // 使用与屏幕内容相匹配的纯色材质
+    return new THREE.MeshBasicMaterial({
+      color: state.design.bgColor || '#000000',
+      transparent: true,
+    });
+  }, [textureReady, state.design.bgColor])
 
   // 使用与 model.tsx 完全相同的逐mesh渲染方式
   return (
@@ -958,6 +979,7 @@ function PhoneModel3D({ customImage, ...props }) {
 }
 
 function PhoneModel() {
+  const { state } = useApp();
   const [isLoading, setIsLoading] = useState(true);
 
   return (
@@ -973,12 +995,10 @@ function PhoneModel() {
         style={{ width: '100%', height: '100%' }}
         onCreated={() => setIsLoading(false)}
         gl={{ antialias: true }}
-        shadows // 启用阴影
+        shadows
       >
-        {/* 移除黑色背景 */}
         <ambientLight intensity={0.8} />
         
-        {/* 降低光线强度以减少反射 */}
         <directionalLight 
           position={[5, 5, 5]} 
           intensity={0.3} 
@@ -991,13 +1011,8 @@ function PhoneModel() {
           intensity={0.2} 
         />
         
-        <Suspense fallback={
-          <mesh position={[0, 0, 0]}>
-            <boxGeometry args={[1, 2, 0.1]} />
-            <meshStandardMaterial color="#666666" />
-          </mesh>
-        }>
-          <RotatingModel />
+        <Suspense fallback={null}>
+          <RotatingModel key={state.screenImage} customImage={state.screenImage} />
         </Suspense>
         
         <OrbitControls 
@@ -1006,12 +1021,6 @@ function PhoneModel() {
           minDistance={1.5}
           maxDistance={10}
         />
-        
-        {/* 移除HDR环境光照以减少反射 */}
-        {/* <Suspense fallback={null}>
-          <Environment files="/studio_small_03_4k.hdr" />
-        </Suspense> */}
-        
       </WebGPUCanvas>
     </div>
   );

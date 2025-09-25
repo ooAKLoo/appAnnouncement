@@ -7,7 +7,7 @@ import { getContentTypesForTheme } from '../data/templateConfig.jsx';
 import { getStyleById } from '../data/styleConfig';
 
 function MainContent() {
-  const { state, hideImagePreview, updateDesign, toggleToolbars } = useApp();
+  const { state, updateDesign, toggleToolbars } = useApp();
   
   // 相对调节状态
   const [baseSpacing] = useState(8); // 基础间距值
@@ -26,16 +26,6 @@ function MainContent() {
     setDebounceTimer(timer);
   }, [debounceTimer, updateDesign]);
 
-  // 自动隐藏截图预览窗口（但保留iPhone上的显示）
-  useEffect(() => {
-    if (state.showImagePreview) {
-      const timer = setTimeout(() => {
-        hideImagePreview();
-      }, 3000); // 3秒后自动隐藏预览窗口
-
-      return () => clearTimeout(timer);
-    }
-  }, [state.showImagePreview, hideImagePreview]);
 
   // 获取当前主题需要的内容类型
   const contentTypes = getContentTypesForTheme(state.currentTheme || 'launch');
@@ -389,18 +379,6 @@ function MainContent() {
         {state.toolbarsVisible ? <EyeOff size={20} /> : <Eye size={20} />}
       </button>
 
-      {/* Image Preview */}
-      {state.showImagePreview && state.screenImage && (
-        <div className="fixed top-20 right-5 z-30 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-4 max-w-xs animate-fadeInRight" id="imagePreview">
-          <img 
-            id="previewImg" 
-            src={state.screenImage} 
-            alt="APP截图预览"
-            className="w-full rounded-lg shadow-md"
-          />
-          <div className="text-center text-sm text-gray-600 mt-2">APP截图预览</div>
-        </div>
-      )}
 
       <div className={layout.wrapper} style={layout.wrapperStyle}>
         {/* Left Content */}
