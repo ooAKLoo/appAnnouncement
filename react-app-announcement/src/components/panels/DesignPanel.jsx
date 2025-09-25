@@ -250,23 +250,18 @@ function DesignPanel({ isActive }) {
           </div>
 
           {/* 字体颜色 */}
-          <div className="space-y-3 mb-4">
-            <div className="flex items-center gap-3">
-              <label className="text-sm font-medium text-gray-700 w-16">字体颜色</label>
-              <div className="flex items-center gap-2 flex-1">
-                <input
-                  type="color"
-                  value={state.typography.textColor || '#333333'}
-                  onChange={(e) => updateTypography({ textColor: e.target.value })}
-                  className="w-8 h-8 rounded border border-gray-300 cursor-pointer"
-                />
-                <input
-                  type="text"
-                  value={state.typography.textColor || '#333333'}
-                  onChange={(e) => updateTypography({ textColor: e.target.value })}
-                  className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-blue-500 focus:border-transparent font-mono"
-                />
-              </div>
+          <div className="flex items-center gap-3 mb-4">
+            <label className="text-sm font-medium text-gray-700">字体颜色</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={state.typography.textColor || '#333333'}
+                onChange={(e) => updateTypography({ textColor: e.target.value })}
+                className="w-6 h-6 rounded border border-gray-300 cursor-pointer"
+              />
+              <span className="text-xs text-gray-500 font-mono">
+                {state.typography.textColor || '#333333'}
+              </span>
             </div>
           </div>
 
