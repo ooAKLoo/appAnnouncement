@@ -9,7 +9,8 @@ const initialState = {
     icon: 'P',
     title: 'Download Postory today',
     subtitle: '创造你的故事，分享你的精彩',
-    iconImage: '/postory-icon.png'
+    iconImage: null,
+    previewImage: null
   },
   design: {
     template: 'classic',
@@ -50,6 +51,7 @@ const initialState = {
   showImagePreview: false,
   projects: [],
   currentTab: null, // 初始状态下没有选中任何tab
+  currentPanel: 'content', // 新的面板系统：content, design, assets, layout
   configPanelOpen: false,
   downloadMenuOpen: false,
   projectMenuOpen: false,
@@ -140,6 +142,11 @@ function appReducer(state, action) {
       return {
         ...state,
         currentTab: action.payload
+      };
+    case 'SET_CURRENT_PANEL':
+      return {
+        ...state,
+        currentPanel: action.payload
       };
     case 'TOGGLE_CONFIG_PANEL':
       return {
@@ -266,6 +273,7 @@ export function AppProvider({ children }) {
     setScreenImage: (image) => dispatch({ type: 'SET_SCREEN_IMAGE', payload: image }),
     hideImagePreview: () => dispatch({ type: 'HIDE_IMAGE_PREVIEW' }),
     setCurrentTab: (tab) => dispatch({ type: 'SET_CURRENT_TAB', payload: tab }),
+    setCurrentPanel: (panel) => dispatch({ type: 'SET_CURRENT_PANEL', payload: panel }),
     toggleConfigPanel: () => dispatch({ type: 'TOGGLE_CONFIG_PANEL' }),
     toggleDownloadMenu: () => dispatch({ type: 'TOGGLE_DOWNLOAD_MENU' }),
     toggleProjectMenu: () => dispatch({ type: 'TOGGLE_PROJECT_MENU' }),

@@ -7,6 +7,7 @@ function TopToolbar() {
   const { 
     state, 
     setCurrentTab, 
+    setCurrentPanel,
     toggleConfigPanel,
     toggleProjectMenu, 
     toggleDownloadMenu,
@@ -58,6 +59,19 @@ function TopToolbar() {
     }
   };
 
+  const handlePanelClick = (panel) => {
+    // 关闭所有下拉菜单
+    if (state.projectMenuOpen) {
+      toggleProjectMenu();
+    }
+    if (state.downloadMenuOpen) {
+      toggleDownloadMenu();
+    }
+    
+    // 设置当前面板
+    setCurrentPanel(panel);
+  };
+
   const handleCreateNewProject = () => {
     toggleProjectMenu(); // 关闭菜单
     openCreateProjectModal(); // 打开创建项目弹窗
@@ -75,14 +89,14 @@ function TopToolbar() {
   if (!state.toolbarsVisible) return null;
 
   return (
-    <div className="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 bg-white/95 backdrop-blur-xl rounded-xl p-2 shadow-lg border border-white/20 flex items-center gap-3" ref={toolbarRef}>
+    <div className="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 bg-white rounded-2xl p-2 shadow-sm border border-gray-100/50 flex items-center gap-1" ref={toolbarRef}>
       {/* Left - Menu Dropdown */}
       <div className="relative">
         <button 
-          className={`p-2.5 rounded-lg transition-colors duration-200 flex items-center justify-center ${
+          className={`p-2.5 rounded-xl transition-all duration-200 flex items-center justify-center ${
             state.projectMenuOpen 
-              ? 'bg-primary-blue text-white shadow-md shadow-primary-blue/30' 
-              : 'bg-transparent hover:bg-black/5'
+              ? 'bg-gray-50 text-gray-700' 
+              : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50/50'
           }`}
           onClick={() => {
             // 关闭下载菜单
@@ -96,22 +110,22 @@ function TopToolbar() {
             toggleProjectMenu();
           }}
         >
-          <Menu size={16} className={state.projectMenuOpen ? 'text-white' : 'text-gray-600'} />
+          <Menu size={16} className={state.projectMenuOpen ? 'text-gray-600' : 'text-gray-400'} />
         </button>
         {state.projectMenuOpen && (
-          <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-100 min-w-36 p-2 opacity-100 visible transform translate-y-0 transition-all duration-200 z-10">
+          <div className="absolute top-full left-0 mt-1.5 bg-white rounded-xl shadow-lg border border-gray-100/80 min-w-36 p-1.5 opacity-100 visible transform translate-y-0 transition-all duration-200 z-10">
             <button 
-              className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-50 transition-colors duration-200" 
+              className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50/70 transition-colors duration-200" 
               onClick={handleCreateNewProject}
             >
-              <FilePlus size={16} />
+              <FilePlus size={15} />
               <span>新建</span>
             </button>
             <button 
-              className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-50 transition-colors duration-200" 
+              className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50/70 transition-colors duration-200" 
               onClick={handleSwitchToProjects}
             >
-              <Folder size={16} />
+              <Folder size={15} />
               <span>我的作品</span>
             </button>
           </div>
@@ -119,76 +133,74 @@ function TopToolbar() {
       </div>
       
       {/* Center - Navigation Tabs */}
-      <div className="flex gap-1">
+      <div className="flex mx-2">
         <button 
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 min-w-20 justify-center ${
-            state.currentTab === 'template' 
-              ? 'bg-primary-blue text-white shadow-md shadow-primary-blue/30' 
-              : 'text-gray-600 hover:bg-black/5'
+          className={`relative flex items-center gap-1.5 px-4 py-2.5 text-sm font-normal transition-all duration-300 ${
+            state.currentPanel === 'content' 
+              ? 'text-gray-700' 
+              : 'text-gray-400 hover:text-gray-600'
           }`}
-          onClick={() => handleTabClick('template')}
+          onClick={() => handlePanelClick('content')}
         >
-          <LayoutTemplate size={16} />
-          <span>模板</span>
+          <FileText size={15} />
+          <span>内容</span>
+          {state.currentPanel === 'content' && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-700 rounded-full transition-all duration-300" />
+          )}
         </button>
         <button 
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 min-w-20 justify-center ${
-            state.currentTab === 'app' 
-              ? 'bg-primary-blue text-white shadow-md shadow-primary-blue/30' 
-              : 'text-gray-600 hover:bg-black/5'
+          className={`relative flex items-center gap-1.5 px-4 py-2.5 text-sm font-normal transition-all duration-300 ${
+            state.currentPanel === 'design' 
+              ? 'text-gray-700' 
+              : 'text-gray-400 hover:text-gray-600'
           }`}
-          onClick={() => handleTabClick('app')}
+          onClick={() => handlePanelClick('design')}
         >
-          <Smartphone size={16} />
-          <span>APP配置</span>
-        </button>
-        <button 
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 min-w-20 justify-center ${
-            state.currentTab === 'design' 
-              ? 'bg-primary-blue text-white shadow-md shadow-primary-blue/30' 
-              : 'text-gray-600 hover:bg-black/5'
-          }`}
-          onClick={() => handleTabClick('design')}
-        >
-          <Palette size={16} />
+          <Palette size={15} />
           <span>设计</span>
+          {state.currentPanel === 'design' && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-700 rounded-full transition-all duration-300" />
+          )}
+        </button>
+        <button 
+          className={`relative flex items-center gap-1.5 px-4 py-2.5 text-sm font-normal transition-all duration-300 ${
+            state.currentPanel === 'assets' 
+              ? 'text-gray-700' 
+              : 'text-gray-400 hover:text-gray-600'
+          }`}
+          onClick={() => handlePanelClick('assets')}
+        >
+          <Image size={15} />
+          <span>素材</span>
+          {state.currentPanel === 'assets' && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-700 rounded-full transition-all duration-300" />
+          )}
+        </button>
+        <button 
+          className={`relative flex items-center gap-1.5 px-4 py-2.5 text-sm font-normal transition-all duration-300 ${
+            state.currentPanel === 'layout' 
+              ? 'text-gray-700' 
+              : 'text-gray-400 hover:text-gray-600'
+          }`}
+          onClick={() => handlePanelClick('layout')}
+        >
+          <LayoutTemplate size={15} />
+          <span>布局</span>
+          {state.currentPanel === 'layout' && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-700 rounded-full transition-all duration-300" />
+          )}
         </button>
       </div>
       
-      {/* Model Type Toggle */}
-      <div className="flex items-center gap-1 bg-gray-100/80 rounded-lg p-1">
-        <button
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
-            state.modelType === '3d' 
-              ? 'bg-white text-gray-900 shadow-sm' 
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-          onClick={() => setModelType('3d')}
-        >
-          <Box size={14} />
-          <span>3D</span>
-        </button>
-        <button
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
-            state.modelType === '2d' 
-              ? 'bg-white text-gray-900 shadow-sm' 
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-          onClick={() => setModelType('2d')}
-        >
-          <RectangleHorizontal size={14} />
-          <span>2D</span>
-        </button>
-      </div>
       
       {/* Right - Download Dropdown */}
       <div className="flex items-center">
         <div className="relative">
           <button 
-            className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium ${
+            className={`flex items-center gap-1.5 px-3 py-2.5 rounded-xl transition-all duration-200 text-sm font-normal ${
               state.downloadMenuOpen 
-                ? 'bg-primary-blue text-white shadow-md shadow-primary-blue/30' 
-                : 'bg-transparent hover:bg-black/5 text-gray-600'
+                ? 'bg-gray-50 text-gray-700' 
+                : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50/50'
             }`}
             onClick={() => {
               // 关闭项目菜单
@@ -202,31 +214,31 @@ function TopToolbar() {
               toggleDownloadMenu();
             }}
           >
-            <Download size={16} />
+            <Download size={15} />
             <span>下载</span>
             <ChevronDown size={12} className={`transform transition-transform duration-200 ${state.downloadMenuOpen ? 'rotate-180' : ''}`} />
           </button>
           {state.downloadMenuOpen && (
-            <div className="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-100 min-w-36 p-2 opacity-100 visible transform translate-y-0 transition-all duration-200 z-10">
+            <div className="absolute top-full right-0 mt-1.5 bg-white rounded-xl shadow-lg border border-gray-100/80 min-w-36 p-1.5 opacity-100 visible transform translate-y-0 transition-all duration-200 z-10">
               <button 
-                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-50 transition-colors duration-200" 
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50/70 transition-colors duration-200" 
                 onClick={() => downloadAs('png')}
               >
-                <Image size={16} />
+                <Image size={15} />
                 <span>PNG 图片</span>
               </button>
               <button 
-                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-50 transition-colors duration-200" 
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50/70 transition-colors duration-200" 
                 onClick={() => downloadAs('jpg')}
               >
-                <Image size={16} />
+                <Image size={15} />
                 <span>JPG 图片</span>
               </button>
               <button 
-                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-50 transition-colors duration-200" 
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50/70 transition-colors duration-200" 
                 onClick={() => downloadAs('pdf')}
               >
-                <FileText size={16} />
+                <FileText size={15} />
                 <span>PDF 文档</span>
               </button>
             </div>
