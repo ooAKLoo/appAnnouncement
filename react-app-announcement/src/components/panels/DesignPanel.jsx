@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { Palette, Droplets, Type, Sliders } from 'lucide-react';
+import { Palette, Droplets, Type } from 'lucide-react';
 
 function DesignPanel({ isActive }) {
   const { state, updateDesign, updateTypography } = useApp();
@@ -249,31 +249,6 @@ function DesignPanel({ isActive }) {
           </div>
         </section>
 
-        {/* 布局调整 */}
-        <section>
-          <div className="flex items-center gap-2 mb-4">
-            <Sliders size={16} className="text-gray-600" />
-            <h3 className="font-medium text-gray-900">布局调整</h3>
-          </div>
-          
-          <div className="space-y-4">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium text-gray-700">内容间距</label>
-                <span className="text-sm text-gray-500">{state.design.spacing}px</span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="40"
-                step="2"
-                value={state.design.spacing}
-                onChange={(e) => updateDesign({ spacing: parseInt(e.target.value) })}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
-            </div>
-          </div>
-        </section>
 
       </div>
     </div>
