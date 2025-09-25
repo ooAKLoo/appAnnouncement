@@ -147,62 +147,35 @@ function ContentPanel({ isActive }) {
             isVisible={state.contentSections.features}
             onToggle={() => toggleContentSection('features')}
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className="text-sm text-gray-600">
-                展示应用的核心功能特性
-              </div>
-              <button
-                onClick={handleAddFeature}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-gradient-to-r from-primary-blue to-primary-blue/90 text-white rounded-xl hover:shadow-md hover:scale-105 transition-all duration-300"
-              >
-                <Plus size={16} />
-                添加功能
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              {state.features.map((feature, index) => (
-                <div key={index} className="p-5 bg-white/80 backdrop-blur-sm rounded-xl border border-gray-100 hover:shadow-sm transition-all duration-300">
-                  <div className="flex items-start gap-3 mb-3">
-                    <button
-                      className="mt-1 text-gray-400 hover:text-gray-600 cursor-move"
-                      onMouseDown={(e) => e.preventDefault()}
-                    >
-                      <GripVertical size={20} />
-                    </button>
-                    <div className="flex-1 space-y-3">
-                      <FormField
-                        type="text"
-                        placeholder="功能图标 (emoji)"
-                        value={feature.icon}
-                        maxLength={2}
-                        onChange={(value) => handleFeatureChange(index, 'icon', value)}
-                      />
-                      <FormField
-                        type="text"
-                        placeholder="功能标题"
-                        value={feature.title}
-                        maxLength={30}
-                        onChange={(value) => handleFeatureChange(index, 'title', value)}
-                      />
-                      <FormField
-                        type="textarea"
-                        placeholder="功能描述"
-                        value={feature.description}
-                        rows={2}
-                        maxLength={80}
-                        onChange={(value) => handleFeatureChange(index, 'description', value)}
-                      />
-                    </div>
-                    <button
-                      onClick={() => handleRemoveFeature(index)}
-                      className="mt-1 p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
+            <div className="space-y-2">
+              {state.features.slice(0, 3).map((feature, index) => (
+                <div key={index} className="flex items-center gap-2 p-2 bg-white rounded border">
+                  <input
+                    type="text"
+                    value={feature.icon}
+                    maxLength={2}
+                    onChange={(e) => handleFeatureChange(index, 'icon', e.target.value)}
+                    className="w-8 h-8 text-center text-sm border-0 focus:outline-none"
+                    placeholder="✨"
+                  />
+                  <input
+                    type="text"
+                    value={feature.title}
+                    onChange={(e) => handleFeatureChange(index, 'title', e.target.value)}
+                    className="flex-1 px-2 py-1 text-sm border-0 focus:outline-none"
+                    placeholder="功能亮点"
+                  />
                 </div>
               ))}
+              
+              {state.features.length < 3 && (
+                <button
+                  onClick={handleAddFeature}
+                  className="w-full py-2 text-sm text-gray-500 border border-dashed border-gray-300 rounded hover:bg-gray-50"
+                >
+                  + 添加功能亮点
+                </button>
+              )}
             </div>
           </OptionalContentSection>
           
@@ -214,40 +187,29 @@ function ContentPanel({ isActive }) {
             isVisible={state.contentSections.event}
             onToggle={() => toggleContentSection('event')}
           >
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
+            <div className="space-y-3">
+              <div className="p-3 bg-white rounded border">
+                <input
                   type="text"
-                  placeholder="折扣力度 (如 50%)"
-                  value={state.eventInfo.discount}
-                  onChange={(value) => handleEventInfoChange('discount', value)}
+                  placeholder="限时优惠"
+                  value={state.eventInfo.eventTitle}
+                  onChange={(e) => handleEventInfoChange('eventTitle', e.target.value)}
+                  className="w-full text-sm font-medium border-0 focus:outline-none mb-3"
                 />
-                <FormField
+                <input
+                  type="text"
+                  placeholder="5折"
+                  value={state.eventInfo.discount}
+                  onChange={(e) => handleEventInfoChange('discount', e.target.value)}
+                  className="w-full text-sm border-0 focus:outline-none bg-gray-50 rounded px-2 py-1.5 mb-2"
+                />
+                <input
                   type="date"
-                  placeholder="结束日期"
                   value={state.eventInfo.endDate}
-                  onChange={(value) => handleEventInfoChange('endDate', value)}
+                  onChange={(e) => handleEventInfoChange('endDate', e.target.value)}
+                  className="w-full text-sm border-0 focus:outline-none bg-gray-50 rounded px-2 py-1.5"
                 />
               </div>
-              <FormField
-                type="text"
-                placeholder="优惠码"
-                value={state.eventInfo.promoCode}
-                onChange={(value) => handleEventInfoChange('promoCode', value)}
-              />
-              <FormField
-                type="text"
-                placeholder="活动标题"
-                value={state.eventInfo.eventTitle}
-                onChange={(value) => handleEventInfoChange('eventTitle', value)}
-              />
-              <FormField
-                type="textarea"
-                placeholder="活动描述"
-                value={state.eventInfo.eventDescription}
-                rows={3}
-                onChange={(value) => handleEventInfoChange('eventDescription', value)}
-              />
             </div>
           </OptionalContentSection>
 
