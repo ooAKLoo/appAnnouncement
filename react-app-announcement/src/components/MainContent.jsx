@@ -3,7 +3,6 @@ import { Eye, EyeOff } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import PhoneModel from './PhoneModel';
 import PhoneModel2D from './PhoneModel2D';
-import { getContentTypesForTheme } from '../data/templateConfig.jsx';
 import { getStyleById } from '../data/styleConfig';
 
 function MainContent() {
@@ -27,8 +26,6 @@ function MainContent() {
   }, [debounceTimer, updateDesign]);
 
 
-  // 获取当前主题需要的内容类型
-  const contentTypes = getContentTypesForTheme(state.currentTheme || 'launch');
   
   // 获取当前风格配置
   const currentStyle = getStyleById(state.currentStyle || 'minimal');
@@ -383,17 +380,17 @@ function MainContent() {
       <div className={layout.wrapper} style={layout.wrapperStyle}>
         {/* Left Content */}
         <div className={layout.leftContent} style={layout.leftContentStyle}>
-          {/* 基本信息 - 所有主题都有 */}
-          {contentTypes.includes('basic') && renderBasicInfo()}
+          {/* 基本信息 */}
+          {renderBasicInfo()}
           
-          {/* 功能列表 - 只有功能介绍主题有 */}
-          {contentTypes.includes('features') && renderFeatures()}
+          {/* 功能列表 - 根据contentSections.features控制显示 */}
+          {state.contentSections.features && renderFeatures()}
           
-          {/* 活动信息 - 只有运营活动主题有 */}
-          {contentTypes.includes('event') && renderEvent()}
+          {/* 活动信息 - 根据contentSections.event控制显示 */}
+          {state.contentSections.event && renderEvent()}
           
-          {/* 下载按钮 - 所有主题都有 */}
-          {contentTypes.includes('downloads') && renderDownloads()}
+          {/* 下载按钮 */}
+          {renderDownloads()}
         </div>
 
         {/* Right Side Phone Model */}

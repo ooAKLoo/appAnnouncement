@@ -45,7 +45,11 @@ const initialState = {
     eventTitle: '限时优惠',
     eventDescription: '年度最大优惠活动'
   },
-  currentTheme: 'launch', // 当前选中的主题
+  contentSections: {
+    features: false, // 功能列表是否显示
+    event: false, // 活动信息是否显示
+    media: true // 媒体资源默认显示
+  },
   currentStyle: 'minimal', // 当前选中的风格
   screenImage: null,
   showImagePreview: false,
@@ -230,6 +234,14 @@ function appReducer(state, action) {
           template: action.payload
         }
       };
+    case 'TOGGLE_CONTENT_SECTION':
+      return {
+        ...state,
+        contentSections: {
+          ...state.contentSections,
+          [action.payload]: !state.contentSections[action.payload]
+        }
+      };
     case 'LOAD_STATE':
       return {
         ...state,
@@ -262,9 +274,11 @@ export function AppProvider({ children }) {
       appInfo: state.appInfo,
       design: state.design,
       downloads: state.downloads,
+      contentStyles: state.contentStyles,
+      contentSections: state.contentSections,
       projects: state.projects
     }));
-  }, [state.appInfo, state.design, state.downloads, state.projects]);
+  }, [state.appInfo, state.design, state.downloads, state.contentStyles, state.contentSections, state.projects]);
 
   const value = {
     state,
@@ -296,7 +310,9 @@ export function AppProvider({ children }) {
     closeCreateProjectModal: () => dispatch({ type: 'CLOSE_CREATE_PROJECT_MODAL' }),
     toggleToolbars: () => dispatch({ type: 'TOGGLE_TOOLBARS' }),
     setModelType: (type) => dispatch({ type: 'SET_MODEL_TYPE', payload: type }),
-    setTemplate: (template) => dispatch({ type: 'SET_TEMPLATE', payload: template })
+    setTemplate: (template) => dispatch({ type: 'SET_TEMPLATE', payload: template }),
+    updateContentStyle: (type, style) => dispatch({ type: 'UPDATE_CONTENT_STYLE', payload: { type, style } }),
+    toggleContentSection: (section) => dispatch({ type: 'TOGGLE_CONTENT_SECTION', payload: section })
   };
 
   return (

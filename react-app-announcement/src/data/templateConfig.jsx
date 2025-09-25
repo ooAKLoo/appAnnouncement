@@ -1,42 +1,5 @@
 import React from 'react';
 
-// 主题定义 - 决定显示什么内容
-export const themes = {
-  launch: {
-    id: 'launch',
-    name: '应用发布',
-    icon: 'Rocket',
-    description: 'APP首发、上线宣传',
-    contentTypes: ['basic', 'downloads'], // 基本信息 + 下载按钮
-    defaultConfig: {
-      title: 'Postory全新上线',
-      subtitle: '创造你的故事，分享你的精彩，开启全新的创作体验'
-    }
-  },
-  feature: {
-    id: 'feature',
-    name: '功能介绍',
-    icon: 'Sparkles',
-    description: '新功能上线、版本更新',
-    contentTypes: ['basic', 'features', 'downloads'], // 基本信息 + 功能列表 + 下载按钮
-    defaultConfig: {
-      title: 'Postory功能升级',
-      subtitle: '全新创作工具，让你的故事更加生动精彩'
-    }
-  },
-  beta: {
-    id: 'beta',
-    name: '内测邀请',
-    icon: 'PartyPopper',
-    description: '内测邀请、Beta测试',
-    contentTypes: ['basic', 'event', 'downloads'], // 基本信息 + 活动信息 + 下载按钮
-    defaultConfig: {
-      title: 'Postory内测邀请',
-      subtitle: '限量邀请，抢先体验最新功能！'
-    }
-  }
-};
-
 // 模板预览组件
 const TemplatePreview = {
   classic: (
@@ -214,7 +177,7 @@ export const templates = {
   tag: {
     id: 'tag',
     name: '手写标签',
-    description: '手写标签式，关键信息用“标签”突出',
+    description: '手写标签式，关键信息用"标签"突出',
     preview: TemplatePreview.tag,
     layout: 'tag'
   },
@@ -248,20 +211,9 @@ export const templates = {
   }
 };
 
-// 获取所有可用的模板 (不再与主题关联)
-export function getTemplatesForTheme(themeId) {
-  return Object.values(templates);
-}
-
-// 获取所有模板 (新函数名更直观)
+// 获取所有可用的模板
 export function getAllTemplates() {
   return Object.values(templates);
-}
-
-// 获取主题的内容类型
-export function getContentTypesForTheme(themeId) {
-  const theme = themes[themeId];
-  return theme ? theme.contentTypes : ['basic'];
 }
 
 // 根据模板ID获取模板配置
