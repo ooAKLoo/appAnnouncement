@@ -1240,7 +1240,7 @@ const handleTouchMove = (e) => {
         interactionMode === 'move' ? 'cursor-grab' : 'cursor-crosshair'
       } ${isDragging && interactionMode === 'move' ? 'cursor-grabbing' : ''}`} 
       id="canvas-container"
-      onWheel={handleWheel}
+      // onWheel={handleWheel}
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
@@ -1293,17 +1293,25 @@ const handleTouchMove = (e) => {
         </Suspense>
         
         {/* 启用OrbitControls的缩放功能，禁用其他控制 */}
-        <OrbitControls 
-          ref={orbitRef}
-          enablePan={false}    // 禁用平移，使用自定义3D模型位置
-          enableRotate={false} // 禁用旋转，使用自定义Y轴旋转
-          enableZoom={true}    // ✅ 启用3D缩放
-          minDistance={1.5}
-          maxDistance={10}
-          zoomSpeed={1}
-          enableDamping
-          dampingFactor={0.05}
-        />
+      <OrbitControls 
+  ref={orbitRef}
+  enablePan={false}
+  enableRotate={false}
+  enableZoom={true}
+  minDistance={1.5}
+  maxDistance={10}
+  
+  // 优化缩放体验
+  zoomSpeed={0.5}           // 降低缩放速度，更精细控制
+  enableDamping={true}      // 确保启用阻尼
+  dampingFactor={0.1}       // 增加阻尼，更丝滑
+  
+  // 添加这些参数进一步优化
+  rotateSpeed={0.5}         // 即使禁用也设置，保持一致性
+  panSpeed={0.5}
+  maxPolarAngle={Math.PI}   // 限制垂直旋转范围
+  minPolarAngle={0}
+/>
       </WebGPUCanvas>
     </div>
   );
