@@ -25,7 +25,8 @@ const initialState = {
     fontFamily: 'Inter, SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif', // 独立字体配置
     titleWeight: 600,
     subtitleWeight: 400,
-    bodyWeight: 400
+    bodyWeight: 400,
+    textColor: '#333333' // 统一字体颜色
   },
   downloads: {
     showAppStore: true,

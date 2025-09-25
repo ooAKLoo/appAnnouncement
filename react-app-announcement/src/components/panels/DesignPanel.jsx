@@ -1,11 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Palette, Droplets, Type } from 'lucide-react';
+import { Palette, Droplets, Type, Palette as PaletteIcon } from 'lucide-react';
+import { generateSecondaryColor, colorSchemeTypes } from '../../data/styleConfig';
 
 function DesignPanel({ isActive }) {
   const { state, updateDesign, updateTypography } = useApp();
+  const [selectedSchemeType, setSelectedSchemeType] = useState('monochromatic');
 
   if (!isActive) return null;
+
+  // 当方案类型改变时，自动更新辅色
+  const handleSchemeChange = (schemeType) => {
+    setSelectedSchemeType(schemeType);
+    const newSecondaryColor = generateSecondaryColor(state.design.bgColor, schemeType);
+    updateDesign({ gradientColor: newSecondaryColor });
+  };
 
   // 预设颜色方案
   const colorPresets = [
@@ -132,23 +141,46 @@ function DesignPanel({ isActive }) {
               </div>
             </div>
             {state.design.colorMode === 'gradient' && (
-              <div className="flex items-center gap-3">
-                <label className="text-sm font-medium text-gray-700 w-16">辅色</label>
-                <div className="flex items-center gap-2 flex-1">
-                  <input
-                    type="color"
-                    value={state.design.gradientColor}
-                    onChange={(e) => updateDesign({ gradientColor: e.target.value })}
-                    className="w-8 h-8 rounded border border-gray-300 cursor-pointer"
-                  />
-                  <input
-                    type="text"
-                    value={state.design.gradientColor}
-                    onChange={(e) => updateDesign({ gradientColor: e.target.value })}
-                    className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-blue-500 focus:border-transparent font-mono"
-                  />
+              <>
+                <div className="flex items-center gap-3">
+                  <label className="text-sm font-medium text-gray-700 w-16">辅色</label>
+                  <div className="flex items-center gap-2 flex-1">
+                    <input
+                      type="color"
+                      value={state.design.gradientColor}
+                      onChange={(e) => updateDesign({ gradientColor: e.target.value })}
+                      className="w-8 h-8 rounded border border-gray-300 cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={state.design.gradientColor}
+                      onChange={(e) => updateDesign({ gradientColor: e.target.value })}
+                      className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-blue-500 focus:border-transparent font-mono"
+                    />
+                  </div>
                 </div>
-              </div>
+                
+                {/* 配色方案选择 */}
+                <div className="mt-3">
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">配色方案</label>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(colorSchemeTypes).map(([type, info]) => (
+                      <button
+                        key={type}
+                        className={`px-3 py-1 text-xs rounded-full border transition-all ${
+                          selectedSchemeType === type
+                            ? 'bg-blue-100 border-blue-300 text-blue-700'
+                            : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
+                        }`}
+                        onClick={() => handleSchemeChange(type)}
+                        title={info.description}
+                      >
+                        {info.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
             )}
           </div>
 
@@ -215,6 +247,27 @@ function DesignPanel({ isActive }) {
                 </div>
               </button>
             ))}
+          </div>
+
+          {/* 字体颜色 */}
+          <div className="space-y-3 mb-4">
+            <div className="flex items-center gap-3">
+              <label className="text-sm font-medium text-gray-700 w-16">字体颜色</label>
+              <div className="flex items-center gap-2 flex-1">
+                <input
+                  type="color"
+                  value={state.typography.textColor || '#333333'}
+                  onChange={(e) => updateTypography({ textColor: e.target.value })}
+                  className="w-8 h-8 rounded border border-gray-300 cursor-pointer"
+                />
+                <input
+                  type="text"
+                  value={state.typography.textColor || '#333333'}
+                  onChange={(e) => updateTypography({ textColor: e.target.value })}
+                  className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-blue-500 focus:border-transparent font-mono"
+                />
+              </div>
+            </div>
           </div>
 
           {/* 字重调节 */}

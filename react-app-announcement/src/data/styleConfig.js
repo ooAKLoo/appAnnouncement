@@ -105,7 +105,46 @@ const styleColorConfigs = {
   }
 };
 
-// 根据风格生成渐变色
+// 配色方案类型
+export const colorSchemeTypes = {
+  monochromatic: { name: '单色调', description: '同色调不同深浅' },
+  analogous: { name: '邻近色', description: '色相环相邻颜色' },
+  complementary: { name: '撞色', description: '色相环对比色' },
+  triadic: { name: '三角色', description: '色相环三等分' },
+  split: { name: '分离补色', description: '补色的相邻色' }
+};
+
+// 根据配色方案生成辅色
+export function generateSecondaryColor(baseColor, schemeType = 'monochromatic') {
+  const [h, s, l] = hexToHsl(baseColor);
+  
+  switch (schemeType) {
+    case 'monochromatic':
+      // 单色调：调整亮度和饱和度
+      return hslToHex(h, Math.max(10, s - 20), Math.min(90, l + 15));
+    
+    case 'analogous':
+      // 邻近色：色相偏移30度
+      return hslToHex((h + 30) % 360, s, l);
+    
+    case 'complementary':
+      // 撞色：色相偏移180度
+      return hslToHex((h + 180) % 360, s, l);
+    
+    case 'triadic':
+      // 三角色：色相偏移120度
+      return hslToHex((h + 120) % 360, s, l);
+    
+    case 'split':
+      // 分离补色：色相偏移150度
+      return hslToHex((h + 150) % 360, s, l);
+    
+    default:
+      return hslToHex(h, Math.max(10, s - 20), Math.min(90, l + 15));
+  }
+}
+
+// 根据风格生成渐变色（保持向后兼容）
 export function generateGradientColor(baseColor, styleId) {
   const config = styleColorConfigs[styleId] || styleColorConfigs.minimal;
   const [h, s, l] = hexToHsl(baseColor);
