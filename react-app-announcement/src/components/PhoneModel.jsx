@@ -37,8 +37,23 @@ function LoadingIndicator() {
   );
 }
 
-const RotatingModel = ({ customImage, modelRotation, isDiagonalLayout, showControlIcons, interactionMode, onModeChange, onShowIcons, ...props }) => {
+const RotatingModel = ({ customImage, modelRotation, isDiagonalLayout, showControlIcons, interactionMode, onModeChange, onShowIcons, onHoverChange, ...props }) => {
   const groupRef = useRef();
+  const [hovered, setHovered] = useState(false);
+  
+  // 处理悬停状态变化
+  const handleHoverChange = (isHovered) => {
+    setHovered(isHovered);
+    if (onHoverChange) {
+      onHoverChange(isHovered);
+    }
+  };
+  
+  // 处理模型点击
+  const handlePointerDown = (e) => {
+    e.stopPropagation(); // 阻止事件冒泡
+    onShowIcons(); // 显示控制图标
+  };
   
   // 应用3D模型的旋转
   useFrame(() => {
@@ -56,14 +71,35 @@ const RotatingModel = ({ customImage, modelRotation, isDiagonalLayout, showContr
   });
   
   return (
-    <group ref={groupRef}>
+    <group 
+      ref={groupRef}
+      onPointerDown={handlePointerDown}  // ✅ 添加点击事件
+      onPointerOver={() => handleHoverChange(true)}
+      onPointerOut={() => handleHoverChange(false)}
+    >
       <PhoneModel3D 
         position={[0, 0, 0]} 
         rotation={[0, Math.PI, 0]} 
-        scale={10}
+        scale={hovered ? 10.05 : 10}  // 悬停时轻微放大
         customImage={customImage}
         {...props}
       />
+      
+      {/* 悬停提示 */}
+      {hovered && !showControlIcons && (
+        <Html
+          position={[0, 1.5, 0]}
+          center
+          distanceFactor={8}
+          style={{
+            pointerEvents: 'none'
+          }}
+        >
+          <div className="px-2 py-1 bg-gray-800/80 text-white text-xs rounded whitespace-nowrap">
+            点击查看控制选项
+          </div>
+        </Html>
+      )}
       
       {/* HTML元素会自动跟随3D模型，但始终面向屏幕 */}
       <Html
@@ -1041,6 +1077,9 @@ function PhoneModel() {
   const [rotateStart, setRotateStart] = useState({ angle: 0, startAngle: 0 });
   const hideIconTimeoutRef = useRef(null);
   
+  // 悬停状态
+  const [isHovered, setIsHovered] = useState(false);
+  
 
   // 显示控制图标并设置自动隐藏
   const showControlIconsWithTimeout = () => {
@@ -1111,7 +1150,8 @@ function PhoneModel() {
 
   // 处理鼠标按下开始交互
   const handleMouseDown = (e) => {
-    if (e.target.tagName === 'CANVAS') {
+    // 只在已经显示控制图标时处理拖动/旋转
+    if (showControlIcons && e.target.tagName === 'CANVAS') {
       if (interactionMode === 'move') {
         setIsDragging(true);
         setDragStart({
@@ -1126,8 +1166,7 @@ function PhoneModel() {
           startX: e.clientX
         });
       }
-      // 显示控制图标
-      showControlIconsWithTimeout();
+      // ❌ 移除这里的 showControlIconsWithTimeout();
     }
   };
 
@@ -1161,7 +1200,8 @@ const handleMouseMove = (e) => {
 
   // 处理触摸事件
   const handleTouchStart = (e) => {
-    if (e.touches.length === 1) {
+    // 只在已经显示控制图标时处理拖动/旋转
+    if (showControlIcons && e.touches.length === 1) {
       const touch = e.touches[0];
       if (interactionMode === 'move') {
         setIsDragging(true);
@@ -1177,8 +1217,7 @@ const handleMouseMove = (e) => {
           startX: touch.clientX
         });
       }
-      // 显示控制图标
-      showControlIconsWithTimeout();
+      // ❌ 移除这里的 showControlIconsWithTimeout();
     }
   };
 
@@ -1237,6 +1276,7 @@ const handleTouchMove = (e) => {
     <div 
       ref={containerRef}
       className={`relative w-full h-full select-none ${
+        isHovered ? 'cursor-pointer' : 
         interactionMode === 'move' ? 'cursor-grab' : 'cursor-crosshair'
       } ${isDragging && interactionMode === 'move' ? 'cursor-grabbing' : ''}`} 
       id="canvas-container"
@@ -1288,6 +1328,7 @@ const handleTouchMove = (e) => {
               interactionMode={interactionMode}
               onModeChange={setInteractionMode}
               onShowIcons={showControlIconsWithTimeout}
+              onHoverChange={setIsHovered}
             />
           </group>
         </Suspense>
