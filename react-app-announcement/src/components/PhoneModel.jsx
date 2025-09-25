@@ -1124,7 +1124,7 @@ const handleTouchMove = (e) => {
   if (e.touches.length === 1) {
     const touch = e.touches[0];
     if (isDragging) {
-      const sensitivity = 0.5; // 同样提高到 0.05
+      const sensitivity = calculateSensitivity(); // 动态计算
       const deltaX = (touch.clientX - dragStart.x) * sensitivity;
       const deltaY = -(touch.clientY - dragStart.y) * sensitivity;
       
