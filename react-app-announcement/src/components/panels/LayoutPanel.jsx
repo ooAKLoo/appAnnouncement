@@ -73,29 +73,6 @@ function LayoutPanel({ isActive }) {
           <h3 className="font-medium text-gray-900 mb-4">布局调整</h3>
           <div className="space-y-4">
             
-            {/* 内容间距 */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium text-gray-700">内容间距</label>
-                <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                  {state.design.spacing}px
-                </span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="40"
-                step="4"
-                value={state.design.spacing}
-                onChange={(e) => updateDesign({ spacing: parseInt(e.target.value) })}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
-              <div className="flex justify-between text-xs text-gray-400 mt-1">
-                <span>紧凑</span>
-                <span>舒适</span>
-                <span>宽松</span>
-              </div>
-            </div>
 
             {/* 内容对齐 */}
             <div>

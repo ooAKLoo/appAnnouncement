@@ -25,10 +25,10 @@ function NewMainInterface() {
       <TopToolbar />
       
       {/* 侧边面板系统 */}
-      <ContentPanel isActive={state.currentPanel === 'content'} />
-      <DesignPanel isActive={state.currentPanel === 'design'} />
-      <TemplatesPanel isActive={state.currentPanel === 'templates'} />
-      <LayoutPanel isActive={state.currentPanel === 'layout'} />
+      <ContentPanel isActive={state.toolbarsVisible && state.currentPanel === 'content'} />
+      <DesignPanel isActive={state.toolbarsVisible && state.currentPanel === 'design'} />
+      <TemplatesPanel isActive={state.toolbarsVisible && state.currentPanel === 'templates'} />
+      <LayoutPanel isActive={state.toolbarsVisible && state.currentPanel === 'layout'} />
       
       {/* 主内容区域 */}
       <div className={`transition-all duration-300 ${
