@@ -34,7 +34,7 @@ function OptionalContentSection({
       
       {/* 内容区域 - 只有勾选时才显示 */}
       {isVisible && (
-        <div className="border-l-2 border-primary-blue pl-4 ml-2">
+        <div>
           {children}
         </div>
       )}
