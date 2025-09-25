@@ -1,12 +1,12 @@
 import React from 'react';
-import { Image, MonitorSpeaker, Plus, Trash2, GripVertical, FileText, X, Sparkles, Calendar } from 'lucide-react';
+import { Image, MonitorSpeaker, Plus, Trash2, GripVertical, FileText, X, Sparkles, Calendar, Square, List } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useUpload } from '../../hooks/useUpload';
 import FormField from '../common/FormField';
 import OptionalContentSection from '../common/OptionalContentSection';
 
 function ContentPanel({ isActive }) {
-  const { state, updateAppInfo, updateDownloads, updateFeatures, updateEventInfo, updateContentStyle, toggleContentSection, toggleConfigPanel } = useApp();
+  const { state, updateAppInfo, updateDownloads, updateFeatures, updateEventInfo, updateContentStyle, toggleContentSection, toggleConfigPanel, setFeatureStyle } = useApp();
   const { handleIconUpload, handleScreenUpload } = useUpload();
 
   const handleInputChange = (field, value) => {
@@ -147,35 +147,99 @@ function ContentPanel({ isActive }) {
             isVisible={state.contentSections.features}
             onToggle={() => toggleContentSection('features')}
           >
-            <div className="space-y-2">
-              {state.features.slice(0, 3).map((feature, index) => (
-                <div key={index} className="flex items-center gap-2 p-2 bg-white rounded border">
-                  <input
-                    type="text"
-                    value={feature.icon}
-                    maxLength={2}
-                    onChange={(e) => handleFeatureChange(index, 'icon', e.target.value)}
-                    className="w-8 h-8 text-center text-sm border-0 focus:outline-none"
-                    placeholder="✨"
-                  />
-                  <input
-                    type="text"
-                    value={feature.title}
-                    onChange={(e) => handleFeatureChange(index, 'title', e.target.value)}
-                    className="flex-1 px-2 py-1 text-sm border-0 focus:outline-none"
-                    placeholder="功能亮点"
-                  />
+            {/* 样式选择器和添加按钮 */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500">样式:</span>
+                <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-0.5">
+                  <button
+                    onClick={() => setFeatureStyle('card')}
+                    className={`px-2 py-1 text-xs rounded-md transition-colors ${state.featureStyle === 'card' ? 'bg-white text-primary-blue shadow-sm' : 'text-gray-600 hover:text-gray-800'}`}
+                  >
+                    卡片
+                  </button>
+                  <button
+                    onClick={() => setFeatureStyle('markdown')}
+                    className={`px-2 py-1 text-xs rounded-md transition-colors ${state.featureStyle === 'markdown' ? 'bg-white text-primary-blue shadow-sm' : 'text-gray-600 hover:text-gray-800'}`}
+                  >
+                    列表
+                  </button>
                 </div>
-              ))}
+              </div>
               
-              {state.features.length < 3 && (
+              {state.features.length < 5 && (
                 <button
                   onClick={handleAddFeature}
-                  className="w-full py-2 text-sm text-gray-500 border border-dashed border-gray-300 rounded hover:bg-gray-50"
+                  className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-primary-blue text-white rounded-md hover:bg-primary-blue/90 transition-colors"
                 >
-                  + 添加功能亮点
+                  <Plus size={12} />
+                  添加
                 </button>
               )}
+            </div>
+
+            {/* 不同样式的功能列表 */}
+            <div className="space-y-2">
+              {state.features.map((feature, index) => (
+                <div key={index} className={`
+                  ${state.featureStyle === 'card' ? 'p-3 bg-gray-50 rounded-lg border border-gray-200' : ''}
+                  ${state.featureStyle === 'markdown' ? 'flex items-center gap-2' : ''}
+                `}>
+                  {state.featureStyle === 'card' && (
+                    <>
+                      <div className="flex items-center gap-2 mb-2">
+                        <input
+                          type="text"
+                          value={feature.icon}
+                          maxLength={2}
+                          onChange={(e) => handleFeatureChange(index, 'icon', e.target.value)}
+                          className="w-10 h-10 text-center text-lg border-0 bg-white rounded focus:outline-none"
+                          placeholder="✨"
+                        />
+                        <input
+                          type="text"
+                          value={feature.title}
+                          onChange={(e) => handleFeatureChange(index, 'title', e.target.value)}
+                          className="flex-1 px-2 py-1 text-sm font-medium border-0 bg-white rounded focus:outline-none"
+                          placeholder="功能标题"
+                        />
+                        <button
+                          onClick={() => handleRemoveFeature(index)}
+                          className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                      <input
+                        type="text"
+                        value={feature.description || ''}
+                        onChange={(e) => handleFeatureChange(index, 'description', e.target.value)}
+                        className="w-full px-2 py-1 text-xs text-gray-600 border-0 bg-white rounded focus:outline-none"
+                        placeholder="简短描述（可选）"
+                      />
+                    </>
+                  )}
+                  
+                  {state.featureStyle === 'markdown' && (
+                    <>
+                      <span className="text-gray-400">•</span>
+                      <input
+                        type="text"
+                        value={feature.title}
+                        onChange={(e) => handleFeatureChange(index, 'title', e.target.value)}
+                        className="flex-1 px-2 py-1 text-sm border-b border-gray-300 focus:border-primary-blue focus:outline-none"
+                        placeholder="功能点"
+                      />
+                      <button
+                        onClick={() => handleRemoveFeature(index)}
+                        className="p-1 text-gray-400 hover:text-red-500"
+                      >
+                        <X size={14} />
+                      </button>
+                    </>
+                  )}
+                </div>
+              ))}
             </div>
           </OptionalContentSection>
           

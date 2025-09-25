@@ -50,6 +50,7 @@ const initialState = {
     event: false, // 活动信息是否显示
     media: true // 媒体资源默认显示
   },
+  featureStyle: 'card', // 功能列表展示样式: 'card' | 'markdown'
   currentStyle: 'minimal', // 当前选中的风格
   screenImage: null,
   showImagePreview: false,
@@ -242,6 +243,11 @@ function appReducer(state, action) {
           [action.payload]: !state.contentSections[action.payload]
         }
       };
+    case 'SET_FEATURE_STYLE':
+      return {
+        ...state,
+        featureStyle: action.payload
+      };
     case 'LOAD_STATE':
       return {
         ...state,
@@ -312,7 +318,8 @@ export function AppProvider({ children }) {
     setModelType: (type) => dispatch({ type: 'SET_MODEL_TYPE', payload: type }),
     setTemplate: (template) => dispatch({ type: 'SET_TEMPLATE', payload: template }),
     updateContentStyle: (type, style) => dispatch({ type: 'UPDATE_CONTENT_STYLE', payload: { type, style } }),
-    toggleContentSection: (section) => dispatch({ type: 'TOGGLE_CONTENT_SECTION', payload: section })
+    toggleContentSection: (section) => dispatch({ type: 'TOGGLE_CONTENT_SECTION', payload: section }),
+    setFeatureStyle: (style) => dispatch({ type: 'SET_FEATURE_STYLE', payload: style })
   };
 
   return (

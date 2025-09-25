@@ -296,22 +296,40 @@ function MainContent() {
   const renderFeatures = () => {
     const featureStyle = currentStyle.featureCard;
     
-    return (
-      <div className={layout.features}>
-        {state.features.map((feature, index) => (
-          <div 
-            key={index} 
-            className={`${featureStyle.background} backdrop-blur-sm ${featureStyle.border} ${featureStyle.padding} ${featureStyle.radius} hover:bg-white/15 transition-all duration-300 ${featureStyle.layout}`}
-          >
-            <div className={`${featureStyle.icon} flex-shrink-0`}>{feature.icon}</div>
-            <div className={featureStyle.layout.includes('text-center') ? 'text-center' : ''}>
-              <h3 className={`${featureStyle.title} mb-2 text-white main-content-subtitle`}>{feature.title}</h3>
-              <p className={`${featureStyle.description} leading-relaxed main-content-text`}>{feature.description}</p>
+    // 根据用户选择的样式渲染不同的布局
+    if (state.featureStyle === 'markdown') {
+      // Markdown风格：简洁的无序列表
+      return (
+        <ul className="space-y-2 text-white/90 main-content-text">
+          {state.features.map((feature, index) => (
+            <li key={index} className="flex items-start gap-2">
+              <span className="text-white/60 mt-0.5">•</span>
+              <span>{feature.title}</span>
+            </li>
+          ))}
+        </ul>
+      );
+    } else {
+      // 默认卡片样式：带图标和描述的完整展示
+      return (
+        <div className={layout.features}>
+          {state.features.map((feature, index) => (
+            <div 
+              key={index} 
+              className={`${featureStyle.background} backdrop-blur-sm ${featureStyle.border} ${featureStyle.padding} ${featureStyle.radius} hover:bg-white/15 transition-all duration-300 ${featureStyle.layout}`}
+            >
+              <div className={`${featureStyle.icon} flex-shrink-0`}>{feature.icon}</div>
+              <div className={featureStyle.layout.includes('text-center') ? 'text-center' : ''}>
+                <h3 className={`${featureStyle.title} mb-2 text-white main-content-subtitle`}>{feature.title}</h3>
+                {feature.description && (
+                  <p className={`${featureStyle.description} leading-relaxed main-content-text`}>{feature.description}</p>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
-    );
+          ))}
+        </div>
+      );
+    }
   };
 
   // 渲染活动信息
