@@ -82,7 +82,7 @@ const RotatingModel = ({ customImage, ...props }) => {
     >
       <PhoneModel3D 
         position={[0, 0, 0]} 
-        rotation={[0, 0, 0]} 
+        rotation={[0, Math.PI, 0]} 
         scale={10}
         customImage={customImage}
         {...props}
