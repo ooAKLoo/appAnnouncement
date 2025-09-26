@@ -70,6 +70,21 @@ const StyledText = ({
         'title': 'text-4xl font-bold leading-tight',
         'subtitle': 'text-lg leading-relaxed',
         'app-name': 'text-xl font-semibold'
+      },
+      'classic': {
+        'title': 'text-4xl font-bold leading-tight',
+        'subtitle': 'text-lg leading-relaxed',
+        'app-name': 'text-xl font-semibold'
+      },
+      'center': {
+        'title': 'text-4xl font-bold leading-tight',
+        'subtitle': 'text-lg leading-relaxed',
+        'app-name': 'text-xl font-semibold'
+      },
+      'minimal': {
+        'title': 'text-3xl font-bold leading-tight',
+        'subtitle': 'text-base leading-relaxed',
+        'app-name': 'text-lg font-semibold'
       }
     };
 

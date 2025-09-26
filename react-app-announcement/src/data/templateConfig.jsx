@@ -1,4 +1,7 @@
 import React from 'react';
+// 直接导入所有模板组件
+import { DefaultTemplate, MinimalTemplate } from '../components/templates/DefaultTemplate';
+import { TopBottomHeader, DiagonalHeader, FeatureGridHeader } from '../components/templates/SpecialHeaders';
 
 // 模板预览组件
 const TemplatePreview = {
@@ -90,58 +93,110 @@ const TemplatePreview = {
   )
 };
 
-// 模板定义 - 决定内容如何布局
-export const templates = {
+// 统一的模板配置 - 包含组件引用
+export const TEMPLATES = {
   classic: {
     id: 'classic',
     name: '左文右图',
     description: '文字内容在左，手机演示在右',
     preview: TemplatePreview.classic,
-    layout: 'horizontal' // 水平布局
+    component: DefaultTemplate,
+    layout: 'horizontal',
+    supportsFeatures: true,
+    supportsEvent: true,
+    supportsDownloads: true,
+    hasBuiltInFeatures: false
   },
   center: {
     id: 'center',
     name: '居中布局',
     description: '内容居中，简洁明了',
     preview: TemplatePreview.center,
-    layout: 'vertical' // 垂直布局
+    component: DefaultTemplate,
+    layout: 'vertical',
+    supportsFeatures: true,
+    supportsEvent: true,
+    supportsDownloads: true,
+    hasBuiltInFeatures: false
   },
   minimal: {
     id: 'minimal',
     name: '左图右文',
     description: '手机演示在左，文字内容在右',
     preview: TemplatePreview.minimal,
-    layout: 'horizontal'
+    component: MinimalTemplate,
+    layout: 'horizontal',
+    supportsFeatures: true,
+    supportsEvent: true,
+    supportsDownloads: true,
+    hasBuiltInFeatures: false
   },
   topBottom: {
     id: 'topBottom',
     name: '上图下文',
     description: '手机在上，应用信息横排在下',
     preview: TemplatePreview.topBottom,
-    layout: 'topBottom'
+    component: TopBottomHeader,
+    layout: 'topBottom',
+    supportsFeatures: false,
+    supportsEvent: false,
+    supportsDownloads: true,
+    hasBuiltInFeatures: false
   },
   diagonal: {
     id: 'diagonal',
     name: '斜角展示',
     description: '产品斜角摆放，动感时尚',
     preview: TemplatePreview.diagonal,
-    layout: 'diagonal'
+    component: DiagonalHeader,
+    layout: 'diagonal',
+    supportsFeatures: false,
+    supportsEvent: false,
+    supportsDownloads: true,
+    hasBuiltInFeatures: true
   },
   featureGrid: {
     id: 'featureGrid',
     name: '特性展示',
     description: '顶部特性图标，底部产品大图',
     preview: TemplatePreview.featureGrid,
-    layout: 'featureGrid'
+    component: FeatureGridHeader,
+    layout: 'featureGrid',
+    supportsFeatures: false,
+    supportsEvent: false,
+    supportsDownloads: true,
+    hasBuiltInFeatures: true
   }
+};
+
+// 获取模板组件
+export const getTemplateComponent = (templateId) => {
+  const template = TEMPLATES[templateId] || TEMPLATES.classic;
+  return template.component;
+};
+
+// 获取模板配置
+export const getTemplateConfig = (templateId) => {
+  return TEMPLATES[templateId] || TEMPLATES.classic;
 };
 
 // 获取所有可用的模板
 export function getAllTemplates() {
-  return Object.values(templates);
+  return Object.values(TEMPLATES);
 }
 
-// 根据模板ID获取模板配置
-export function getTemplateById(templateId) {
-  return templates[templateId] || templates.classic;
+// 检查模板是否支持某功能
+export function templateSupports(templateId, feature) {
+  const config = getTemplateConfig(templateId);
+  
+  switch(feature) {
+    case 'features':
+      return config.supportsFeatures;
+    case 'event':
+      return config.supportsEvent;
+    case 'downloads':
+      return config.supportsDownloads;
+    default:
+      return false;
+  }
 }

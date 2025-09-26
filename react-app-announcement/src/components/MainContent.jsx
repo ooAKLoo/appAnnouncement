@@ -4,27 +4,20 @@ import { useApp } from '../context/AppContext';
 import PhoneModel from './PhoneModel';
 import PhoneModel2D from './PhoneModel2D';
 import { getStyleById } from '../data/styleConfig';
-import { LAYOUT_CONFIGS, SPECIAL_LAYOUT_CONFIGS } from '../config/layoutConfigs';
-import { TopBottomHeader, DiagonalHeader, FeatureGridHeader } from './templates/SpecialHeaders';
+import { LAYOUT_CONFIGS } from '../config/layoutConfigs';
+import { getTemplateComponent, getTemplateConfig, templateSupports } from '../data/templateConfig';
 import StyledText from './common/StyledText';
 
 function MainContent() {
   const { state, updateDesign, toggleToolbars } = useApp();
   
-  // 特殊模板的header映射
-  const SPECIAL_HEADERS = {
-    topBottom: TopBottomHeader,
-    diagonal: DiagonalHeader,
-    featureGrid: FeatureGridHeader
-  };
+  // 获取当前模板配置
+  const currentTemplate = state.design.template || 'default';
+  const templateConfig = getTemplateConfig(currentTemplate);
   
   // 获取当前风格配置
   const currentStyle = getStyleById(state.currentStyle || 'minimal');
 
-  // 获取字体颜色样式
-  const getTextColorStyle = () => ({
-    color: state.typography.textColor || '#ffffff'
-  });
 
   // 根据间距值生成对应的gap类名
   const getGapClass = (spacing) => {
@@ -37,20 +30,17 @@ function MainContent() {
   };
 
   const getLayoutClasses = () => {
-    const template = state.design.template;
+    // 现在所有模板都统一，不再区分特殊模板
+    // 根据模板配置获取对应的布局样式
+    const template = state.design.template || 'classic';
     const spacing = state.design.spacing || 8;
     const gapClass = getGapClass(spacing);
     
-    // 特殊模板直接返回特殊配置
-    if (SPECIAL_LAYOUT_CONFIGS[template]) {
-      return SPECIAL_LAYOUT_CONFIGS[template];
-    }
-    
-    // 基础配置
+    // 获取基础配置
     const baseConfig = LAYOUT_CONFIGS[template] || LAYOUT_CONFIGS.classic;
     const alignment = state.design.alignment || 'left';
     
-    // 需要transform的模板
+    // 需要transform的模板保持原有逻辑
     const needsTransform = ['minimal', 'elegant', 'film', 'tag', 'overlay'];
     if (needsTransform.includes(template)) {
       const baseTransform = (spacing - 8) * 8;
@@ -74,72 +64,72 @@ function MainContent() {
       };
     }
     
+    // 特殊模板的布局处理
+    if (template === 'topBottom') {
+      return {
+        container: 'min-h-screen max-w-4xl mx-auto px-5 py-16 flex flex-col items-center justify-center relative',
+        wrapper: 'flex flex-col items-center gap-16 w-full',
+        phoneContainer: 'max-w-md min-h-[600px] flex justify-center items-center relative order-1',
+        leftContent: 'w-full max-w-2xl order-2',
+        features: 'mt-8 space-y-4',
+        event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mt-8',
+        buttons: 'flex flex-col sm:flex-row gap-4 justify-center mt-8'
+      };
+    }
+    
+    if (template === 'diagonal') {
+      return {
+        container: 'min-h-screen max-w-7xl mx-auto px-8 flex items-center justify-center relative overflow-hidden',
+        wrapper: 'relative w-full h-screen flex items-center',
+        wrapperStyle: { width: '100%', height: '100vh', padding: '60px 0' },
+        leftContentStyle: { 
+          width: '50%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          height: '80vh',
+          paddingRight: '60px',
+          zIndex: 20
+        },
+        phoneContainerStyle: {
+          position: 'absolute',
+          right: '0',
+          bottom: '0',
+          width: '50%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'flex-end',
+          zIndex: 10
+        },
+        leftContent: 'flex flex-col justify-between h-full',
+        phoneContainer: '',
+        buttons: 'flex gap-4'
+      };
+    }
+    
     return baseConfig;
   };
 
   const layout = getLayoutClasses();
 
-  // 渲染基本信息（logo + 标题 + 副标题）
-  const renderBasicInfo = () => {
-    // 如果是特殊模板，使用特殊组件
-    const SpecialHeader = SPECIAL_HEADERS[state.design.template];
-    if (SpecialHeader) {
-      return <SpecialHeader 
-        appInfo={state.appInfo}
-        features={state.features}
-        contentSections={state.contentSections}
-        alignment={state.design.alignment || 'left'}
-        layout={layout}
-      />;
-    }
+  // 统一的模板渲染器
+  const renderTemplate = () => {
+    // 直接从配置获取组件
+    const TemplateComponent = getTemplateComponent(currentTemplate);
     
-    // 默认渲染逻辑
-    const alignment = state.design.alignment || 'left';
-    const logoAlignment = {
-      'left': 'justify-start',
-      'center': 'justify-center', 
-      'right': 'justify-end'
-    }[alignment];
-
-    return (
-      <>
-        <div className={`${layout.logo} ${logoAlignment}`}>
-          <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white/20 flex items-center justify-center text-2xl font-bold">
-            {state.appInfo.iconImage ? (
-              <img 
-                src={state.appInfo.iconImage} 
-                alt="App Icon" 
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              state.appInfo.icon
-            )}
-          </div>
-          <StyledText 
-            variant="app-name" 
-            className="font-semibold"
-          >
-            {state.appInfo.name}
-          </StyledText>
-        </div>
-
-        <StyledText 
-          variant="title" 
-          element="h1" 
-          className={layout.title}
-        >
-          {state.appInfo.title}
-        </StyledText>
-
-        <StyledText 
-          variant="subtitle" 
-          element="p" 
-          className={layout.subtitle}
-        >
-          {state.appInfo.subtitle}
-        </StyledText>
-      </>
-    );
+    // 统一的模板props
+    const templateProps = {
+      appInfo: state.appInfo,
+      features: state.features,
+      contentSections: state.contentSections,
+      alignment: state.design.alignment || 'left',
+      layout: layout,
+      template: currentTemplate  // 传递模板ID给StyledText使用
+    };
+    
+    // 统一渲染所有模板
+    return <TemplateComponent {...templateProps} />;
   };
 
   // 渲染功能列表
@@ -171,16 +161,15 @@ function MainContent() {
                 <div 
                   key={index} 
                   className={`
-                    text-left main-content-text
+                    text-left
                     ${isLastTwo && index === 3 ? 'col-start-1 col-end-2' : ''}
                     ${isLastTwo && index === 4 ? 'col-start-3 col-end-4' : ''}
                   `}
-                  style={getTextColorStyle()}
                 >
-                  <span className="inline-flex items-start gap-2">
+                  <StyledText variant="text" className="inline-flex items-start gap-2">
                     <span className="opacity-60 mt-0.5">•</span>
                     <span>{feature.title}</span>
-                  </span>
+                  </StyledText>
                 </div>
               );
             })}
@@ -189,11 +178,13 @@ function MainContent() {
       } else {
         // 非居中布局保持原样
         return (
-          <ul className="space-y-2 main-content-text" style={getTextColorStyle()}>
+          <ul className="space-y-2">
             {state.features.map((feature, index) => (
               <li key={index} className="flex items-start gap-2">
-                <span className="opacity-60 mt-0.5">•</span>
-                <span>{feature.title}</span>
+                <StyledText variant="text" className="flex items-start gap-2">
+                  <span className="opacity-60 mt-0.5">•</span>
+                  <span>{feature.title}</span>
+                </StyledText>
               </li>
             ))}
           </ul>
@@ -278,13 +269,13 @@ function MainContent() {
           )}
           
           {state.eventInfo.endDate && (
-            <div className="text-sm mb-4" style={{...getTextColorStyle(), opacity: 0.7}}>截止日期：{state.eventInfo.endDate}</div>
+            <StyledText variant="text" className="text-sm mb-4 opacity-70">截止日期：{state.eventInfo.endDate}</StyledText>
           )}
           
           {state.eventInfo.promoCode && (
             <div className={`inline-block bg-white/20 rounded-lg px-4 py-2 ${alignment === 'center' ? 'mx-auto' : alignment === 'right' ? 'ml-auto' : ''}`}>
-              <div className="text-xs mb-1" style={{...getTextColorStyle(), opacity: 0.7}}>优惠码</div>
-              <div className="text-lg font-mono font-bold" style={getTextColorStyle()}>{state.eventInfo.promoCode}</div>
+              <StyledText variant="text" className="text-xs mb-1 opacity-70">优惠码</StyledText>
+              <StyledText variant="text" className="text-lg font-mono font-bold">{state.eventInfo.promoCode}</StyledText>
             </div>
           )}
         </div>
@@ -305,7 +296,7 @@ function MainContent() {
     return (
       <div className={`${layout.buttons} ${buttonAlignment}`}>
         {state.downloads.showAppStore && (
-          <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl transition-all duration-300 hover:transform hover:scale-105 hover:shadow-lg backdrop-blur-sm cursor-default" style={getTextColorStyle()}>
+          <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl transition-all duration-300 hover:transform hover:scale-105 hover:shadow-lg backdrop-blur-sm cursor-default">
             <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
               <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
             </svg>
@@ -313,7 +304,7 @@ function MainContent() {
           </div>
         )}
         {state.downloads.showGooglePlay && (
-          <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl transition-all duration-300 hover:transform hover:scale-105 hover:shadow-lg backdrop-blur-sm cursor-default" style={getTextColorStyle()}>
+          <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl transition-all duration-300 hover:transform hover:scale-105 hover:shadow-lg backdrop-blur-sm cursor-default">
             <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
               <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z" />
             </svg>
@@ -339,25 +330,25 @@ function MainContent() {
       <div className={layout.wrapper} style={layout.wrapperStyle}>
         {/* Left Content */}
         <div className={layout.leftContent} style={layout.leftContentStyle}>
-          {/* 基本信息 */}
-          {renderBasicInfo()}
+          {/* 统一模板渲染 */}
+          {renderTemplate()}
           
-          {/* 功能列表 - 根据contentSections.features控制显示 */}
-          {state.contentSections.features && (
+          {/* 功能列表 - 根据模板配置和contentSections.features控制显示 */}
+          {templateSupports(currentTemplate, 'features') && state.contentSections.features && (
             <div className="mb-8">
               {renderFeatures()}
             </div>
           )}
           
-          {/* 活动信息 - 根据contentSections.event控制显示 */}
-          {state.contentSections.event && (
+          {/* 活动信息 - 根据模板配置和contentSections.event控制显示 */}
+          {templateSupports(currentTemplate, 'event') && state.contentSections.event && (
             <div className="mb-8">
               {renderEvent()}
             </div>
           )}
           
-          {/* 下载按钮 */}
-          {renderDownloads()}
+          {/* 下载按钮 - 根据模板配置控制显示 */}
+          {templateSupports(currentTemplate, 'downloads') && renderDownloads()}
         </div>
 
         {/* Right Side Phone Model */}
