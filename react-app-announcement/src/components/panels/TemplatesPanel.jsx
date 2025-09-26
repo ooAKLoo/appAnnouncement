@@ -90,13 +90,6 @@ function TemplatesPanel({ isActive }) {
                     {template.description}
                   </p>
                 </div>
-
-                {/* 选中指示器 */}
-                {state.design.template === template.id && (
-                  <div className="absolute top-2 right-2 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
-                    <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                  </div>
-                )}
               </button>
             ))}
           </div>
