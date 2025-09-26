@@ -260,6 +260,34 @@ function MainContent() {
           {templateSupports(currentTemplate, 'downloads') && renderDownloads()}
         </div>
 
+        {/* 手机占位元素 - 保持布局平衡 */}
+        {currentTemplate !== 'diagonal' && (
+          <div 
+            className={layout.phoneContainer}
+            style={{
+              backgroundColor: 'rgba(255, 0, 0, 0.3)', // 红色背景便于调试
+              pointerEvents: 'none',
+              minWidth: currentTemplate === 'center' ? '400px' : '350px',
+              minHeight: '600px',
+              ...(layout.phoneContainerStyle || {})
+            }}
+          />
+        )}
+        
+        {/* Diagonal模板的特殊占位元素 */}
+        {currentTemplate === 'diagonal' && (
+          <div 
+            style={{
+              ...layout.phoneContainerStyle,
+              backgroundColor: 'rgba(255, 0, 0, 0.3)', // 红色背景便于调试
+              pointerEvents: 'none',
+              minWidth: '400px',
+              minHeight: '600px'
+            }}
+          />
+        )}
+
+
         {/* Right Side Phone Model */}
         <div 
           className="fixed inset-0 w-screen h-screen pointer-events-none"

@@ -99,8 +99,8 @@ export const MinimalTemplate = ({ appInfo, alignment }) => {
 
   return (
     <>
-      <div className={`flex items-center gap-3 mb-6 ${logoAlignment}`}>
-        <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/20 flex items-center justify-center text-lg font-bold">
+      <div className={`flex items-center gap-3 mb-8 ${logoAlignment}`}>
+        <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white/20 flex items-center justify-center text-2xl font-bold">
           {appInfo.iconImage ? (
             <img 
               src={appInfo.iconImage} 
@@ -120,7 +120,7 @@ export const MinimalTemplate = ({ appInfo, alignment }) => {
         variant="title" 
         element="h1" 
         template="minimal" 
-        className="mb-4"
+        className="mb-6"
       >
         {appInfo.title}
       </StyledText>
@@ -192,7 +192,7 @@ export const DiagonalTemplate = ({ appInfo, features, contentSections, alignment
     <div className="flex flex-col h-full justify-between">
       <div className="space-y-4">
         <div className={`flex items-end gap-3 ${iconAlignment}`}>
-          <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/20 flex items-center justify-center text-lg font-bold flex-shrink-0">
+          <div className="w-16 h-16 rounded-xl overflow-hidden bg-white/20 flex items-center justify-center text-lg font-bold flex-shrink-0">
             {appInfo.iconImage ? (
               <img 
                 src={appInfo.iconImage} 
