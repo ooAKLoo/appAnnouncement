@@ -6,6 +6,7 @@ import PhoneModel2D from './PhoneModel2D';
 import { getStyleById } from '../data/styleConfig';
 import { LAYOUT_CONFIGS, SPECIAL_LAYOUT_CONFIGS } from '../config/layoutConfigs';
 import { TopBottomHeader, DiagonalHeader, FeatureGridHeader } from './templates/SpecialHeaders';
+import StyledText from './common/StyledText';
 
 function MainContent() {
   const { state, updateDesign, toggleToolbars } = useApp();
@@ -87,10 +88,8 @@ function MainContent() {
         appInfo={state.appInfo}
         features={state.features}
         contentSections={state.contentSections}
-        getTextColorStyle={getTextColorStyle}
         alignment={state.design.alignment || 'left'}
         layout={layout}
-        typography={state.typography}
       />;
     }
     
@@ -116,29 +115,29 @@ function MainContent() {
               state.appInfo.icon
             )}
           </div>
-          <div 
-            className="text-xl font-semibold" 
-            style={{
-              ...getTextColorStyle(),
-              fontWeight: state.typography.appNameWeight || 600,
-              fontFamily: state.typography.fontFamily
-            }}
+          <StyledText 
+            variant="app-name" 
+            className="font-semibold"
           >
             {state.appInfo.name}
-          </div>
+          </StyledText>
         </div>
 
-        <h1 className={`${layout.title} main-content-title`} style={getTextColorStyle()}>{state.appInfo.title}</h1>
+        <StyledText 
+          variant="title" 
+          element="h1" 
+          className={layout.title}
+        >
+          {state.appInfo.title}
+        </StyledText>
 
-        <p 
-          className={`${layout.subtitle} main-content-subtitle`} 
-          style={{
-            ...getTextColorStyle(),
-            fontWeight: state.typography.subtitleWeight || 400
-          }}
+        <StyledText 
+          variant="subtitle" 
+          element="p" 
+          className={layout.subtitle}
         >
           {state.appInfo.subtitle}
-        </p>
+        </StyledText>
       </>
     );
   };
@@ -225,9 +224,9 @@ function MainContent() {
               >
                 <div className={`${featureStyle.icon} flex-shrink-0`}>{feature.icon}</div>
                 <div className={featureStyle.layout.includes('text-center') ? 'text-center' : ''}>
-                  <h3 className={`${featureStyle.title} mb-2 main-content-subtitle`} style={getTextColorStyle()}>{feature.title}</h3>
+                  <StyledText variant="subtitle" element="h3" className={`${featureStyle.title} mb-2`}>{feature.title}</StyledText>
                   {feature.description && (
-                    <p className={`${featureStyle.description} leading-relaxed main-content-text`} style={getTextColorStyle()}>{feature.description}</p>
+                    <StyledText variant="text" element="p" className={`${featureStyle.description} leading-relaxed`}>{feature.description}</StyledText>
                   )}
                 </div>
               </div>
@@ -245,9 +244,9 @@ function MainContent() {
               >
                 <div className={`${featureStyle.icon} flex-shrink-0`}>{feature.icon}</div>
                 <div className={featureStyle.layout.includes('text-center') ? 'text-center' : ''}>
-                  <h3 className={`${featureStyle.title} mb-2 main-content-subtitle`} style={getTextColorStyle()}>{feature.title}</h3>
+                  <StyledText variant="subtitle" element="h3" className={`${featureStyle.title} mb-2`}>{feature.title}</StyledText>
                   {feature.description && (
-                    <p className={`${featureStyle.description} leading-relaxed main-content-text`} style={getTextColorStyle()}>{feature.description}</p>
+                    <StyledText variant="text" element="p" className={`${featureStyle.description} leading-relaxed`}>{feature.description}</StyledText>
                   )}
                 </div>
               </div>
@@ -271,8 +270,8 @@ function MainContent() {
     return (
       <div className={`${eventStyle.background} backdrop-blur-md ${eventStyle.border} ${eventStyle.padding} ${eventStyle.radius}`}>
         <div className={eventAlignment}>
-          <div className={`${eventStyle.title} mb-3 main-content-title`} style={getTextColorStyle()}>{state.eventInfo.eventTitle}</div>
-          <div className={`${eventStyle.description} mb-4 main-content-text`} style={getTextColorStyle()}>{state.eventInfo.eventDescription}</div>
+          <StyledText variant="title" className={`${eventStyle.title} mb-3`}>{state.eventInfo.eventTitle}</StyledText>
+          <StyledText variant="text" className={`${eventStyle.description} mb-4`}>{state.eventInfo.eventDescription}</StyledText>
           
           {state.eventInfo.discount && (
             <div className={`${eventStyle.discount} mb-4`}>{state.eventInfo.discount} OFF</div>
@@ -310,7 +309,7 @@ function MainContent() {
             <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
               <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
             </svg>
-            <span className="font-medium main-content-text" style={getTextColorStyle()}>App Store</span>
+            <StyledText variant="text" className="font-medium">App Store</StyledText>
           </div>
         )}
         {state.downloads.showGooglePlay && (
@@ -318,7 +317,7 @@ function MainContent() {
             <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
               <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z" />
             </svg>
-            <span className="font-medium main-content-text" style={getTextColorStyle()}>Google Play</span>
+            <StyledText variant="text" className="font-medium">Google Play</StyledText>
           </div>
         )}
       </div>
