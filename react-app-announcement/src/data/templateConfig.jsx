@@ -1,7 +1,13 @@
 import React from 'react';
-// 直接导入所有模板组件
-import { DefaultTemplate, MinimalTemplate } from '../components/templates/DefaultTemplate';
-import { TopBottomHeader, DiagonalHeader, FeatureGridHeader } from '../components/templates/SpecialHeaders';
+// 导入统一的模板组件
+import { 
+  ClassicTemplate, 
+  CenterTemplate, 
+  MinimalTemplate, 
+  TopBottomTemplate, 
+  DiagonalTemplate, 
+  FeatureGridTemplate 
+} from '../components/templates/Templates';
 
 // 模板预览组件
 const TemplatePreview = {
@@ -93,31 +99,51 @@ const TemplatePreview = {
   )
 };
 
-// 统一的模板配置 - 包含组件引用
+// 统一的模板配置 - 包含组件引用和布局配置
 export const TEMPLATES = {
   classic: {
     id: 'classic',
     name: '左文右图',
     description: '文字内容在左，手机演示在右',
     preview: TemplatePreview.classic,
-    component: DefaultTemplate,
-    layout: 'horizontal',
+    component: ClassicTemplate,
+    layoutConfig: {
+      container: 'min-h-screen max-w-6xl mx-auto px-5 flex items-center justify-center relative',
+      wrapper: 'flex items-center justify-between z-10',
+      leftContent: 'flex-1 max-w-lg text-white animate-fadeInLeft',
+      phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative',
+      logo: 'flex items-center gap-4 mb-12',
+      title: 'text-5xl font-bold leading-tight mb-6 animate-fadeInUp',
+      subtitle: 'text-lg text-white/90 leading-relaxed mb-10 animate-fadeInUp',
+      features: 'space-y-6 mb-10',
+      event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mb-10',
+      buttons: 'flex flex-col sm:flex-row gap-4 animate-fadeInUp'
+    },
     supportsFeatures: true,
     supportsEvent: true,
-    supportsDownloads: true,
-    hasBuiltInFeatures: false
+    supportsDownloads: true
   },
   center: {
     id: 'center',
     name: '居中布局',
     description: '内容居中，简洁明了',
     preview: TemplatePreview.center,
-    component: DefaultTemplate,
-    layout: 'vertical',
+    component: CenterTemplate,
+    layoutConfig: {
+      container: 'min-h-screen max-w-4xl mx-auto px-5 flex flex-col items-center justify-center relative text-center',
+      wrapper: 'flex flex-col items-center w-full',
+      leftContent: 'max-w-2xl order-1 text-center',
+      phoneContainer: 'min-h-[600px] order-2 w-full max-w-xl flex justify-center items-center relative',
+      logo: 'flex items-center justify-center gap-4 mb-8',
+      title: 'text-4xl md:text-5xl font-bold leading-tight mb-5',
+      subtitle: 'text-lg opacity-85 mb-8',
+      features: 'grid grid-cols-1 md:grid-cols-2 gap-6 mb-8',
+      event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mb-8',
+      buttons: 'flex flex-col sm:flex-row gap-4 justify-center'
+    },
     supportsFeatures: true,
     supportsEvent: true,
-    supportsDownloads: true,
-    hasBuiltInFeatures: false
+    supportsDownloads: true
   },
   minimal: {
     id: 'minimal',
@@ -125,47 +151,100 @@ export const TEMPLATES = {
     description: '手机演示在左，文字内容在右',
     preview: TemplatePreview.minimal,
     component: MinimalTemplate,
-    layout: 'horizontal',
+    layoutConfig: {
+      container: 'min-h-screen max-w-6xl mx-auto px-5 flex items-center justify-center relative',
+      wrapper: 'flex flex-row-reverse items-center justify-between z-10',
+      leftContent: 'flex-1 max-w-md text-white',
+      phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative',
+      logo: 'flex items-center gap-4 mb-8',
+      title: 'text-4xl font-bold leading-tight mb-6',
+      subtitle: 'text-lg text-white/90 leading-relaxed mb-8',
+      features: 'space-y-4 mb-6',
+      event: 'bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl p-6 mb-6',
+      buttons: 'flex flex-col sm:flex-row gap-4'
+    },
     supportsFeatures: true,
     supportsEvent: true,
-    supportsDownloads: true,
-    hasBuiltInFeatures: false
+    supportsDownloads: true
   },
   topBottom: {
     id: 'topBottom',
     name: '上图下文',
     description: '手机在上，应用信息横排在下',
     preview: TemplatePreview.topBottom,
-    component: TopBottomHeader,
-    layout: 'topBottom',
+    component: TopBottomTemplate,
+    layoutConfig: {
+      container: 'min-h-screen max-w-4xl mx-auto px-5 py-16 flex flex-col items-center justify-center relative',
+      wrapper: 'flex flex-col items-center gap-16 w-full',
+      phoneContainer: 'max-w-md min-h-[600px] flex justify-center items-center relative order-1',
+      leftContent: 'w-full max-w-2xl order-2',
+      features: 'mt-8 space-y-4',
+      event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mt-8',
+      buttons: 'flex flex-col sm:flex-row gap-4 justify-center mt-8'
+    },
     supportsFeatures: false,
     supportsEvent: false,
-    supportsDownloads: true,
-    hasBuiltInFeatures: false
+    supportsDownloads: true
   },
   diagonal: {
     id: 'diagonal',
     name: '斜角展示',
     description: '产品斜角摆放，动感时尚',
     preview: TemplatePreview.diagonal,
-    component: DiagonalHeader,
-    layout: 'diagonal',
+    component: DiagonalTemplate,
+    layoutConfig: {
+      container: 'min-h-screen max-w-7xl mx-auto px-8 flex items-center justify-center relative overflow-hidden',
+      wrapper: 'relative w-full h-screen flex items-center',
+      wrapperStyle: { width: '100%', height: '100vh', padding: '60px 0' },
+      leftContentStyle: { 
+        width: '50%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        height: '80vh',
+        paddingRight: '60px',
+        zIndex: 20
+      },
+      phoneContainerStyle: {
+        position: 'absolute',
+        right: '0',
+        bottom: '0',
+        width: '50%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'flex-end',
+        zIndex: 10
+      },
+      leftContent: 'flex flex-col justify-between h-full',
+      phoneContainer: '',
+      buttons: 'flex gap-4'
+    },
     supportsFeatures: false,
     supportsEvent: false,
-    supportsDownloads: true,
-    hasBuiltInFeatures: true
+    supportsDownloads: true
   },
   featureGrid: {
     id: 'featureGrid',
     name: '特性展示',
     description: '顶部特性图标，底部产品大图',
     preview: TemplatePreview.featureGrid,
-    component: FeatureGridHeader,
-    layout: 'featureGrid',
+    component: FeatureGridTemplate,
+    layoutConfig: {
+      container: 'min-h-screen max-w-5xl mx-auto px-5 py-16 flex flex-col items-center justify-center relative',
+      wrapper: 'flex flex-col items-center w-full',
+      leftContent: 'w-full max-w-4xl text-center mb-16',
+      phoneContainer: 'max-w-lg min-h-[600px] flex justify-center items-center relative',
+      logo: 'flex items-center justify-center gap-4 mb-8',
+      title: 'text-4xl font-bold leading-tight mb-8',
+      subtitle: 'text-lg leading-relaxed mb-12',
+      features: 'grid grid-cols-1 md:grid-cols-3 gap-8 mb-16',
+      event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mb-12',
+      buttons: 'flex flex-col sm:flex-row gap-4 justify-center mb-16'
+    },
     supportsFeatures: false,
     supportsEvent: false,
-    supportsDownloads: true,
-    hasBuiltInFeatures: true
+    supportsDownloads: true
   }
 };
 

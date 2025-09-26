@@ -4,7 +4,6 @@ import { useApp } from '../context/AppContext';
 import PhoneModel from './PhoneModel';
 import PhoneModel2D from './PhoneModel2D';
 import { getStyleById } from '../data/styleConfig';
-import { LAYOUT_CONFIGS } from '../config/layoutConfigs';
 import { getTemplateComponent, getTemplateConfig, templateSupports } from '../data/templateConfig';
 import StyledText from './common/StyledText';
 
@@ -12,106 +11,16 @@ function MainContent() {
   const { state, updateDesign, toggleToolbars } = useApp();
   
   // 获取当前模板配置
-  const currentTemplate = state.design.template || 'default';
+  const currentTemplate = state.design.template || 'classic';
   const templateConfig = getTemplateConfig(currentTemplate);
   
   // 获取当前风格配置
   const currentStyle = getStyleById(state.currentStyle || 'minimal');
 
 
-  // 根据间距值生成对应的gap类名
-  const getGapClass = (spacing) => {
-    const gapMap = {
-      2: 'gap-2', 3: 'gap-3', 4: 'gap-4', 5: 'gap-5', 6: 'gap-6', 7: 'gap-7', 8: 'gap-8', 
-      9: 'gap-9', 10: 'gap-10', 11: 'gap-11', 12: 'gap-12', 14: 'gap-14', 16: 'gap-16', 
-      20: 'gap-20', 24: 'gap-24', 28: 'gap-28', 32: 'gap-32', 36: 'gap-36', 40: 'gap-40'
-    };
-    return gapMap[spacing] || 'gap-8';
-  };
 
-  const getLayoutClasses = () => {
-    // 现在所有模板都统一，不再区分特殊模板
-    // 根据模板配置获取对应的布局样式
-    const template = state.design.template || 'classic';
-    const spacing = state.design.spacing || 8;
-    const gapClass = getGapClass(spacing);
-    
-    // 获取基础配置
-    const baseConfig = LAYOUT_CONFIGS[template] || LAYOUT_CONFIGS.classic;
-    const alignment = state.design.alignment || 'left';
-    
-    // 需要transform的模板保持原有逻辑
-    const needsTransform = ['minimal', 'elegant', 'film', 'tag', 'overlay'];
-    if (needsTransform.includes(template)) {
-      const baseTransform = (spacing - 8) * 8;
-      return {
-        ...baseConfig,
-        wrapperStyle: { width: '90%', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' },
-        leftContentStyle: { 
-          transform: `translateX(${-baseTransform}px)`,
-          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-        },
-        phoneContainerStyle: { transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' },
-        leftContent: `${baseConfig.leftContent} text-${alignment}`
-      };
-    }
-    
-    // center模板的gap处理
-    if (template === 'center') {
-      return {
-        ...baseConfig,
-        wrapper: `flex flex-col items-center ${gapClass} w-full`
-      };
-    }
-    
-    // 特殊模板的布局处理
-    if (template === 'topBottom') {
-      return {
-        container: 'min-h-screen max-w-4xl mx-auto px-5 py-16 flex flex-col items-center justify-center relative',
-        wrapper: 'flex flex-col items-center gap-16 w-full',
-        phoneContainer: 'max-w-md min-h-[600px] flex justify-center items-center relative order-1',
-        leftContent: 'w-full max-w-2xl order-2',
-        features: 'mt-8 space-y-4',
-        event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mt-8',
-        buttons: 'flex flex-col sm:flex-row gap-4 justify-center mt-8'
-      };
-    }
-    
-    if (template === 'diagonal') {
-      return {
-        container: 'min-h-screen max-w-7xl mx-auto px-8 flex items-center justify-center relative overflow-hidden',
-        wrapper: 'relative w-full h-screen flex items-center',
-        wrapperStyle: { width: '100%', height: '100vh', padding: '60px 0' },
-        leftContentStyle: { 
-          width: '50%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          height: '80vh',
-          paddingRight: '60px',
-          zIndex: 20
-        },
-        phoneContainerStyle: {
-          position: 'absolute',
-          right: '0',
-          bottom: '0',
-          width: '50%',
-          height: '100%',
-          display: 'flex',
-          alignItems: 'flex-end',
-          justifyContent: 'flex-end',
-          zIndex: 10
-        },
-        leftContent: 'flex flex-col justify-between h-full',
-        phoneContainer: '',
-        buttons: 'flex gap-4'
-      };
-    }
-    
-    return baseConfig;
-  };
-
-  const layout = getLayoutClasses();
+  // 直接从templateConfig获取布局配置
+  const layout = templateConfig.layoutConfig;
 
   // 统一的模板渲染器
   const renderTemplate = () => {
