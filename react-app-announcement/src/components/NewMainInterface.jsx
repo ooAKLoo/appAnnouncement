@@ -31,9 +31,7 @@ function NewMainInterface() {
       <LayoutPanel isActive={state.toolbarsVisible && state.currentPanel === 'layout'} />
       
       {/* 主内容区域 */}
-      <div className={`transition-all duration-300 ${
-        state.toolbarsVisible ? 'pt-16' : 'pt-0'
-      }`}>
+      <div className="transition-all duration-300 pt-0">
         <BackgroundDecorations />
         <MainContent />
       </div>
