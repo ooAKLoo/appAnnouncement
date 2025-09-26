@@ -89,10 +89,11 @@ const RotatingModel = ({
       if (modelRotation !== undefined) {
         groupRef.current.rotation.x = (modelRotation.x * Math.PI) / 180;
         groupRef.current.rotation.y = (modelRotation.y * Math.PI) / 180;
+        groupRef.current.rotation.z = ((modelRotation.z || 0) * Math.PI) / 180;
       }
-      // Z轴倾斜（diagonal模板效果）
+      // diagonal模板的额外倾斜
       if (isDiagonalLayout) {
-        groupRef.current.rotation.z = (-12 * Math.PI) / 180; // -12度倾斜
+        groupRef.current.rotation.z += (-12 * Math.PI) / 180; // -12度倾斜
         groupRef.current.position.y = 1; // 略微向上偏移
       }
     }
@@ -141,7 +142,7 @@ const RotatingModel = ({
         }}
       >
         <div className="flex gap-1">
-          {/* 拖拽图标 */}
+          {/* 拖拽按钮 */}
           <button
             className={`w-8 h-8 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-all duration-200 hover:scale-110 shadow-lg ${
               interactionMode === "move"
@@ -158,14 +159,14 @@ const RotatingModel = ({
             <Move size={16} />
           </button>
 
-          {/* 旋转图标 */}
+          {/* 自由旋转按钮 */}
           <button
             className={`w-8 h-8 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-all duration-200 hover:scale-110 shadow-lg ${
               interactionMode === "rotate"
                 ? "bg-blue-100 border border-blue-300 text-blue-700"
                 : "bg-white/90 hover:bg-white border border-gray-200"
             }`}
-            title="旋转模式"
+            title="自由旋转"
             onClick={(e) => {
               e.stopPropagation();
               onModeChange("rotate");
@@ -173,6 +174,57 @@ const RotatingModel = ({
             }}
           >
             <RotateCw size={16} />
+          </button>
+
+          {/* X轴旋转 */}
+          <button
+            className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-gray-600 hover:text-gray-800 transition-all duration-200 hover:scale-110 shadow-lg ${
+              interactionMode === "rotateX"
+                ? "bg-red-100 border border-red-300 text-red-700"
+                : "bg-white/90 hover:bg-white border border-gray-200"
+            }`}
+            title="X轴旋转"
+            onClick={(e) => {
+              e.stopPropagation();
+              onModeChange("rotateX");
+              onShowIcons();
+            }}
+          >
+            <span className="text-xs">X</span>
+          </button>
+
+          {/* Y轴旋转 */}
+          <button
+            className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-gray-600 hover:text-gray-800 transition-all duration-200 hover:scale-110 shadow-lg ${
+              interactionMode === "rotateY"
+                ? "bg-green-100 border border-green-300 text-green-700"
+                : "bg-white/90 hover:bg-white border border-gray-200"
+            }`}
+            title="Y轴旋转"
+            onClick={(e) => {
+              e.stopPropagation();
+              onModeChange("rotateY");
+              onShowIcons();
+            }}
+          >
+            <span className="text-xs">Y</span>
+          </button>
+
+          {/* Z轴旋转 */}
+          <button
+            className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-gray-600 hover:text-gray-800 transition-all duration-200 hover:scale-110 shadow-lg ${
+              interactionMode === "rotateZ"
+                ? "bg-purple-100 border border-purple-300 text-purple-700"
+                : "bg-white/90 hover:bg-white border border-gray-200"
+            }`}
+            title="Z轴旋转"
+            onClick={(e) => {
+              e.stopPropagation();
+              onModeChange("rotateZ");
+              onShowIcons();
+            }}
+          >
+            <span className="text-xs">Z</span>
           </button>
         </div>
       </Html>
@@ -188,7 +240,11 @@ const RotatingModel = ({
         }}
       >
         <div className="px-2 py-1 bg-gray-800 text-white text-xs rounded shadow-lg whitespace-nowrap">
-          {interactionMode === "move" ? "拖拽模式" : "旋转模式"}
+          {interactionMode === "move" ? "拖拽模式" : 
+           interactionMode === "rotate" ? "自由旋转" :
+           interactionMode === "rotateX" ? "X轴旋转" :
+           interactionMode === "rotateY" ? "Y轴旋转" :
+           "Z轴旋转"}
         </div>
       </Html>
     </group>
@@ -361,7 +417,7 @@ function PhoneModel() {
 
   // 使用3D模型位置代替CSS平移
   const [modelPosition, setModelPosition] = useState([0, 0, 0]);
-  const [modelRotation, setModelRotation] = useState({ x: 0, y: 0 }); // 3D模型的X轴和Y轴旋转角度
+  const [modelRotation, setModelRotation] = useState({ x: 0, y: 0, z: 0 }); // 3D模型的X轴、Y轴和Z轴旋转角度
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({
     x: 0,
@@ -371,10 +427,10 @@ function PhoneModel() {
 
   // 控制图标相关状态
   const [showControlIcons, setShowControlIcons] = useState(false);
-  const [interactionMode, setInteractionMode] = useState("move"); // 'move' | 'rotate'
+  const [interactionMode, setInteractionMode] = useState("move"); // 'move' | 'rotate' | 'rotateX' | 'rotateY' | 'rotateZ'
   const [isRotating, setIsRotating] = useState(false);
   const [rotateStart, setRotateStart] = useState({ 
-    rotation: { x: 0, y: 0 }, 
+    rotation: { x: 0, y: 0, z: 0 }, 
     startX: 0, 
     startY: 0 
   });
@@ -447,7 +503,7 @@ function PhoneModel() {
           y: e.clientY,
           initialPosition: [...modelPosition], // 记录当前模型位置
         });
-      } else if (interactionMode === "rotate") {
+      } else if (interactionMode.startsWith("rotate")) { // 所有旋转模式
         setIsRotating(true);
         setRotateStart({
           rotation: { ...modelRotation },
@@ -476,10 +532,37 @@ function PhoneModel() {
       const deltaY = e.clientY - rotateStart.startY;
       const rotationSpeed = 0.5;
       
-      setModelRotation({
-        x: rotateStart.rotation.x - deltaY * rotationSpeed,
-        y: rotateStart.rotation.y + deltaX * rotationSpeed
-      });
+      // 根据不同模式处理旋转
+      if (interactionMode === "rotate") {
+        // 自由旋转（原有逻辑）
+        setModelRotation({
+          x: rotateStart.rotation.x - deltaY * rotationSpeed,
+          y: rotateStart.rotation.y + deltaX * rotationSpeed,
+          z: rotateStart.rotation.z
+        });
+      } else if (interactionMode === "rotateX") {
+        // 仅X轴旋转
+        setModelRotation({
+          x: rotateStart.rotation.x - deltaY * rotationSpeed,
+          y: rotateStart.rotation.y,
+          z: rotateStart.rotation.z
+        });
+      } else if (interactionMode === "rotateY") {
+        // 仅Y轴旋转
+        setModelRotation({
+          x: rotateStart.rotation.x,
+          y: rotateStart.rotation.y + deltaX * rotationSpeed,
+          z: rotateStart.rotation.z
+        });
+      } else if (interactionMode === "rotateZ") {
+        // Z轴旋转（使用鼠标移动的合成值）
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        const sign = deltaX > 0 ? 1 : -1;
+        setModelRotation({
+          ...rotateStart.rotation,
+          z: (rotateStart.rotation.z || 0) + sign * distance * rotationSpeed * 0.5
+        });
+      }
     }
   };
 
@@ -503,7 +586,7 @@ function PhoneModel() {
           y: touch.clientY,
           initialPosition: [...modelPosition], // 记录当前位置
         });
-      } else if (interactionMode === "rotate") {
+      } else if (interactionMode.startsWith("rotate")) {
         setIsRotating(true);
         setRotateStart({
           rotation: { ...modelRotation },
@@ -534,10 +617,33 @@ function PhoneModel() {
         const deltaY = touch.clientY - rotateStart.startY;
         const rotationSpeed = 0.5;
         
-        setModelRotation({
-          x: rotateStart.rotation.x - deltaY * rotationSpeed,
-          y: rotateStart.rotation.y + deltaX * rotationSpeed
-        });
+        // 根据不同模式处理旋转（与鼠标处理逻辑相同）
+        if (interactionMode === "rotate") {
+          setModelRotation({
+            x: rotateStart.rotation.x - deltaY * rotationSpeed,
+            y: rotateStart.rotation.y + deltaX * rotationSpeed,
+            z: rotateStart.rotation.z
+          });
+        } else if (interactionMode === "rotateX") {
+          setModelRotation({
+            x: rotateStart.rotation.x - deltaY * rotationSpeed,
+            y: rotateStart.rotation.y,
+            z: rotateStart.rotation.z
+          });
+        } else if (interactionMode === "rotateY") {
+          setModelRotation({
+            x: rotateStart.rotation.x,
+            y: rotateStart.rotation.y + deltaX * rotationSpeed,
+            z: rotateStart.rotation.z
+          });
+        } else if (interactionMode === "rotateZ") {
+          const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+          const sign = deltaX > 0 ? 1 : -1;
+          setModelRotation({
+            ...rotateStart.rotation,
+            z: (rotateStart.rotation.z || 0) + sign * distance * rotationSpeed * 0.5
+          });
+        }
       }
     }
   };
@@ -601,7 +707,8 @@ function PhoneModel() {
       {isRotating && (
         <div className="absolute top-[20%] left-1/2 transform -translate-x-1/2 z-40 px-2 py-1 bg-gray-800 text-white text-xs rounded shadow-lg">
           X: {Math.round(((modelRotation.x % 360) + 360) % 360)}° 
-          Y: {Math.round(((modelRotation.y % 360) + 360) % 360)}°
+          Y: {Math.round(((modelRotation.y % 360) + 360) % 360)}° 
+          Z: {Math.round(((modelRotation.z % 360) + 360) % 360)}°
         </div>
       )}
 

@@ -11,7 +11,7 @@ export const ClassicTemplate = ({ appInfo, alignment }) => {
 
   return (
     <>
-      <div className={`flex items-center gap-3 mb-8 ${logoAlignment}`}>
+      <div className={`flex items-center gap-3 mb-12 ${logoAlignment}`}>
         <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white/20 flex items-center justify-center text-2xl font-bold">
           {appInfo.iconImage ? (
             <img 
@@ -32,7 +32,7 @@ export const ClassicTemplate = ({ appInfo, alignment }) => {
         variant="title" 
         element="h1" 
         template="classic" 
-        className="mb-6"
+        className="mb-8"
       >
         {appInfo.title}
       </StyledText>
@@ -41,6 +41,7 @@ export const ClassicTemplate = ({ appInfo, alignment }) => {
         variant="subtitle" 
         element="p" 
         template="classic"
+        className="mb-12"
       >
         {appInfo.subtitle}
       </StyledText>
@@ -52,7 +53,7 @@ export const ClassicTemplate = ({ appInfo, alignment }) => {
 export const CenterTemplate = ({ appInfo, alignment }) => {
   return (
     <>
-      <div className="flex items-center justify-center gap-4 mb-8">
+      <div className="flex items-center justify-center gap-4 mb-12">
         <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white/20 flex items-center justify-center text-2xl font-bold">
           {appInfo.iconImage ? (
             <img 
@@ -73,7 +74,7 @@ export const CenterTemplate = ({ appInfo, alignment }) => {
         variant="title" 
         element="h1" 
         template="center" 
-        className="mb-5"
+        className="mb-8"
       >
         {appInfo.title}
       </StyledText>
@@ -82,6 +83,7 @@ export const CenterTemplate = ({ appInfo, alignment }) => {
         variant="subtitle" 
         element="p" 
         template="center"
+        className="mb-12"
       >
         {appInfo.subtitle}
       </StyledText>
@@ -99,7 +101,7 @@ export const MinimalTemplate = ({ appInfo, alignment }) => {
 
   return (
     <>
-      <div className={`flex items-center gap-3 mb-8 ${logoAlignment}`}>
+      <div className={`flex items-center gap-3 mb-12 ${logoAlignment}`}>
         <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white/20 flex items-center justify-center text-2xl font-bold">
           {appInfo.iconImage ? (
             <img 
@@ -120,7 +122,7 @@ export const MinimalTemplate = ({ appInfo, alignment }) => {
         variant="title" 
         element="h1" 
         template="minimal" 
-        className="mb-6"
+        className="mb-8"
       >
         {appInfo.title}
       </StyledText>
@@ -129,6 +131,7 @@ export const MinimalTemplate = ({ appInfo, alignment }) => {
         variant="subtitle" 
         element="p" 
         template="minimal"
+        className="mb-12"
       >
         {appInfo.subtitle}
       </StyledText>
@@ -190,8 +193,8 @@ export const DiagonalTemplate = ({ appInfo, features, contentSections, alignment
 
   return (
     <div className="flex flex-col h-full justify-between">
-      <div className="space-y-4">
-        <div className={`flex items-end gap-3 ${iconAlignment}`}>
+      <div className="space-y-8">
+        <div className={`flex items-end gap-4 mb-8 ${iconAlignment}`}>
           <div className="w-16 h-16 rounded-xl overflow-hidden bg-white/20 flex items-center justify-center text-lg font-bold flex-shrink-0">
             {appInfo.iconImage ? (
               <img 
@@ -215,6 +218,7 @@ export const DiagonalTemplate = ({ appInfo, features, contentSections, alignment
           variant="title" 
           element="h1" 
           template="diagonal"
+          className="mb-6"
         >
           {appInfo.title}
         </StyledText>
@@ -223,15 +227,16 @@ export const DiagonalTemplate = ({ appInfo, features, contentSections, alignment
           variant="subtitle" 
           element="p" 
           template="diagonal"
+          className="mb-8"
         >
           {appInfo.subtitle}
         </StyledText>
 
         {contentSections.features && features.length > 0 && (
-          <div className="space-y-2 text-lg opacity-90 mt-6">
+          <div className="space-y-4 text-lg opacity-90 mt-10">
             {features.map((feature, index) => (
-              <div key={index} className="flex items-start gap-2">
-                <StyledText variant="text">•</StyledText>
+              <div key={index} className="flex items-start gap-3">
+                <StyledText variant="text" className="mt-1">•</StyledText>
                 <StyledText variant="text">{feature.title}</StyledText>
               </div>
             ))}
@@ -243,51 +248,3 @@ export const DiagonalTemplate = ({ appInfo, features, contentSections, alignment
   );
 };
 
-// 功能网格模板
-export const FeatureGridTemplate = ({ appInfo, alignment }) => {
-  const logoAlignment = {
-    'left': 'justify-start',
-    'center': 'justify-center', 
-    'right': 'justify-end'
-  }[alignment];
-
-  return (
-    <>
-      <div className={`flex items-center justify-center gap-4 mb-8 ${logoAlignment}`}>
-        <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white/20 flex items-center justify-center text-2xl font-bold">
-          {appInfo.iconImage ? (
-            <img 
-              src={appInfo.iconImage} 
-              alt="App Icon" 
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            appInfo.icon
-          )}
-        </div>
-        <StyledText 
-          variant="app-name" 
-          template="featureGrid"
-        >
-          {appInfo.name}
-        </StyledText>
-      </div>
-
-      <StyledText 
-        variant="title" 
-        element="h1" 
-        template="featureGrid"
-      >
-        {appInfo.title}
-      </StyledText>
-
-      <StyledText 
-        variant="subtitle" 
-        element="p" 
-        template="featureGrid"
-      >
-        {appInfo.subtitle}
-      </StyledText>
-    </>
-  );
-};

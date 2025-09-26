@@ -61,29 +61,24 @@ const StyledText = ({
         'subtitle': 'text-lg leading-relaxed',
         'app-name': 'text-2xl font-semibold'
       },
-      'featureGrid': {
-        'title': 'text-4xl font-bold leading-tight',
-        'subtitle': 'text-lg leading-relaxed',
-        'app-name': 'text-xl font-semibold'
-      },
       'default': {
         'title': 'text-4xl font-bold leading-tight',
         'subtitle': 'text-lg leading-relaxed',
         'app-name': 'text-xl font-semibold'
       },
       'classic': {
-        'title': 'text-4xl font-bold leading-tight',
-        'subtitle': 'text-lg leading-relaxed',
+        'title': 'text-4xl font-bold leading-normal',
+        'subtitle': 'text-lg leading-loose',
         'app-name': 'text-xl font-semibold'
       },
       'center': {
-        'title': 'text-4xl font-bold leading-tight',
-        'subtitle': 'text-lg leading-relaxed',
+        'title': 'text-4xl font-bold leading-normal',
+        'subtitle': 'text-lg leading-loose',
         'app-name': 'text-xl font-semibold'
       },
       'minimal': {
-        'title': 'text-4xl font-bold leading-tight',
-        'subtitle': 'text-lg leading-relaxed',
+        'title': 'text-4xl font-bold leading-normal',
+        'subtitle': 'text-lg leading-loose',
         'app-name': 'text-xl font-semibold'
       }
     };
