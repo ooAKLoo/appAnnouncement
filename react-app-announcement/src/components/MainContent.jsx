@@ -4,28 +4,18 @@ import { useApp } from '../context/AppContext';
 import PhoneModel from './PhoneModel';
 import PhoneModel2D from './PhoneModel2D';
 import { getStyleById } from '../data/styleConfig';
+import { LAYOUT_CONFIGS, SPECIAL_LAYOUT_CONFIGS } from '../config/layoutConfigs';
+import { TopBottomHeader, DiagonalHeader, FeatureGridHeader } from './templates/SpecialHeaders';
 
 function MainContent() {
   const { state, updateDesign, toggleToolbars } = useApp();
   
-  // 相对调节状态
-  const [baseSpacing] = useState(8); // 基础间距值
-  const [relativeValue, setRelativeValue] = useState(0); // 相对调节值 (-50 到 +50)
-  
-  // 防抖更新
-  const [debounceTimer, setDebounceTimer] = useState(null);
-  
-  const debouncedUpdateSpacing = useCallback((newSpacing) => {
-    if (debounceTimer) clearTimeout(debounceTimer);
-    
-    const timer = setTimeout(() => {
-      updateDesign({ spacing: newSpacing });
-    }, 100); // 100ms 防抖延迟
-    
-    setDebounceTimer(timer);
-  }, [debounceTimer, updateDesign]);
-
-
+  // 特殊模板的header映射
+  const SPECIAL_HEADERS = {
+    topBottom: TopBottomHeader,
+    diagonal: DiagonalHeader,
+    featureGrid: FeatureGridHeader
+  };
   
   // 获取当前风格配置
   const currentStyle = getStyleById(state.currentStyle || 'minimal');
@@ -45,392 +35,75 @@ function MainContent() {
     return gapMap[spacing] || 'gap-8';
   };
 
-  // 根据模板类型决定布局方式
   const getLayoutClasses = () => {
     const template = state.design.template;
-    const spacing = state.design.spacing || 8; // 默认间距为8
+    const spacing = state.design.spacing || 8;
     const gapClass = getGapClass(spacing);
     
-    // 使用Transform位移 - 突破Flex空间限制
-    const getTransformStyles = () => {
-      // 计算位移距离，基于间距值
-      const baseTransform = (spacing - 8) * 8; // 每个间距单位移动8px
-      
+    // 特殊模板直接返回特殊配置
+    if (SPECIAL_LAYOUT_CONFIGS[template]) {
+      return SPECIAL_LAYOUT_CONFIGS[template];
+    }
+    
+    // 基础配置
+    const baseConfig = LAYOUT_CONFIGS[template] || LAYOUT_CONFIGS.classic;
+    const alignment = state.design.alignment || 'left';
+    
+    // 需要transform的模板
+    const needsTransform = ['minimal', 'elegant', 'film', 'tag', 'overlay'];
+    if (needsTransform.includes(template)) {
+      const baseTransform = (spacing - 8) * 8;
       return {
-        wrapper: {
-          width: '90%', // 固定宽度，不再动态调整
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-        },
-        leftContent: {
+        ...baseConfig,
+        wrapperStyle: { width: '90%', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' },
+        leftContentStyle: { 
           transform: `translateX(${-baseTransform}px)`,
           transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         },
-        phoneContainer: {
-          // 移除transform，避免裁剪3D内容
-          // transform: `translateX(${baseTransform}px)`,
-          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-        }
+        phoneContainerStyle: { transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' },
+        leftContent: `${baseConfig.leftContent} text-${alignment}`
       };
-    };
-    
-    const transformStyles = getTransformStyles();
-    
-    switch (template) {
-      case 'center':
-        return {
-          container: 'min-h-screen max-w-4xl mx-auto px-5 flex flex-col items-center justify-center relative text-center',
-          wrapper: `flex flex-col items-center ${gapClass} w-full`,
-          leftContent: 'max-w-2xl order-1 text-center',
-          phoneContainer: 'min-h-[600px] order-2 w-full max-w-xl flex justify-center items-center relative',
-          logo: 'flex items-center justify-center gap-4 mb-8',
-          title: 'text-4xl md:text-5xl font-bold leading-tight mb-5',
-          subtitle: 'text-lg opacity-85 mb-8',
-          features: 'grid grid-cols-1 md:grid-cols-2 gap-6 mb-8',
-          event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mb-8',
-          buttons: 'flex flex-col sm:flex-row gap-4 justify-center'
-        };
-      
-      case 'minimal':
-        return {
-          container: 'min-h-screen max-w-6xl mx-auto px-5 flex items-center justify-center relative',
-          wrapper: 'flex flex-row-reverse items-center justify-between z-10',
-          wrapperStyle: transformStyles.wrapper,
-          leftContentStyle: transformStyles.leftContent,
-          phoneContainerStyle: transformStyles.phoneContainer,
-          leftContent: 'flex-1 max-w-md text-white',
-          phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative',
-          logo: 'flex items-center gap-4 mb-8', // 显示logo
-          title: 'text-4xl font-bold leading-tight mb-6',
-          subtitle: 'text-lg text-white/90 leading-relaxed mb-8', // 显示副标题
-          features: 'space-y-4 mb-6',
-          event: 'bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl p-6 mb-6',
-          buttons: 'flex flex-col sm:flex-row gap-4'
-        };
-      
-      case 'elegant':
-        return {
-          container: 'min-h-screen max-w-6xl mx-auto px-5 py-15 flex items-center justify-center relative',
-          wrapper: 'flex items-center justify-between z-10',
-          wrapperStyle: transformStyles.wrapper,
-          leftContentStyle: transformStyles.leftContent,
-          phoneContainerStyle: transformStyles.phoneContainer,
-          leftContent: 'flex-1 max-w-lg text-white',
-          phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative',
-          logo: 'flex items-center gap-4 mb-10',
-          title: 'text-4xl font-bold leading-tight mb-6',
-          subtitle: 'text-lg text-white/90 leading-relaxed mb-10',
-          features: 'space-y-6 mb-10',
-          event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mb-10',
-          buttons: 'flex flex-col sm:flex-row gap-4'
-        };
-      
-      case 'hero':
-        return {
-          container: 'min-h-screen max-w-7xl mx-auto px-5 py-16 flex flex-col items-center justify-center relative text-center',
-          wrapper: 'flex flex-col items-center w-full',
-          leftContent: 'max-w-4xl mb-16',
-          phoneContainer: 'max-w-md min-h-[600px] flex justify-center items-center relative',
-          logo: 'flex items-center justify-center gap-6 mb-12',
-          title: 'text-6xl font-bold leading-tight mb-8',
-          subtitle: 'text-2xl text-white/90 leading-relaxed mb-12',
-          features: 'grid grid-cols-1 md:grid-cols-3 gap-8 mb-16',
-          event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-3xl p-12 mb-16',
-          buttons: 'flex flex-col sm:flex-row gap-6 justify-center'
-        };
-      
-      case 'grid':
-        return {
-          container: 'min-h-screen max-w-7xl mx-auto px-5 py-16 flex flex-col items-center justify-center relative',
-          wrapper: 'w-full',
-          leftContent: 'text-center mb-16',
-          phoneContainer: 'max-w-md min-h-[600px] flex justify-center items-center relative mx-auto mb-16',
-          logo: 'flex items-center justify-center gap-4 mb-8',
-          title: 'text-5xl font-bold leading-tight mb-6',
-          subtitle: 'text-xl text-white/90 leading-relaxed mb-12',
-          features: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16',
-          event: 'max-w-2xl mx-auto bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-10 mb-16',
-          buttons: 'flex flex-col sm:flex-row gap-4 justify-center'
-        };
-      
-      case 'film':
-        return {
-          container: 'min-h-screen max-w-6xl mx-auto px-5 flex items-center justify-center relative',
-          wrapper: 'border-4 border-dashed border-white/40 rounded-3xl p-12 flex items-center justify-between z-10 backdrop-blur-sm',
-          wrapperStyle: transformStyles.wrapper,
-          leftContentStyle: transformStyles.leftContent,
-          phoneContainerStyle: transformStyles.phoneContainer,
-          leftContent: 'flex-1 max-w-lg text-white',
-          phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative',
-          logo: 'flex items-center gap-4 mb-10',
-          title: 'text-4xl font-bold leading-tight mb-6',
-          subtitle: 'text-lg text-white/90 leading-relaxed mb-10',
-          features: 'space-y-6 mb-10',
-          event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mb-10',
-          buttons: 'flex flex-col sm:flex-row gap-4'
-        };
-      
-      case 'tag':
-        return {
-          container: 'min-h-screen max-w-6xl mx-auto px-5 flex items-center justify-center relative',
-          wrapper: 'flex items-center justify-between z-10',
-          wrapperStyle: transformStyles.wrapper,
-          leftContentStyle: transformStyles.leftContent,
-          phoneContainerStyle: transformStyles.phoneContainer,
-          leftContent: 'flex-1 max-w-lg text-white relative',
-          phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative',
-          logo: 'flex items-center gap-4 mb-10 relative',
-          title: 'text-4xl font-bold leading-tight mb-6 relative',
-          subtitle: 'text-lg text-white/90 leading-relaxed mb-10',
-          features: 'space-y-6 mb-10',
-          event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mb-10 relative',
-          buttons: 'flex flex-col sm:flex-row gap-4'
-        };
-      
-      case 'diagonal':
-        return {
-          container: 'min-h-screen max-w-6xl mx-auto px-5 flex items-center justify-center relative overflow-hidden',
-          wrapper: 'flex items-center justify-between z-10 relative',
-          wrapperStyle: transformStyles.wrapper,
-          leftContentStyle: transformStyles.leftContent,
-          phoneContainerStyle: transformStyles.phoneContainer,
-          leftContent: 'flex-1 max-w-lg text-white relative z-10',
-          phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative z-10',
-          logo: 'flex items-center gap-4 mb-10',
-          title: 'text-4xl font-bold leading-tight mb-6',
-          subtitle: 'text-lg text-white/90 leading-relaxed mb-10',
-          features: 'space-y-6 mb-10',
-          event: 'bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md border border-white/30 rounded-2xl p-8 mb-10 transform skew-y-1',
-          buttons: 'flex flex-col sm:flex-row gap-4'
-        };
-      
-      case 'overlay':
-        return {
-          container: 'min-h-screen max-w-6xl mx-auto px-5 flex items-center justify-center relative',
-          wrapper: 'flex items-center justify-between z-10 relative',
-          wrapperStyle: transformStyles.wrapper,
-          leftContentStyle: transformStyles.leftContent,
-          phoneContainerStyle: transformStyles.phoneContainer,
-          leftContent: 'flex-1 max-w-lg text-white relative',
-          phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative',
-          logo: 'flex items-center gap-4 mb-10',
-          title: 'text-6xl font-black leading-none mb-8 absolute top-0 left-0 right-0 text-center text-white/20 pointer-events-none z-0',
-          subtitle: 'text-lg text-white/90 leading-relaxed mb-10 relative z-10',
-          features: 'space-y-6 mb-10 relative z-10',
-          event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mb-10 relative z-10',
-          buttons: 'flex flex-col sm:flex-row gap-4 relative z-10'
-        };
-      
-      case 'topBottom':
-        return {
-          container: 'min-h-screen max-w-4xl mx-auto px-5 py-16 flex flex-col items-center justify-center relative',
-          wrapper: 'flex flex-col items-center gap-16 w-full',
-          phoneContainer: 'max-w-md min-h-[600px] flex justify-center items-center relative order-1',
-          leftContent: 'w-full max-w-2xl order-2',
-          logo: 'flex items-center gap-6 justify-center', // 特殊的水平布局
-          title: '', // 标题会在logo中处理
-          subtitle: '', // 副标题会在logo中处理
-          features: 'mt-8 space-y-4',
-          event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mt-8',
-          buttons: 'flex flex-col sm:flex-row gap-4 justify-center mt-8'
-        };
-      
-      case 'diagonal':
-        return {
-          container: 'min-h-screen max-w-7xl mx-auto px-8 flex items-center justify-center relative overflow-hidden',
-          wrapper: 'relative w-full h-screen flex items-center',
-          wrapperStyle: { width: '100%', height: '100vh', padding: '60px 0' },
-          leftContentStyle: { 
-            width: '50%',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            height: '80vh',
-            paddingRight: '60px',
-            zIndex: 20
-          },
-          phoneContainerStyle: {
-            position: 'absolute',
-            right: '0',
-            bottom: '0',
-            width: '50%',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'flex-end',
-            // 移除transform，改为在3D空间内处理倾斜效果
-            // transform: 'rotate(-12deg) translateY(10%)',
-            // transformOrigin: 'bottom right',
-            zIndex: 10
-          },
-          leftContent: 'flex flex-col justify-between h-full',
-          phoneContainer: '',
-          logo: '', // 在renderBasicInfo中处理
-          title: '', // 在renderBasicInfo中处理
-          subtitle: '', // 在renderBasicInfo中处理
-          features: '', // 在renderBasicInfo中处理
-          event: '', // 不显示活动信息
-          buttons: 'flex gap-4' // 底部按钮
-        };
-      
-      case 'featureGrid':
-        return {
-          container: 'min-h-screen max-w-5xl mx-auto px-5 py-16 flex flex-col items-center justify-center relative',
-          wrapper: 'flex flex-col items-center w-full',
-          leftContent: 'w-full max-w-4xl text-center mb-16',
-          phoneContainer: 'max-w-lg min-h-[600px] flex justify-center items-center relative',
-          logo: 'flex items-center justify-center gap-4 mb-8',
-          title: 'text-4xl font-bold leading-tight mb-8',
-          subtitle: 'text-lg leading-relaxed mb-12',
-          features: 'grid grid-cols-1 md:grid-cols-3 gap-8 mb-16', // 横排特性展示
-          event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mb-12',
-          buttons: 'flex flex-col sm:flex-row gap-4 justify-center mb-16'
-        };
-      
-      default: // classic
-        return {
-          container: 'min-h-screen max-w-6xl mx-auto px-5 flex items-center justify-center relative',
-          wrapper: 'flex items-center justify-between z-10',
-          wrapperStyle: transformStyles.wrapper,
-          leftContentStyle: transformStyles.leftContent,
-          phoneContainerStyle: transformStyles.phoneContainer,
-          leftContent: 'flex-1 max-w-lg text-white animate-fadeInLeft',
-          phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative',
-          logo: 'flex items-center gap-4 mb-12',
-          title: 'text-5xl font-bold leading-tight mb-6 animate-fadeInUp',
-          subtitle: 'text-lg text-white/90 leading-relaxed mb-10 animate-fadeInUp',
-          features: 'space-y-6 mb-10',
-          event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mb-10',
-          buttons: 'flex flex-col sm:flex-row gap-4 animate-fadeInUp'
-        };
     }
+    
+    // center模板的gap处理
+    if (template === 'center') {
+      return {
+        ...baseConfig,
+        wrapper: `flex flex-col items-center ${gapClass} w-full`
+      };
+    }
+    
+    return baseConfig;
   };
 
   const layout = getLayoutClasses();
 
   // 渲染基本信息（logo + 标题 + 副标题）
   const renderBasicInfo = () => {
-    // topBottom模板的特殊布局
-    if (state.design.template === 'topBottom') {
-      return (
-        <div className={layout.logo}>
-          {/* App Icon */}
-          <div className="w-20 h-20 rounded-3xl overflow-hidden bg-white/20 flex items-center justify-center text-3xl font-bold flex-shrink-0">
-            {state.appInfo.iconImage ? (
-              <img 
-                src={state.appInfo.iconImage} 
-                alt="App Icon" 
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              state.appInfo.icon
-            )}
-          </div>
-          
-          {/* 中间内容区域：标题和副标题 */}
-          <div className="flex-1 flex flex-col justify-center min-h-[80px]">
-            <h1 className="text-3xl font-bold leading-tight mb-2 main-content-title" style={getTextColorStyle()}>
-              {state.appInfo.title}
-            </h1>
-            <p className="text-lg leading-relaxed main-content-subtitle" style={getTextColorStyle()}>
-              {state.appInfo.subtitle}
-            </p>
-          </div>
-          
-          {/* 右侧：App名称，与icon底部对齐 */}
-          <div className="flex items-end h-20">
-            <div className="text-2xl font-semibold main-content-subtitle" style={getTextColorStyle()}>
-              {state.appInfo.name}
-            </div>
-          </div>
-        </div>
-      );
+    // 如果是特殊模板，使用特殊组件
+    const SpecialHeader = SPECIAL_HEADERS[state.design.template];
+    if (SpecialHeader) {
+      return <SpecialHeader 
+        appInfo={state.appInfo}
+        features={state.features}
+        contentSections={state.contentSections}
+        getTextColorStyle={getTextColorStyle}
+        alignment={state.design.alignment || 'left'}
+        layout={layout}
+      />;
     }
+    
+    // 默认渲染逻辑
+    const alignment = state.design.alignment || 'left';
+    const logoAlignment = {
+      'left': 'justify-start',
+      'center': 'justify-center', 
+      'right': 'justify-end'
+    }[alignment];
 
-    // diagonal模板的特殊布局
-    if (state.design.template === 'diagonal') {
-      return (
-        <div className="flex flex-col h-full justify-between">
-          {/* 顶部内容区域 */}
-          <div className="space-y-4">
-            {/* App Icon和名称 - 底边对齐 */}
-            <div className="flex items-end gap-3">
-              <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/20 flex items-center justify-center text-lg font-bold flex-shrink-0">
-                {state.appInfo.iconImage ? (
-                  <img 
-                    src={state.appInfo.iconImage} 
-                    alt="App Icon" 
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  state.appInfo.icon || '📱'
-                )}
-              </div>
-              <div className="text-xl font-semibold" style={getTextColorStyle()}>
-                {state.appInfo.name}
-              </div>
-            </div>
-
-            {/* 主标题 */}
-            <h1 className="text-5xl md:text-6xl font-black leading-tight main-content-title" style={getTextColorStyle()}>
-              {state.appInfo.title}
-            </h1>
-
-            {/* 副标题/描述 */}
-            <p className="text-xl leading-relaxed opacity-90 main-content-subtitle" style={getTextColorStyle()}>
-              {state.appInfo.subtitle}
-            </p>
-
-            {/* 功能列表 - 如果启用 */}
-            {state.contentSections.features && state.features.length > 0 && (
-              <div className="space-y-2 text-lg opacity-90 mt-6" style={getTextColorStyle()}>
-                {state.features.map((feature, index) => (
-                  <div key={index} className="flex items-start gap-2">
-                    <span>•</span>
-                    <span>{feature.title}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* 底部下载按钮区域 - 这部分会由renderDownloads处理 */}
-          <div></div>
-        </div>
-      );
-    }
-
-    // featureGrid模板的特殊布局
-    if (state.design.template === 'featureGrid') {
-      return (
-        <>
-          <div className={layout.logo}>
-            <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white/20 flex items-center justify-center text-2xl font-bold">
-              {state.appInfo.iconImage ? (
-                <img 
-                  src={state.appInfo.iconImage} 
-                  alt="App Icon" 
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                state.appInfo.icon
-              )}
-            </div>
-            <div className="text-xl font-semibold main-content-subtitle" style={getTextColorStyle()}>{state.appInfo.name}</div>
-          </div>
-
-          <h1 className={`${layout.title} main-content-title`} style={getTextColorStyle()}>{state.appInfo.title}</h1>
-
-          <p className={`${layout.subtitle} main-content-subtitle`} style={getTextColorStyle()}>
-            {state.appInfo.subtitle}
-          </p>
-        </>
-      );
-    }
-
-    // 其他模板的默认布局
     return (
       <>
-        <div className={layout.logo}>
+        <div className={`${layout.logo} ${logoAlignment}`}>
           <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white/20 flex items-center justify-center text-2xl font-bold">
             {state.appInfo.iconImage ? (
               <img 
@@ -572,10 +245,16 @@ function MainContent() {
   // 渲染活动信息
   const renderEvent = () => {
     const eventStyle = currentStyle.eventCard;
+    const alignment = state.design.alignment || 'left';
+    const eventAlignment = {
+      'left': 'text-left',
+      'center': 'text-center',
+      'right': 'text-right'
+    }[alignment];
     
     return (
       <div className={`${eventStyle.background} backdrop-blur-md ${eventStyle.border} ${eventStyle.padding} ${eventStyle.radius}`}>
-        <div className="text-center">
+        <div className={eventAlignment}>
           <div className={`${eventStyle.title} mb-3 main-content-title`} style={getTextColorStyle()}>{state.eventInfo.eventTitle}</div>
           <div className={`${eventStyle.description} mb-4 main-content-text`} style={getTextColorStyle()}>{state.eventInfo.eventDescription}</div>
           
@@ -588,7 +267,7 @@ function MainContent() {
           )}
           
           {state.eventInfo.promoCode && (
-            <div className="inline-block bg-white/20 rounded-lg px-4 py-2">
+            <div className={`inline-block bg-white/20 rounded-lg px-4 py-2 ${alignment === 'center' ? 'mx-auto' : alignment === 'right' ? 'ml-auto' : ''}`}>
               <div className="text-xs mb-1" style={{...getTextColorStyle(), opacity: 0.7}}>优惠码</div>
               <div className="text-lg font-mono font-bold" style={getTextColorStyle()}>{state.eventInfo.promoCode}</div>
             </div>
@@ -599,26 +278,36 @@ function MainContent() {
   };
 
   // 渲染下载按钮（装饰性展示）
-  const renderDownloads = () => (
-    <div className={layout.buttons}>
-      {state.downloads.showAppStore && (
-        <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl transition-all duration-300 hover:transform hover:scale-105 hover:shadow-lg backdrop-blur-sm cursor-default">
-          <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-          </svg>
-          <span className="font-medium main-content-text" style={getTextColorStyle()}>App Store</span>
-        </div>
-      )}
-      {state.downloads.showGooglePlay && (
-        <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl transition-all duration-300 hover:transform hover:scale-105 hover:shadow-lg backdrop-blur-sm cursor-default">
-          <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z" />
-          </svg>
-          <span className="font-medium main-content-text" style={getTextColorStyle()}>Google Play</span>
-        </div>
-      )}
-    </div>
-  );
+  const renderDownloads = () => {
+    // 获取对齐设置来调整按钮容器的对齐方式
+    const alignment = state.design.alignment || 'left';
+    const buttonAlignment = {
+      'left': 'justify-start',
+      'center': 'justify-center',
+      'right': 'justify-end'
+    }[alignment];
+
+    return (
+      <div className={`${layout.buttons} ${buttonAlignment}`}>
+        {state.downloads.showAppStore && (
+          <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl transition-all duration-300 hover:transform hover:scale-105 hover:shadow-lg backdrop-blur-sm cursor-default">
+            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+            </svg>
+            <span className="font-medium main-content-text" style={getTextColorStyle()}>App Store</span>
+          </div>
+        )}
+        {state.downloads.showGooglePlay && (
+          <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl transition-all duration-300 hover:transform hover:scale-105 hover:shadow-lg backdrop-blur-sm cursor-default">
+            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z" />
+            </svg>
+            <span className="font-medium main-content-text" style={getTextColorStyle()}>Google Play</span>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className={layout.container}>
