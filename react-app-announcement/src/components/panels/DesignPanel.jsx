@@ -19,11 +19,11 @@ function DesignPanel({ isActive }) {
   // 预设颜色方案
   const colorPresets = [
     { name: '海洋蓝', bg: '#667eea', gradient: '#764ba2' },
-    { name: '夕阳橙', bg: '#f093fb', gradient: '#f5576c' },
-    { name: '森林绿', bg: '#4facfe', gradient: '#00f2fe' },
+    { name: '粉紫渐', bg: '#f093fb', gradient: '#f5576c' },
+    { name: '天空蓝', bg: '#4facfe', gradient: '#00f2fe' },
     { name: '薰衣草', bg: '#a8edea', gradient: '#fed6e3' },
-    { name: '火焰红', bg: '#ffecd2', gradient: '#fcb69f' },
-    { name: '极光紫', bg: '#667db6', gradient: '#0082c8' },
+    { name: '晨曦暖', bg: '#ffecd2', gradient: '#fcb69f' },
+    { name: '活力橙', bg: '#F97316', gradient: '#f5576c' },
   ];
 
   // 字体预设
@@ -272,6 +272,20 @@ function DesignPanel({ isActive }) {
               <select
                 value={state.typography.titleWeight}
                 onChange={(e) => updateTypography({ titleWeight: parseInt(e.target.value) })}
+                className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-blue-500"
+              >
+                <option value={400}>Regular</option>
+                <option value={500}>Medium</option>
+                <option value={600}>SemiBold</option>
+                <option value={700}>Bold</option>
+                <option value={800}>ExtraBold</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-3">
+              <label className="text-sm font-medium text-gray-700 w-12">应用名</label>
+              <select
+                value={state.typography.appNameWeight || 600}
+                onChange={(e) => updateTypography({ appNameWeight: parseInt(e.target.value) })}
                 className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-blue-500"
               >
                 <option value={400}>Regular</option>

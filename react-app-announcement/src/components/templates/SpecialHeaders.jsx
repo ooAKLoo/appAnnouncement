@@ -1,4 +1,4 @@
-export const TopBottomHeader = ({ appInfo, getTextColorStyle }) => (
+export const TopBottomHeader = ({ appInfo, getTextColorStyle, typography }) => (
   <div className="flex items-center gap-6 justify-center">
     <div className="w-20 h-20 rounded-3xl overflow-hidden bg-white/20 flex items-center justify-center text-3xl font-bold flex-shrink-0">
       {appInfo.iconImage ? (
@@ -13,23 +13,35 @@ export const TopBottomHeader = ({ appInfo, getTextColorStyle }) => (
     </div>
     
     <div className="flex-1 flex flex-col justify-center min-h-[80px]">
-      <h1 className="text-3xl font-bold leading-tight mb-2 main-content-title" style={getTextColorStyle()}>
+      <h1 className="text-3xl font-bold leading-tight mb-2 main-content-title" 
+        style={{
+          ...getTextColorStyle(),
+          fontWeight: typography?.titleWeight || 700
+        }}>
         {appInfo.title}
       </h1>
-      <p className="text-lg leading-relaxed main-content-subtitle" style={getTextColorStyle()}>
+      <p className="text-lg leading-relaxed main-content-subtitle" 
+        style={{
+          ...getTextColorStyle(),
+          fontWeight: typography?.subtitleWeight || 400
+        }}>
         {appInfo.subtitle}
       </p>
     </div>
     
     <div className="flex items-end h-20">
-      <div className="text-2xl font-semibold main-content-subtitle" style={getTextColorStyle()}>
+      <div className="text-2xl font-semibold" 
+        style={{
+          ...getTextColorStyle(),
+          fontWeight: typography?.appNameWeight || 600
+        }}>
         {appInfo.name}
       </div>
     </div>
   </div>
 );
 
-export const DiagonalHeader = ({ appInfo, features, contentSections, getTextColorStyle, alignment }) => {
+export const DiagonalHeader = ({ appInfo, features, contentSections, getTextColorStyle, alignment, typography }) => {
   const iconAlignment = {
     'left': 'justify-start',
     'center': 'justify-center', 
@@ -51,16 +63,28 @@ export const DiagonalHeader = ({ appInfo, features, contentSections, getTextColo
               appInfo.icon || '📱'
             )}
           </div>
-          <div className="text-xl font-semibold" style={getTextColorStyle()}>
+          <div className="text-xl font-semibold" 
+            style={{
+              ...getTextColorStyle(),
+              fontWeight: typography?.appNameWeight || 600
+            }}>
             {appInfo.name}
           </div>
         </div>
 
-        <h1 className="text-5xl md:text-6xl font-black leading-tight main-content-title" style={getTextColorStyle()}>
+        <h1 className="text-5xl md:text-6xl font-black leading-tight main-content-title" 
+          style={{
+            ...getTextColorStyle(),
+            fontWeight: typography?.titleWeight || 900
+          }}>
           {appInfo.title}
         </h1>
 
-        <p className="text-xl leading-relaxed opacity-90 main-content-subtitle" style={getTextColorStyle()}>
+        <p className="text-xl leading-relaxed opacity-90 main-content-subtitle" 
+          style={{
+            ...getTextColorStyle(),
+            fontWeight: typography?.subtitleWeight || 400
+          }}>
           {appInfo.subtitle}
         </p>
 
@@ -80,7 +104,7 @@ export const DiagonalHeader = ({ appInfo, features, contentSections, getTextColo
   );
 };
 
-export const FeatureGridHeader = ({ appInfo, getTextColorStyle, alignment }) => {
+export const FeatureGridHeader = ({ appInfo, getTextColorStyle, alignment, typography }) => {
   const logoAlignment = {
     'left': 'justify-start',
     'center': 'justify-center', 
@@ -101,16 +125,28 @@ export const FeatureGridHeader = ({ appInfo, getTextColorStyle, alignment }) => 
             appInfo.icon
           )}
         </div>
-        <div className="text-xl font-semibold main-content-subtitle" style={getTextColorStyle()}>
+        <div className="text-xl font-semibold" 
+          style={{
+            ...getTextColorStyle(),
+            fontWeight: typography?.appNameWeight || 600
+          }}>
           {appInfo.name}
         </div>
       </div>
 
-      <h1 className="text-4xl font-bold leading-tight mb-8 main-content-title" style={getTextColorStyle()}>
+      <h1 className="text-4xl font-bold leading-tight mb-8 main-content-title" 
+        style={{
+          ...getTextColorStyle(),
+          fontWeight: typography?.titleWeight || 700
+        }}>
         {appInfo.title}
       </h1>
 
-      <p className="text-lg leading-relaxed mb-12 main-content-subtitle" style={getTextColorStyle()}>
+      <p className="text-lg leading-relaxed mb-12 main-content-subtitle" 
+        style={{
+          ...getTextColorStyle(),
+          fontWeight: typography?.subtitleWeight || 400
+        }}>
         {appInfo.subtitle}
       </p>
     </>

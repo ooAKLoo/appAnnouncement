@@ -90,6 +90,7 @@ function MainContent() {
         getTextColorStyle={getTextColorStyle}
         alignment={state.design.alignment || 'left'}
         layout={layout}
+        typography={state.typography}
       />;
     }
     
@@ -115,12 +116,26 @@ function MainContent() {
               state.appInfo.icon
             )}
           </div>
-          <div className="text-xl font-semibold main-content-subtitle" style={getTextColorStyle()}>{state.appInfo.name}</div>
+          <div 
+            className="text-xl font-semibold" 
+            style={{
+              ...getTextColorStyle(),
+              fontWeight: state.typography.appNameWeight || 600
+            }}
+          >
+            {state.appInfo.name}
+          </div>
         </div>
 
         <h1 className={`${layout.title} main-content-title`} style={getTextColorStyle()}>{state.appInfo.title}</h1>
 
-        <p className={`${layout.subtitle} main-content-subtitle`} style={getTextColorStyle()}>
+        <p 
+          className={`${layout.subtitle} main-content-subtitle`} 
+          style={{
+            ...getTextColorStyle(),
+            fontWeight: state.typography.subtitleWeight || 400
+          }}
+        >
           {state.appInfo.subtitle}
         </p>
       </>

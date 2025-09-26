@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, MonitorSpeaker, Plus, Trash2, GripVertical, FileText, X, Sparkles, Calendar, Square, List } from 'lucide-react';
+import { Image, MonitorSpeaker, Plus, FileText, X, Sparkles, Calendar, Square, List } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useUpload } from '../../hooks/useUpload';
 import FormField from '../common/FormField';
@@ -56,12 +56,6 @@ function ContentPanel({ isActive }) {
             </div>
             <span className="tracking-tight">内容编辑</span>
           </div>
-          <button 
-            className="w-8 h-8 bg-white/80 hover:bg-gray-100 rounded-full cursor-pointer flex items-center justify-center text-gray-500 hover:text-gray-700 transition-all duration-300 hover:shadow-md hover:scale-105" 
-            onClick={toggleConfigPanel}
-          >
-            <X size={18} />
-          </button>
         </div>
       </div>
 
@@ -75,28 +69,37 @@ function ContentPanel({ isActive }) {
               基本信息
             </div>
             <div className="space-y-4">
-              <FormField
-                type="text"
-                placeholder="输入APP名称"
-                maxLength={20}
-                value={state.appInfo.name}
-                onChange={(value) => handleInputChange('name', value)}
-              />
-              <FormField
-                type="text"
-                placeholder="输入主标题"
-                maxLength={50}
-                value={state.appInfo.title}
-                onChange={(value) => handleInputChange('title', value)}
-              />
-              <FormField
-                type="textarea"
-                placeholder="输入APP描述"
-                maxLength={100}
-                rows={3}
-                value={state.appInfo.subtitle}
-                onChange={(value) => handleInputChange('subtitle', value)}
-              />
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">App名称</label>
+                <FormField
+                  type="text"
+                  placeholder="如：微信、支付宝、抖音"
+                  maxLength={20}
+                  value={state.appInfo.name}
+                  onChange={(value) => handleInputChange('name', value)}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">主标题</label>
+                <FormField
+                  type="text"
+                  placeholder="如：全新升级，体验更流畅"
+                  maxLength={50}
+                  value={state.appInfo.title}
+                  onChange={(value) => handleInputChange('title', value)}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">副标题</label>
+                <FormField
+                  type="textarea"
+                  placeholder="如：一款让生活更便捷的社交应用"
+                  maxLength={100}
+                  rows={3}
+                  value={state.appInfo.subtitle}
+                  onChange={(value) => handleInputChange('subtitle', value)}
+                />
+              </div>
             </div>
           </div>
           
