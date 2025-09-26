@@ -33,7 +33,8 @@ export const TopBottomHeader = ({ appInfo, getTextColorStyle, typography }) => (
       <div className="text-2xl font-semibold" 
         style={{
           ...getTextColorStyle(),
-          fontWeight: typography?.appNameWeight || 600
+          fontWeight: typography?.appNameWeight || 600,
+          fontFamily: typography?.fontFamily
         }}>
         {appInfo.name}
       </div>
@@ -66,7 +67,8 @@ export const DiagonalHeader = ({ appInfo, features, contentSections, getTextColo
           <div className="text-xl font-semibold" 
             style={{
               ...getTextColorStyle(),
-              fontWeight: typography?.appNameWeight || 600
+              fontWeight: typography?.appNameWeight || 600,
+              fontFamily: typography?.fontFamily
             }}>
             {appInfo.name}
           </div>
@@ -128,7 +130,8 @@ export const FeatureGridHeader = ({ appInfo, getTextColorStyle, alignment, typog
         <div className="text-xl font-semibold" 
           style={{
             ...getTextColorStyle(),
-            fontWeight: typography?.appNameWeight || 600
+            fontWeight: typography?.appNameWeight || 600,
+            fontFamily: typography?.fontFamily
           }}>
           {appInfo.name}
         </div>

@@ -31,7 +31,6 @@ function DesignPanel({ isActive }) {
     { name: '现代简约', family: 'Inter, SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' },
     { name: '优雅衬线', family: 'Playfair Display, Georgia, Times New Roman, serif' },
     { name: '友好手写', family: 'Caveat, Nunito, Comic Sans MS, cursive, sans-serif' },
-    { name: '活力无衬', family: 'Poppins, Helvetica Neue, Arial, sans-serif' },
   ];
 
   const handleColorPresetSelect = (preset) => {
