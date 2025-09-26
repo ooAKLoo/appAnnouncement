@@ -265,7 +265,6 @@ function MainContent() {
           <div 
             className={layout.phoneContainer}
             style={{
-              backgroundColor: 'rgba(255, 0, 0, 0.3)', // 红色背景便于调试
               pointerEvents: 'none',
               minWidth: currentTemplate === 'center' ? '400px' : '350px',
               minHeight: '600px',
@@ -279,7 +278,6 @@ function MainContent() {
           <div 
             style={{
               ...layout.phoneContainerStyle,
-              backgroundColor: 'rgba(255, 0, 0, 0.3)', // 红色背景便于调试
               pointerEvents: 'none',
               minWidth: '400px',
               minHeight: '600px'
@@ -292,7 +290,6 @@ function MainContent() {
         <div 
           className="fixed inset-0 w-screen h-screen pointer-events-none"
           style={{
-            ...layout.phoneContainerStyle,
             zIndex: 1, // 确保在背景之上，但低于侧边面板
           }}
         >
