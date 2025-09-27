@@ -187,7 +187,6 @@ export const TEMPLATES = {
         justifyContent: 'space-between',
         height: '75vh',
         paddingRight: '80px',
-        zIndex: 20
       },
       phoneContainerStyle: {
         position: 'absolute',
@@ -198,7 +197,6 @@ export const TEMPLATES = {
         display: 'flex',
         alignItems: 'flex-end',
         justifyContent: 'flex-end',
-        zIndex: 10
       },
       leftContent: 'flex flex-col justify-between h-full',
       phoneContainer: '',

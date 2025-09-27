@@ -272,19 +272,6 @@ function MainContent() {
             }}
           />
         )}
-        
-        {/* Diagonal模板的特殊占位元素 */}
-        {currentTemplate === 'diagonal' && (
-          <div 
-            style={{
-              ...layout.phoneContainerStyle,
-              pointerEvents: 'none',
-              minWidth: '400px',
-              minHeight: '600px'
-            }}
-          />
-        )}
-
 
         {/* Right Side Phone Model */}
         <div 

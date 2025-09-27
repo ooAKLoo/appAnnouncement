@@ -9,7 +9,7 @@ const initialState = {
     icon: 'P',
     title: 'Download Postory today',
     subtitle: '创造你的故事，分享你的精彩',
-    iconImage: null,
+    iconImage: '/postory-icon.png', // Using the existing Postory icon
     previewImage: null
   },
   design: {
