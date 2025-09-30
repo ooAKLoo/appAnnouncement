@@ -1,2 +1,4 @@
 *.DS_Store
 .DS_Store
+react-app-announcement/src-tauri/target/debug
+react-app-announcement/src-tauri/target
