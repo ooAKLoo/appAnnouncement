@@ -78,11 +78,15 @@ function TopToolbar() {
   };
 
   const handleSwitchToProjects = () => {
-    setCurrentTab('projects');
+    // 关闭项目菜单
     toggleProjectMenu();
-    // 如果配置面板未打开，则打开它
-    if (!state.configPanelOpen) {
-      toggleConfigPanel();
+    
+    // 如果当前已经在项目面板，则关闭
+    if (state.currentTab === 'projects') {
+      setCurrentTab(null);
+    } else {
+      // 设置为项目面板
+      setCurrentTab('projects');
     }
   };
 

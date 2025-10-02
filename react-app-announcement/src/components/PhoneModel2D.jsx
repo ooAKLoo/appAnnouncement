@@ -411,7 +411,15 @@ function PhoneModel2D() {
   }, [state.screenImage, state.appInfo, state.design, state.currentStyle, fitMode]);
 
   return (
-    <div className="relative w-full h-[800px] flex items-center justify-center" id="canvas-container-2d">
+    <div 
+      className="phone-model-2d relative w-full h-[800px] flex items-center justify-center" 
+      id="canvas-container-2d"
+      style={{ pointerEvents: 'auto' }} // 只让手机模型接收事件
+      onContextMenu={(e) => {
+        e.preventDefault();
+        e.stopPropagation(); // 阻止手机模型区域显示右键菜单
+      }}
+    >
       <div 
         ref={containerRef}
         className="relative inline-block cursor-grab select-none"

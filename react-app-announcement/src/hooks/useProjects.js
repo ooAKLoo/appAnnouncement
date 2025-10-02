@@ -1,11 +1,18 @@
 import { useApp } from '../context/AppContext';
+import { projectStorage } from '../utils/storage';
 
 export function useProjects() {
   const { 
     state, 
+    dispatch,
+    setCurrentProjectId,
+    setAppMode,
     updateAppInfo, 
     updateDesign, 
+    updateTypography,
     updateDownloads, 
+    updateFeatures,
+    updateEventInfo,
     setScreenImage,
     addProject, 
     deleteProject,
@@ -47,13 +54,29 @@ export function useProjects() {
         name,
         createdAt: new Date().toISOString(),
         thumbnail,
+        // 完整状态
         appInfo: { ...state.appInfo },
         design: { ...state.design },
+        typography: { ...state.typography },
         downloads: { ...state.downloads },
+        features: [...state.features],
+        eventInfo: { ...state.eventInfo },
+        contentSections: { ...state.contentSections },
+        featureStyle: state.featureStyle,
+        currentStyle: state.currentStyle,
+        modelType: state.modelType,
+        modelState: { ...state.modelState }, // ✅ 保存模型状态
         screenImage: state.screenImage
       };
 
-      addProject(project);
+      // 保存到 Tauri Store
+      const projects = await projectStorage.loadProjects();
+      projects.push(project);
+      await projectStorage.saveProjects(projects);
+      
+      // 更新 React 状态
+      dispatch({ type: 'ADD_PROJECT', payload: project });
+      setCurrentProjectId(project.id);
       
       console.log('Project saved successfully:', name);
       alert('作品保存成功！');
@@ -65,14 +88,35 @@ export function useProjects() {
     }
   };
 
-  const loadProject = (project) => {
+  const loadProject = async (project) => {
     try {
-      updateAppInfo(project.appInfo);
-      updateDesign(project.design);
-      updateDownloads(project.downloads);
-      setScreenImage(project.screenImage);
+      // 恢复完整状态
+      dispatch({ type: 'UPDATE_APP_INFO', payload: project.appInfo });
+      dispatch({ type: 'UPDATE_DESIGN', payload: project.design });
+      dispatch({ type: 'UPDATE_TYPOGRAPHY', payload: project.typography });
+      dispatch({ type: 'UPDATE_DOWNLOADS', payload: project.downloads });
+      dispatch({ type: 'UPDATE_FEATURES', payload: project.features });
+      dispatch({ type: 'UPDATE_EVENT_INFO', payload: project.eventInfo });
+      dispatch({ type: 'SET_CONTENT_SECTIONS', payload: project.contentSections });
+      dispatch({ type: 'SET_FEATURE_STYLE', payload: project.featureStyle });
+      dispatch({ type: 'UPDATE_STYLE', payload: project.currentStyle });
+      dispatch({ type: 'SET_MODEL_TYPE', payload: project.modelType });
       
-      // Switch to app config tab
+      // ✅ 恢复模型状态
+      if (project.modelState) {
+        dispatch({ type: 'UPDATE_MODEL_STATE', payload: project.modelState });
+      }
+      
+      dispatch({ type: 'SET_SCREEN_IMAGE', payload: project.screenImage });
+      
+      // 设置当前项目 ID（触发自动保存）
+      setCurrentProjectId(project.id);
+      
+      // 保存为当前项目
+      await projectStorage.saveCurrentProject(project.id, project);
+      
+      // 切换到编辑模式
+      setAppMode('editor');
       setCurrentTab('app');
       
       console.log('Project loaded successfully:', project.name);
@@ -82,9 +126,10 @@ export function useProjects() {
     }
   };
 
-  const deleteProjectById = (projectId) => {
+  const deleteProjectById = async (projectId) => {
     try {
-      deleteProject(projectId);
+      await projectStorage.deleteProject(projectId);
+      dispatch({ type: 'DELETE_PROJECT', payload: projectId });
       console.log('Project deleted successfully');
     } catch (error) {
       console.error('Error deleting project:', error);
@@ -113,7 +158,7 @@ export function useProjects() {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       
-      reader.onload = (e) => {
+      reader.onload = async (e) => {  // ✅ 改为 async
         try {
           const project = JSON.parse(e.target.result);
           
@@ -126,7 +171,14 @@ export function useProjects() {
           project.id = Date.now().toString();
           project.createdAt = new Date().toISOString();
           
-          addProject(project);
+          // ✅ 保存到持久化存储
+          const projects = await projectStorage.loadProjects();
+          projects.push(project);
+          await projectStorage.saveProjects(projects);
+          
+          // ✅ 更新 React state
+          dispatch({ type: 'ADD_PROJECT', payload: project });
+          
           resolve(project);
           
           console.log('Project imported successfully');

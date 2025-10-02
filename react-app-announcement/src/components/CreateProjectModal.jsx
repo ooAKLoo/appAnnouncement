@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { projectStorage } from '../utils/storage';
 import Modal from './common/Modal';
 
 function CreateProjectModal() {
-  const { state, closeCreateProjectModal, addProject } = useApp();
+  const { state, closeCreateProjectModal, dispatch, setCurrentProjectId, setAppMode } = useApp();
   const [projectName, setProjectName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
@@ -22,29 +23,53 @@ function CreateProjectModal() {
         id: Date.now().toString(),
         name: projectName.trim(),
         createdAt: new Date().toISOString(),
+        // 完整的初始状态
         appInfo: { ...state.appInfo },
         design: { ...state.design },
+        typography: { ...state.typography },
         downloads: { ...state.downloads },
         features: [...state.features],
         eventInfo: { ...state.eventInfo },
-        currentTheme: state.currentTheme,
-        currentStyle: state.currentStyle
+        contentSections: { ...state.contentSections },
+        featureStyle: state.featureStyle,
+        currentStyle: state.currentStyle,
+        modelType: state.modelType,
+        modelState: { ...state.modelState }, // ✅ 保存模型状态
+        screenImage: state.screenImage, // ✅ 保留当前图片
+        thumbnail: null
       };
 
-      // 添加到项目列表
-      addProject(newProject);
+      // ✅ 1. 加载现有项目列表
+      const projects = await projectStorage.loadProjects();
+      
+      // ✅ 2. 添加新项目
+      projects.push(newProject);
+      
+      // ✅ 3. 保存到持久化存储
+      await projectStorage.saveProjects(projects);
+      
+      // ✅ 4. 保存为当前项目
+      await projectStorage.saveCurrentProject(newProject.id, newProject);
+      
+      // ✅ 5. 更新 React state
+      dispatch({ type: 'ADD_PROJECT', payload: newProject });
+      
+      // ✅ 6. 设置当前项目 ID (触发自动保存机制)
+      setCurrentProjectId(newProject.id);
+      
+      // ✅ 7. 切换到编辑模式
+      setAppMode('editor');
       
       // 重置表单并关闭弹窗
       setProjectName('');
       closeCreateProjectModal();
       
-      // 刷新页面以应用默认设置
-      setTimeout(() => {
-        window.location.reload();
-      }, 100);
+      console.log('项目创建成功:', newProject.name);
       
     } catch (error) {
       console.error('创建项目失败:', error);
+      console.error('Error details:', error.message, error.stack);
+      alert(`创建失败: ${error.message || '未知错误'}`);
     } finally {
       setIsCreating(false);
     }

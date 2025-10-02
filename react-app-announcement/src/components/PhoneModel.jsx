@@ -703,7 +703,7 @@ function PhoneModel() {
   return (
     <div
       ref={containerRef}
-      className={`relative w-full h-full select-none ${
+      className={`phone-model relative w-full h-full select-none ${
         isDragging && interactionMode === "move"
           ? "cursor-grabbing"
           : isHovered
@@ -714,12 +714,17 @@ function PhoneModel() {
             : "cursor-crosshair"
           : "cursor-default"
       }`}
+      style={{ pointerEvents: 'auto' }} // 只让手机模型接收事件
       id="canvas-container"
       onWheel={handleWheel}
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        e.stopPropagation(); // 阻止手机模型区域显示右键菜单
+      }}
     >
       {/* 旋转角度提示 */}
       {isRotating && (

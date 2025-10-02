@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useState, useRef, useCallback } from 'react';
 import { generateGradientColor, getGradientDirection, getStyleConfig } from '../data/styleConfig';
+import { projectStorage } from '../utils/storage';
 
 const AppContext = createContext();
 
@@ -8,8 +9,8 @@ const initialState = {
     name: 'Postory',
     icon: 'P',
     title: 'Download Postory today',
-    subtitle: '创造你的故事，分享你的精彩',
-    iconImage: '/postory-icon.png', // Using the existing Postory icon
+    subtitle: '创造你的故事,分享你的精彩',
+    iconImage: '/postory-icon.png',
     previewImage: null
   },
   design: {
@@ -17,16 +18,16 @@ const initialState = {
     colorScheme: 'blue',
     bgColor: '#667eea',
     gradientColor: '#764ba2',
-    colorMode: 'gradient', // 'gradient' or 'solid'
-    gradientAngle: '135deg', // 渐变角度，独立于风格
-    spacing: 8 // 控制文字和图片间距，1-20的范围
+    colorMode: 'gradient',
+    gradientAngle: '135deg',
+    spacing: 8
   },
   typography: {
-    fontFamily: 'Inter, SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif', // 独立字体配置
+    fontFamily: 'Inter, SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
     titleWeight: 600,
     subtitleWeight: 400,
     bodyWeight: 400,
-    textColor: '#333333' // 统一字体颜色
+    textColor: '#333333'
   },
   downloads: {
     showAppStore: true,
@@ -47,17 +48,27 @@ const initialState = {
     eventDescription: '年度最大优惠活动'
   },
   contentSections: {
-    features: false, // 功能列表是否显示
-    event: false, // 活动信息是否显示
-    media: true // 媒体资源默认显示
+    features: false,
+    event: false,
+    media: true
   },
-  featureStyle: 'card', // 功能列表展示样式: 'card' | 'markdown'
-  currentStyle: 'minimal', // 当前选中的风格
+  featureStyle: 'card',
+  currentStyle: 'minimal',
   screenImage: null,
   showImagePreview: false,
+  
+  deviceType: 'mobile',
+  modelType: '3d',
+  modelState: {
+    rotation: { x: 0, y: 0, z: 0 },
+    position: { x: 0, y: 0, z: 0 },
+    scale: 1,
+    cameraPosition: { x: 0, y: 0, z: 5 }
+  },
+  
   projects: [],
-  currentTab: null, // 初始状态下没有选中任何tab
-  currentPanel: 'content', // 新的面板系统：content, design, assets, layout
+  currentTab: null,
+  currentPanel: 'content',
   configPanelOpen: false,
   downloadMenuOpen: false,
   projectMenuOpen: false,
@@ -66,7 +77,15 @@ const initialState = {
   projectToDelete: null,
   createProjectModalOpen: false,
   toolbarsVisible: true,
-  modelType: '3d' // '3d' or '2d'
+  
+  appMode: 'home',
+  
+  selectedElement: null,
+  elementStyles: {},
+  draggedElement: null,
+  
+  dynamicComponents: [],
+  contextMenu: { visible: false, x: 0, y: 0 } // ✅ 修复：使用对象而不是 null
 };
 
 function appReducer(state, action) {
@@ -79,15 +98,22 @@ function appReducer(state, action) {
     case 'UPDATE_DESIGN':
       const designUpdate = action.payload;
       let newDesign = { ...state.design, ...designUpdate };
+      let newState = { ...state };
       
-      // 只在切换到渐变模式时才自动生成渐变色，其他情况不自动更改
       if (designUpdate.colorMode === 'gradient' && state.design.colorMode !== 'gradient') {
         const { gradientColor } = generateGradientColor(newDesign.bgColor, state.currentStyle);
         newDesign.gradientColor = gradientColor;
       }
       
+      if (designUpdate.deviceType !== undefined) {
+        newState.deviceType = designUpdate.deviceType;
+        if (designUpdate.deviceType === 'product-hunt') {
+          newState.modelType = '2d';
+        }
+      }
+      
       return {
-        ...state,
+        ...newState,
         design: newDesign
       };
     case 'UPDATE_THEME':
@@ -96,7 +122,6 @@ function appReducer(state, action) {
         currentTheme: action.payload
       };
     case 'UPDATE_STYLE':
-      // 更新风格时，同时应用对应的渐变角度和字体配置作为默认值
       const styleConfig = getStyleConfig(action.payload);
       return {
         ...state,
@@ -158,7 +183,6 @@ function appReducer(state, action) {
       return {
         ...state,
         configPanelOpen: !state.configPanelOpen,
-        // 关闭面板时清除当前选中的tab
         currentTab: !state.configPanelOpen ? state.currentTab : null
       };
     case 'TOGGLE_DOWNLOAD_MENU':
@@ -252,7 +276,115 @@ function appReducer(state, action) {
     case 'LOAD_STATE':
       return {
         ...state,
-        ...action.payload
+        ...action.payload,
+        // ✅ 确保 contextMenu 始终有正确的结构
+        contextMenu: action.payload.contextMenu || { visible: false, x: 0, y: 0 }
+      };
+    case 'SET_CURRENT_PROJECT_ID':
+      return {
+        ...state,
+        currentProjectId: action.payload
+      };
+    case 'UPDATE_PROJECT':
+      return {
+        ...state,
+        projects: state.projects.map(p => 
+          p.id === action.payload.id ? { ...p, ...action.payload } : p
+        )
+      };
+    case 'SET_CONTENT_SECTIONS':
+      return {
+        ...state,
+        contentSections: action.payload
+      };
+    case 'RESET_TO_INITIAL':
+      return {
+        ...initialState,
+        projects: state.projects
+      };
+    case 'UPDATE_MODEL_STATE':
+      return {
+        ...state,
+        modelState: { ...state.modelState, ...action.payload }
+      };
+    case 'SET_APP_MODE':
+      return {
+        ...state,
+        appMode: action.payload
+      };
+    case 'SELECT_ELEMENT':
+      return {
+        ...state,
+        selectedElement: action.payload,
+        currentPanel: 'style'
+      };
+    case 'DESELECT_ELEMENT':
+      return {
+        ...state,
+        selectedElement: null
+      };
+    case 'UPDATE_ELEMENT_STYLE':
+      return {
+        ...state,
+        elementStyles: {
+          ...state.elementStyles,
+          [action.payload.elementId]: {
+            ...state.elementStyles[action.payload.elementId],
+            ...action.payload.styles
+          }
+        }
+      };
+    case 'SET_DRAGGED_ELEMENT':
+      return {
+        ...state,
+        draggedElement: action.payload
+      };
+    case 'REORDER_FEATURES':
+      const { fromIndex, toIndex } = action.payload;
+      const newFeatures = [...state.features];
+      const [movedItem] = newFeatures.splice(fromIndex, 1);
+      newFeatures.splice(toIndex, 0, movedItem);
+      return {
+        ...state,
+        features: newFeatures
+      };
+    case 'SHOW_CONTEXT_MENU':
+      console.log('🔄 Reducer: SHOW_CONTEXT_MENU', action.payload); // ✅ 添加调试日志
+      return {
+        ...state,
+        contextMenu: {
+          visible: true,
+          x: action.payload.x,
+          y: action.payload.y
+        }
+      };
+    case 'HIDE_CONTEXT_MENU':
+      console.log('🔄 Reducer: HIDE_CONTEXT_MENU'); // ✅ 添加调试日志
+      return {
+        ...state,
+        contextMenu: {
+          visible: false,
+          x: 0,
+          y: 0
+        }
+      };
+    case 'ADD_DYNAMIC_COMPONENT':
+      return {
+        ...state,
+        dynamicComponents: [...state.dynamicComponents, action.payload],
+        contextMenu: { visible: false, x: 0, y: 0 }
+      };
+    case 'UPDATE_DYNAMIC_COMPONENT':
+      return {
+        ...state,
+        dynamicComponents: state.dynamicComponents.map(comp =>
+          comp.id === action.payload.id ? { ...comp, ...action.payload.updates } : comp
+        )
+      };
+    case 'DELETE_DYNAMIC_COMPONENT':
+      return {
+        ...state,
+        dynamicComponents: state.dynamicComponents.filter(comp => comp.id !== action.payload)
       };
     default:
       return state;
@@ -261,36 +393,71 @@ function appReducer(state, action) {
 
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
+  const [currentProjectId, setCurrentProjectId] = useState(null);
+  const autoSaveTimerRef = useRef(null);
 
-  // Load state from localStorage on mount
   useEffect(() => {
-    const savedState = localStorage.getItem('appAnnouncementState');
-    if (savedState) {
+    const loadData = async () => {
       try {
-        const parsedState = JSON.parse(savedState);
-        dispatch({ type: 'LOAD_STATE', payload: parsedState });
+        const projects = await projectStorage.loadProjects();
+        dispatch({ type: 'SET_PROJECTS', payload: projects });
+        
+        const currentProject = await projectStorage.loadCurrentProject();
+        if (currentProject) {
+          setCurrentProjectId(currentProject.id);
+          dispatch({ type: 'LOAD_STATE', payload: currentProject });
+        }
       } catch (error) {
-        console.error('Failed to load saved state:', error);
+        console.error('加载数据失败:', error);
       }
-    }
+    };
+    
+    loadData();
   }, []);
 
-  // Save state to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem('appAnnouncementState', JSON.stringify({
-      appInfo: state.appInfo,
-      design: state.design,
-      downloads: state.downloads,
-      contentStyles: state.contentStyles,
-      contentSections: state.contentSections,
-      projects: state.projects
-    }));
-  }, [state.appInfo, state.design, state.downloads, state.contentStyles, state.contentSections, state.projects]);
+    if (!currentProjectId) return;
+
+    clearTimeout(autoSaveTimerRef.current);
+    autoSaveTimerRef.current = setTimeout(async () => {
+      try {
+        const projectData = await projectStorage.saveCurrentProject(
+          currentProjectId, 
+          state
+        );
+        
+        await projectStorage.updateProject(currentProjectId, projectData);
+        
+        console.log('自动保存成功');
+      } catch (error) {
+        console.error('自动保存失败:', error);
+      }
+    }, 2000);
+
+    return () => clearTimeout(autoSaveTimerRef.current);
+  }, [
+    currentProjectId,
+    state.appInfo,
+    state.design,
+    state.typography,
+    state.downloads,
+    state.features,
+    state.eventInfo,
+    state.contentSections,
+    state.featureStyle,
+    state.currentStyle,
+    state.deviceType,
+    state.modelType,
+    state.modelState,
+    state.screenImage,
+    state.elementStyles
+  ]);
 
   const value = {
     state,
     dispatch,
-    // Helper functions
+    currentProjectId,
+    setCurrentProjectId,
     updateAppInfo: (info) => dispatch({ type: 'UPDATE_APP_INFO', payload: info }),
     updateDesign: (design) => dispatch({ type: 'UPDATE_DESIGN', payload: design }),
     updateTypography: (typography) => dispatch({ type: 'UPDATE_TYPOGRAPHY', payload: typography }),
@@ -320,7 +487,48 @@ export function AppProvider({ children }) {
     setTemplate: (template) => dispatch({ type: 'SET_TEMPLATE', payload: template }),
     updateContentStyle: (type, style) => dispatch({ type: 'UPDATE_CONTENT_STYLE', payload: { type, style } }),
     toggleContentSection: (section) => dispatch({ type: 'TOGGLE_CONTENT_SECTION', payload: section }),
-    setFeatureStyle: (style) => dispatch({ type: 'SET_FEATURE_STYLE', payload: style })
+    setFeatureStyle: (style) => dispatch({ type: 'SET_FEATURE_STYLE', payload: style }),
+    updateModelState: (modelState) => dispatch({ type: 'UPDATE_MODEL_STATE', payload: modelState }),
+    setAppMode: (mode) => dispatch({ type: 'SET_APP_MODE', payload: mode }),
+    
+    selectElement: (type, id, element) => dispatch({ 
+      type: 'SELECT_ELEMENT', 
+      payload: { type, id, element } 
+    }),
+    deselectElement: () => dispatch({ type: 'DESELECT_ELEMENT' }),
+    updateElementStyle: (elementId, styles) => dispatch({ 
+      type: 'UPDATE_ELEMENT_STYLE', 
+      payload: { elementId, styles } 
+    }),
+    setDraggedElement: (element) => dispatch({ type: 'SET_DRAGGED_ELEMENT', payload: element }),
+    reorderFeatures: (fromIndex, toIndex) => dispatch({ 
+      type: 'REORDER_FEATURES', 
+      payload: { fromIndex, toIndex } 
+    }),
+    // 使用 useCallback 保持函数引用稳定，避免监听器反复卸载/注册
+    showContextMenu: useCallback((x, y) => {
+      console.log('📞 showContextMenu 被调用:', x, y);
+      dispatch({
+        type: 'SHOW_CONTEXT_MENU',
+        payload: { x, y }
+      });
+    }, [dispatch]),
+    hideContextMenu: useCallback(() => {
+      console.log('📞 hideContextMenu 被调用');
+      dispatch({ type: 'HIDE_CONTEXT_MENU' });
+    }, [dispatch]),
+    addDynamicComponent: (component) => dispatch({ 
+      type: 'ADD_DYNAMIC_COMPONENT', 
+      payload: component 
+    }),
+    updateDynamicComponent: (id, updates) => dispatch({ 
+      type: 'UPDATE_DYNAMIC_COMPONENT', 
+      payload: { id, updates } 
+    }),
+    deleteDynamicComponent: (id) => dispatch({ 
+      type: 'DELETE_DYNAMIC_COMPONENT', 
+      payload: id 
+    })
   };
 
   return (

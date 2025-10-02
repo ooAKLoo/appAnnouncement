@@ -1,16 +1,25 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { Layers, LayoutTemplate, Box, RectangleHorizontal } from 'lucide-react';
+import { Layers, LayoutTemplate, Box, RectangleHorizontal, Monitor, Smartphone, Trophy } from 'lucide-react';
 
 function LayoutPanel({ isActive }) {
   const { state, updateDesign, setModelType } = useApp();
 
   if (!isActive) return null;
 
+  // 设备类型选项
+  const deviceTypes = [
+    { id: 'mobile', name: '手机', icon: Smartphone },
+    { id: 'desktop', name: '电脑', icon: Monitor },
+    { id: 'product-hunt', name: 'Product Hunt', icon: Trophy },
+  ];
 
-  // 视图模式选项
-  const viewModes = [
-    { id: '3d', name: '3D 模型', icon: Box, description: '立体手机预览效果' },
+  // 当前设备类型
+  const currentDeviceType = state.deviceType || 'mobile';
+
+  // 2D/3D 模式选项（仅对手机和电脑有效）
+  const modelTypes = [
+    { id: '3d', name: '3D 模型', icon: Box, description: '立体预览效果' },
     { id: '2d', name: '平面视图', icon: RectangleHorizontal, description: '2D 平面展示效果' },
   ];
 
@@ -32,39 +41,96 @@ function LayoutPanel({ isActive }) {
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
         
-        {/* 视图模式 */}
+        {/* 设备类型选择 */}
         <section>
           <div className="flex items-center gap-2 mb-4">
-            <Box size={16} className="text-gray-600" />
-            <h3 className="font-medium text-gray-900">展示方式</h3>
+            <LayoutTemplate size={16} className="text-gray-600" />
+            <h3 className="font-medium text-gray-900">展示模型</h3>
           </div>
-          <div className="space-y-3">
-            {viewModes.map((mode) => (
-              <button
-                key={mode.id}
-                className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
-                  state.modelType === mode.id
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-                onClick={() => setModelType(mode.id)}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${
-                    state.modelType === mode.id ? 'bg-blue-100' : 'bg-gray-100'
-                  }`}>
-                    <mode.icon size={20} className={
-                      state.modelType === mode.id ? 'text-blue-600' : 'text-gray-600'
-                    } />
+          
+          {/* 设备类型横向滚动选择 */}
+          <div className="mb-6">
+            <div className="relative bg-gray-50/80 p-1 rounded-xl border border-gray-200/50">
+              <div className="flex gap-1 overflow-x-auto scrollbar-hide">
+                {deviceTypes.map((device) => (
+                  <button
+                    key={device.id}
+                    className={`relative flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-300 whitespace-nowrap min-w-0 flex-shrink-0 ${
+                      currentDeviceType === device.id
+                        ? 'bg-white text-gray-800 shadow-sm font-medium'
+                        : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
+                    }`}
+                    onClick={() => updateDesign({ deviceType: device.id })}
+                  >
+                    <device.icon size={15} className={`transition-colors duration-200 ${
+                      currentDeviceType === device.id ? 'text-gray-700' : 'text-gray-400'
+                    }`} />
+                    <span className="text-sm font-medium">{device.name}</span>
+                    {currentDeviceType === device.id && (
+                      <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/5 to-purple-500/5 pointer-events-none"></div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* 2D/3D 模式选择 (仅手机和电脑显示) */}
+          {(currentDeviceType === 'mobile' || currentDeviceType === 'desktop') && (
+            <div className="space-y-2">
+              {modelTypes.map((model) => (
+                <button
+                  key={model.id}
+                  className={`group w-full p-3.5 rounded-xl transition-all duration-300 text-left hover:scale-[1.01] ${
+                    state.modelType === model.id
+                      ? 'bg-gradient-to-r from-gray-50 to-gray-100/50 border border-gray-200/80 shadow-sm'
+                      : 'bg-white/50 border border-gray-100/50 hover:bg-gray-50/80 hover:border-gray-200/60'
+                  }`}
+                  onClick={() => setModelType(model.id)}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg transition-all duration-300 ${
+                      state.modelType === model.id 
+                        ? 'bg-gradient-to-br from-gray-600 to-gray-700 shadow-md' 
+                        : 'bg-gray-100 group-hover:bg-gray-200'
+                    }`}>
+                      <model.icon size={15} className={
+                        state.modelType === model.id ? 'text-white' : 'text-gray-500 group-hover:text-gray-600'
+                      } />
+                    </div>
+                    <div className="flex-1">
+                      <div className={`font-medium text-sm transition-colors ${
+                        state.modelType === model.id ? 'text-gray-800' : 'text-gray-700'
+                      }`}>
+                        {model.name}
+                      </div>
+                      <div className={`text-xs transition-colors ${
+                        state.modelType === model.id ? 'text-gray-600' : 'text-gray-500'
+                      }`}>
+                        {model.description}
+                      </div>
+                    </div>
+                    <div className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                      state.modelType === model.id ? 'bg-gray-700 scale-100' : 'bg-gray-300 scale-0'
+                    }`}></div>
                   </div>
-                  <div>
-                    <div className="font-medium text-gray-900">{mode.name}</div>
-                    <div className="text-sm text-gray-500">{mode.description}</div>
-                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Product Hunt 模式说明 */}
+          {currentDeviceType === 'product-hunt' && (
+            <div className="p-4 rounded-xl bg-gradient-to-br from-orange-50/80 to-amber-50/50 border border-orange-200/60">
+              <div className="flex items-center gap-2.5 mb-2">
+                <div className="p-1.5 rounded-lg bg-orange-100">
+                  <Trophy size={14} className="text-orange-600" />
                 </div>
-              </button>
-            ))}
-          </div>
+                <span className="text-sm font-medium text-orange-800">Product Hunt 展示</span>
+              </div>
+              <p className="text-xs text-orange-700/80 leading-relaxed">专为产品展示优化的平面布局模式</p>
+            </div>
+          )}
         </section>
 
 
@@ -81,10 +147,10 @@ function LayoutPanel({ isActive }) {
                 {['left', 'center', 'right'].map((align) => (
                   <button
                     key={align}
-                    className={`flex-1 py-2 px-3 text-sm rounded-lg transition-all ${
+                    className={`flex-1 py-2.5 px-3 text-sm rounded-lg transition-all duration-200 ${
                       (state.design.alignment || 'center') === align
-                        ? 'bg-blue-100 text-blue-700 font-medium'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        ? 'bg-blue-500 text-white font-medium shadow-md'
+                        : 'bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-600'
                     }`}
                     onClick={() => updateDesign({ alignment: align })}
                   >
@@ -106,19 +172,24 @@ function LayoutPanel({ isActive }) {
             <h4 className="text-sm font-medium text-gray-700 mb-2">设备</h4>
             <div className="space-y-2">
               {[
-                { name: 'iPhone 15 Pro', size: '393×852', desc: '移动端' },
-                { name: 'iPad Air', size: '820×1180', desc: '平板端' },
-                { name: 'MacBook Air', size: '1440×900', desc: '桌面端' }
+                { name: 'iPhone 15 Pro', size: '393×852', desc: '移动端', icon: Smartphone },
+                { name: 'iPad Air', size: '820×1180', desc: '平板端', icon: LayoutTemplate },
+                { name: 'MacBook Air', size: '1440×900', desc: '桌面端', icon: Monitor }
               ].map((device) => (
                 <button
                   key={device.name}
-                  className="w-full flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
+                  className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 group"
                 >
-                  <div className="flex flex-col items-start">
-                    <span className="text-sm font-medium text-gray-900">{device.name}</span>
-                    <span className="text-xs text-gray-500">{device.desc}</span>
+                  <div className="flex items-center gap-3">
+                    <div className="p-1.5 rounded-md bg-gray-100 group-hover:bg-blue-100 transition-colors">
+                      <device.icon size={14} className="text-gray-600 group-hover:text-blue-600" />
+                    </div>
+                    <div className="flex flex-col items-start">
+                      <span className="text-sm font-medium text-gray-900">{device.name}</span>
+                      <span className="text-xs text-gray-500">{device.desc}</span>
+                    </div>
                   </div>
-                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded font-mono">
+                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded font-mono group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
                     {device.size}
                   </span>
                 </button>
@@ -131,22 +202,27 @@ function LayoutPanel({ isActive }) {
             <h4 className="text-sm font-medium text-gray-700 mb-2">社交媒体</h4>
             <div className="space-y-2">
               {[
-                { name: 'Instagram 动态', size: '1080×1920', desc: 'Story' },
-                { name: 'Instagram 帖子', size: '1080×1080', desc: 'Post' },
-                { name: '微信朋友圈', size: '1200×900', desc: '横版图片' },
-                { name: '小红书封面', size: '1242×1660', desc: '竖版封面' },
-                { name: 'Twitter 卡片', size: '1200×630', desc: 'Card' },
-                { name: 'Facebook 封面', size: '1200×630', desc: 'Cover' }
+                { name: 'Product Hunt', size: '1440×900', desc: 'Gallery View', icon: Trophy },
+                { name: 'Instagram 动态', size: '1080×1920', desc: 'Story', icon: LayoutTemplate },
+                { name: 'Instagram 帖子', size: '1080×1080', desc: 'Post', icon: LayoutTemplate },
+                { name: '微信朋友圈', size: '1200×900', desc: '横版图片', icon: LayoutTemplate },
+                { name: '小红书封面', size: '1242×1660', desc: '竖版封面', icon: LayoutTemplate },
+                { name: 'Twitter 卡片', size: '1200×630', desc: 'Card', icon: LayoutTemplate }
               ].map((social) => (
                 <button
                   key={social.name}
-                  className="w-full flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
+                  className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 group"
                 >
-                  <div className="flex flex-col items-start">
-                    <span className="text-sm font-medium text-gray-900">{social.name}</span>
-                    <span className="text-xs text-gray-500">{social.desc}</span>
+                  <div className="flex items-center gap-3">
+                    <div className="p-1.5 rounded-md bg-gray-100 group-hover:bg-blue-100 transition-colors">
+                      <social.icon size={14} className="text-gray-600 group-hover:text-blue-600" />
+                    </div>
+                    <div className="flex flex-col items-start">
+                      <span className="text-sm font-medium text-gray-900">{social.name}</span>
+                      <span className="text-xs text-gray-500">{social.desc}</span>
+                    </div>
                   </div>
-                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded font-mono">
+                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded font-mono group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
                     {social.size}
                   </span>
                 </button>

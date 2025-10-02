@@ -1,5 +1,6 @@
 import React from 'react';
 import StyledText from '../common/StyledText';
+import EditableWrapper from '../EditableWrapper';
 
 // 经典模板 - 左文右图
 export const ClassicTemplate = ({ appInfo, alignment }) => {
@@ -28,23 +29,35 @@ export const ClassicTemplate = ({ appInfo, alignment }) => {
         </StyledText>
       </div>
 
-      <StyledText 
-        variant="title" 
-        element="h1" 
-        template="classic" 
+      <EditableWrapper
+        elementType="title"
+        elementId="app-title"
+        elementPath="appInfo.title"
         className="mb-8"
       >
-        {appInfo.title}
-      </StyledText>
+        <StyledText 
+          variant="title" 
+          element="h1" 
+          template="classic"
+        >
+          {appInfo.title}
+        </StyledText>
+      </EditableWrapper>
 
-      <StyledText 
-        variant="subtitle" 
-        element="p" 
-        template="classic"
+      <EditableWrapper
+        elementType="subtitle"
+        elementId="app-subtitle"
+        elementPath="appInfo.subtitle"
         className="mb-12"
       >
-        {appInfo.subtitle}
-      </StyledText>
+        <StyledText 
+          variant="subtitle" 
+          element="p" 
+          template="classic"
+        >
+          {appInfo.subtitle}
+        </StyledText>
+      </EditableWrapper>
     </>
   );
 };
@@ -70,23 +83,35 @@ export const CenterTemplate = ({ appInfo, alignment }) => {
         </StyledText>
       </div>
 
-      <StyledText 
-        variant="title" 
-        element="h1" 
-        template="center" 
+      <EditableWrapper
+        elementType="title"
+        elementId="app-title-center"
+        elementPath="appInfo.title"
         className="mb-8"
       >
-        {appInfo.title}
-      </StyledText>
+        <StyledText 
+          variant="title" 
+          element="h1" 
+          template="center"
+        >
+          {appInfo.title}
+        </StyledText>
+      </EditableWrapper>
 
-      <StyledText 
-        variant="subtitle" 
-        element="p" 
-        template="center"
+      <EditableWrapper
+        elementType="subtitle"
+        elementId="app-subtitle-center"
+        elementPath="appInfo.subtitle"
         className="mb-12"
       >
-        {appInfo.subtitle}
-      </StyledText>
+        <StyledText 
+          variant="subtitle" 
+          element="p" 
+          template="center"
+        >
+          {appInfo.subtitle}
+        </StyledText>
+      </EditableWrapper>
     </>
   );
 };
@@ -118,23 +143,35 @@ export const MinimalTemplate = ({ appInfo, alignment }) => {
         </StyledText>
       </div>
 
-      <StyledText 
-        variant="title" 
-        element="h1" 
-        template="minimal" 
+      <EditableWrapper
+        elementType="title"
+        elementId="app-title-minimal"
+        elementPath="appInfo.title"
         className="mb-8"
       >
-        {appInfo.title}
-      </StyledText>
+        <StyledText 
+          variant="title" 
+          element="h1" 
+          template="minimal"
+        >
+          {appInfo.title}
+        </StyledText>
+      </EditableWrapper>
 
-      <StyledText 
-        variant="subtitle" 
-        element="p" 
-        template="minimal"
+      <EditableWrapper
+        elementType="subtitle"
+        elementId="app-subtitle-minimal"
+        elementPath="appInfo.subtitle"
         className="mb-12"
       >
-        {appInfo.subtitle}
-      </StyledText>
+        <StyledText 
+          variant="subtitle" 
+          element="p" 
+          template="minimal"
+        >
+          {appInfo.subtitle}
+        </StyledText>
+      </EditableWrapper>
     </>
   );
 };
@@ -155,21 +192,33 @@ export const TopBottomTemplate = ({ appInfo }) => (
     </div>
     
     <div className="flex-1 flex flex-col justify-center min-h-[80px]">
-      <StyledText 
-        variant="title" 
-        element="h1" 
-        template="topBottom" 
+      <EditableWrapper
+        elementType="title"
+        elementId="app-title-topbottom"
+        elementPath="appInfo.title"
         className="mb-2"
       >
-        {appInfo.title}
-      </StyledText>
-      <StyledText 
-        variant="subtitle" 
-        element="p" 
-        template="topBottom"
+        <StyledText 
+          variant="title" 
+          element="h1" 
+          template="topBottom"
+        >
+          {appInfo.title}
+        </StyledText>
+      </EditableWrapper>
+      <EditableWrapper
+        elementType="subtitle"
+        elementId="app-subtitle-topbottom"
+        elementPath="appInfo.subtitle"
       >
-        {appInfo.subtitle}
-      </StyledText>
+        <StyledText 
+          variant="subtitle" 
+          element="p" 
+          template="topBottom"
+        >
+          {appInfo.subtitle}
+        </StyledText>
+      </EditableWrapper>
     </div>
     
     <div className="flex items-end h-20">
@@ -214,23 +263,35 @@ export const DiagonalTemplate = ({ appInfo, features, contentSections, alignment
           </StyledText>
         </div>
 
-        <StyledText 
-          variant="title" 
-          element="h1" 
-          template="diagonal"
+        <EditableWrapper
+          elementType="title"
+          elementId="app-title-diagonal"
+          elementPath="appInfo.title"
           className="mb-6"
         >
-          {appInfo.title}
-        </StyledText>
+          <StyledText 
+            variant="title" 
+            element="h1" 
+            template="diagonal"
+          >
+            {appInfo.title}
+          </StyledText>
+        </EditableWrapper>
 
-        <StyledText 
-          variant="subtitle" 
-          element="p" 
-          template="diagonal"
+        <EditableWrapper
+          elementType="subtitle"
+          elementId="app-subtitle-diagonal"
+          elementPath="appInfo.subtitle"
           className="mb-8"
         >
-          {appInfo.subtitle}
-        </StyledText>
+          <StyledText 
+            variant="subtitle" 
+            element="p" 
+            template="diagonal"
+          >
+            {appInfo.subtitle}
+          </StyledText>
+        </EditableWrapper>
 
         {contentSections.features && features.length > 0 && (
           <div className="space-y-4 text-lg opacity-90 mt-10">
