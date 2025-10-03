@@ -432,9 +432,17 @@ function PhoneModel() {
   const [isLoading, setIsLoading] = useState(true);
   const containerRef = useRef(null);
 
-  // 使用3D模型位置代替CSS平移
-  const [modelPosition, setModelPosition] = useState([0, 0, 0]);
-  const [modelRotation, setModelRotation] = useState({ x: 0, y: 0, z: 0 }); // 3D模型的X轴、Y轴和Z轴旋转角度
+  // 使用3D模型位置代替CSS平移 - 从 context 读取初始值
+  const [modelPosition, setModelPosition] = useState([
+    state.modelState.position?.x || 0,
+    state.modelState.position?.y || 0,
+    state.modelState.position?.z || 0
+  ]);
+  const [modelRotation, setModelRotation] = useState({
+    x: state.modelState.rotation?.x || 0,
+    y: state.modelState.rotation?.y || 0,
+    z: state.modelState.rotation?.z || 0
+  });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({
     x: 0,
@@ -460,8 +468,8 @@ function PhoneModel() {
   const animationFrameRef = useRef(null);
   const [cachedSensitivity, setCachedSensitivity] = useState(0.01);
 
-  // 自定义缩放状态
-  const [cameraDistance, setCameraDistance] = useState(3);
+  // 自定义缩放状态 - 从 context 读取初始值
+  const [cameraDistance, setCameraDistance] = useState(state.modelState.cameraDistance || 3);
 
   // 显示控制图标并设置自动隐藏
   const showControlIconsWithTimeout = () => {
@@ -690,6 +698,25 @@ function PhoneModel() {
     modelPosition,
     modelRotation,
   ]);
+
+  // 监听模板版本号变化，同步外部 modelState（避免拖动时的循环更新）
+  useEffect(() => {
+    if (state.modelState.position && state.modelState.rotation && !isDragging && !isRotating) {
+      setModelPosition([
+        state.modelState.position.x,
+        state.modelState.position.y,
+        state.modelState.position.z
+      ]);
+      setModelRotation({
+        x: state.modelState.rotation.x,
+        y: state.modelState.rotation.y,
+        z: state.modelState.rotation.z
+      });
+      if (state.modelState.cameraDistance) {
+        setCameraDistance(state.modelState.cameraDistance);
+      }
+    }
+  }, [state.templateVersion, state.modelType]);
 
   // 同步 3D 模型状态到全局 context
   useEffect(() => {

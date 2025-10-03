@@ -8,10 +8,10 @@ function MacBookModel2D() {
   const [screenContent, setScreenContent] = useState(null);
   const [macbookSize, setMacbookSize] = useState({ width: 0, height: 0 });
   const [transform, setTransform] = useState({
-    scale: 1,
-    rotation: 0,
-    x: 0,
-    y: 0
+    scale: state.modelState.scale || 1,
+    rotation: state.modelState.rotation?.z || 0,
+    x: state.modelState.position?.x || 0,
+    y: state.modelState.position?.y || 0
   });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -166,6 +166,18 @@ function MacBookModel2D() {
       };
     }
   }, [isRotating, rotateStart]);
+
+  // 监听模板版本号变化，同步外部 modelState（避免拖动时的循环更新）
+  useEffect(() => {
+    if (state.modelState.position && state.modelState.rotation && !isDragging && !isRotating) {
+      setTransform({
+        scale: state.modelState.scale || 1,
+        rotation: state.modelState.rotation.z || 0,
+        x: state.modelState.position.x || 0,
+        y: state.modelState.position.y || 0
+      });
+    }
+  }, [state.templateVersion, state.modelType]);
 
   // 同步 MacBook 2D 模型状态到全局 context
   useEffect(() => {

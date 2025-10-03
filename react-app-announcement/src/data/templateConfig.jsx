@@ -191,6 +191,19 @@ export const TEMPLATES = {
       features: 'space-y-8 mb-12',
       event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-10 mb-12'
     },
+    // 模型状态配置
+    modelState: {
+      '2d': {
+        scale: 1,
+        rotation: { x: 0, y: 0, z: 0 },
+        position: { x: 380, y: 41, z: 0 }
+      },
+      '3d': {
+        rotation: { x: 0, y: -10, z: 0 },
+        position: { x: 0.87, y: 0.09, z: 0.00 },
+        cameraDistance: 3
+      }
+    },
     supportsFeatures: true,
     supportsEvent: true,
     supportsDownloads: true

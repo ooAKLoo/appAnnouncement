@@ -2,6 +2,7 @@ import React, { createContext, useContext, useReducer, useEffect, useState, useR
 import { generateGradientColor, getGradientDirection, getStyleConfig } from '../data/styleConfig';
 import { projectStorage } from '../utils/storage';
 import { getTemplateElements } from '../data/templateData';
+import { TEMPLATES } from '../data/templateConfig';
 
 const AppContext = createContext();
 
@@ -265,13 +266,23 @@ function appReducer(state, action) {
         toolbarsVisible: !state.toolbarsVisible
       };
     case 'SET_MODEL_TYPE':
+      // 切换模型类型时，同时应用对应的模型状态
+      const currentTemplateConfig = TEMPLATES[state.design.template];
+      const newModelStateConfig = currentTemplateConfig?.modelState?.[action.payload];
+
       return {
         ...state,
-        modelType: action.payload
+        modelType: action.payload,
+        // 应用模板中该模型类型的状态配置
+        modelState: newModelStateConfig ? { ...state.modelState, ...newModelStateConfig } : state.modelState
       };
     case 'SET_TEMPLATE':
       // 直接从模板数据生成 dynamicComponents
       const templateElements = getTemplateElements(action.payload.templateId, state);
+
+      // 获取模板的模型状态配置
+      const templateConfig = TEMPLATES[action.payload.templateId];
+      const modelStateConfig = templateConfig?.modelState?.[state.modelType];
 
       return {
         ...state,
@@ -283,7 +294,9 @@ function appReducer(state, action) {
         elementStyles: {}, // 清空元素样式
         selectedElement: null, // 取消选中
         selectedElements: [], // 清空多选
-        templateVersion: state.templateVersion + 1 // 增加版本号，强制重新渲染
+        templateVersion: state.templateVersion + 1, // 增加版本号，强制重新渲染
+        // 应用模板的模型状态（如果有配置）
+        modelState: modelStateConfig ? { ...state.modelState, ...modelStateConfig } : state.modelState
       };
     case 'TOGGLE_CONTENT_SECTION':
       return {
