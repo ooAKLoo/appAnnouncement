@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect, useState, useRef, useCallback } from 'react';
 import { generateGradientColor, getGradientDirection, getStyleConfig } from '../data/styleConfig';
 import { projectStorage } from '../utils/storage';
+import { getTemplateElements } from '../data/templateData';
 
 const AppContext = createContext();
 
@@ -12,6 +13,13 @@ const initialState = {
     subtitle: '创造你的故事,分享你的精彩',
     iconImage: '/postory-icon.png',
     previewImage: null
+  },
+  productHuntInfo: {
+    badge: 'NOW AVAILABLE',
+    name: 'Postory',
+    tagline: 'Create your story, share your moments',
+    description: 'Transform your ideas into beautiful stories',
+    iconImage: '/postory-icon.png'
   },
   design: {
     template: 'classic',
@@ -81,9 +89,10 @@ const initialState = {
   appMode: 'home',
   
   selectedElement: null,
+  selectedElements: [], // 多选支持
   elementStyles: {},
   draggedElement: null,
-  
+
   dynamicComponents: [],
   contextMenu: { visible: false, x: 0, y: 0 } // ✅ 修复：使用对象而不是 null
 };
@@ -94,6 +103,11 @@ function appReducer(state, action) {
       return {
         ...state,
         appInfo: { ...state.appInfo, ...action.payload }
+      };
+    case 'UPDATE_PRODUCT_HUNT_INFO':
+      return {
+        ...state,
+        productHuntInfo: { ...state.productHuntInfo, ...action.payload }
       };
     case 'UPDATE_DESIGN':
       const designUpdate = action.payload;
@@ -253,12 +267,19 @@ function appReducer(state, action) {
         modelType: action.payload
       };
     case 'SET_TEMPLATE':
+      // 直接从模板数据生成 dynamicComponents
+      const templateElements = getTemplateElements(action.payload.templateId, state);
+
       return {
         ...state,
         design: {
           ...state.design,
-          template: action.payload
-        }
+          template: action.payload.templateId
+        },
+        dynamicComponents: templateElements, // 使用模板数据直接生成
+        elementStyles: {}, // 清空元素样式
+        selectedElement: null, // 取消选中
+        selectedElements: [] // 清空多选
       };
     case 'TOGGLE_CONTENT_SECTION':
       return {
@@ -313,15 +334,52 @@ function appReducer(state, action) {
         appMode: action.payload
       };
     case 'SELECT_ELEMENT':
-      return {
-        ...state,
-        selectedElement: action.payload,
-        currentPanel: 'style'
-      };
+      // 如果是多选模式（payload.isMultiSelect），添加到选中列表
+      if (action.payload.isMultiSelect) {
+        const elementId = action.payload.id;
+        const isAlreadySelected = state.selectedElements.some(el => el.id === elementId);
+
+        console.log('🔄 [SELECT_ELEMENT] 多选模式:', {
+          elementId,
+          isAlreadySelected,
+          currentSelectedCount: state.selectedElements.length,
+          action: isAlreadySelected ? '取消选中' : '添加选中'
+        });
+
+        return {
+          ...state,
+          selectedElements: isAlreadySelected
+            ? state.selectedElements.filter(el => el.id !== elementId) // 取消选中
+            : [...state.selectedElements, action.payload], // 添加到选中
+          selectedElement: action.payload,
+          currentPanel: 'style'
+        };
+      } else {
+        // 单选模式，清空其他选中
+        console.log('🔄 [SELECT_ELEMENT] 单选模式:', {
+          elementId: action.payload.id,
+          elementPath: action.payload.element,
+          previousSelectedCount: state.selectedElements.length
+        });
+
+        return {
+          ...state,
+          selectedElement: action.payload,
+          selectedElements: [action.payload],
+          currentPanel: 'style'
+        };
+      }
     case 'DESELECT_ELEMENT':
       return {
         ...state,
-        selectedElement: null
+        selectedElement: null,
+        selectedElements: []
+      };
+    case 'CLEAR_SELECTION':
+      return {
+        ...state,
+        selectedElement: null,
+        selectedElements: []
       };
     case 'UPDATE_ELEMENT_STYLE':
       return {
@@ -438,6 +496,7 @@ export function AppProvider({ children }) {
   }, [
     currentProjectId,
     state.appInfo,
+    state.productHuntInfo,
     state.design,
     state.typography,
     state.downloads,
@@ -459,6 +518,7 @@ export function AppProvider({ children }) {
     currentProjectId,
     setCurrentProjectId,
     updateAppInfo: (info) => dispatch({ type: 'UPDATE_APP_INFO', payload: info }),
+    updateProductHuntInfo: (info) => dispatch({ type: 'UPDATE_PRODUCT_HUNT_INFO', payload: info }),
     updateDesign: (design) => dispatch({ type: 'UPDATE_DESIGN', payload: design }),
     updateTypography: (typography) => dispatch({ type: 'UPDATE_TYPOGRAPHY', payload: typography }),
     updateTheme: (theme) => dispatch({ type: 'UPDATE_THEME', payload: theme }),
@@ -484,18 +544,19 @@ export function AppProvider({ children }) {
     closeCreateProjectModal: () => dispatch({ type: 'CLOSE_CREATE_PROJECT_MODAL' }),
     toggleToolbars: () => dispatch({ type: 'TOGGLE_TOOLBARS' }),
     setModelType: (type) => dispatch({ type: 'SET_MODEL_TYPE', payload: type }),
-    setTemplate: (template) => dispatch({ type: 'SET_TEMPLATE', payload: template }),
+    setTemplate: (templateId) => dispatch({ type: 'SET_TEMPLATE', payload: { templateId } }),
     updateContentStyle: (type, style) => dispatch({ type: 'UPDATE_CONTENT_STYLE', payload: { type, style } }),
     toggleContentSection: (section) => dispatch({ type: 'TOGGLE_CONTENT_SECTION', payload: section }),
     setFeatureStyle: (style) => dispatch({ type: 'SET_FEATURE_STYLE', payload: style }),
     updateModelState: (modelState) => dispatch({ type: 'UPDATE_MODEL_STATE', payload: modelState }),
     setAppMode: (mode) => dispatch({ type: 'SET_APP_MODE', payload: mode }),
     
-    selectElement: (type, id, element) => dispatch({ 
-      type: 'SELECT_ELEMENT', 
-      payload: { type, id, element } 
+    selectElement: (type, id, element, isMultiSelect = false) => dispatch({
+      type: 'SELECT_ELEMENT',
+      payload: { type, id, element, isMultiSelect }
     }),
     deselectElement: () => dispatch({ type: 'DESELECT_ELEMENT' }),
+    clearSelection: () => dispatch({ type: 'CLEAR_SELECTION' }),
     updateElementStyle: (elementId, styles) => dispatch({ 
       type: 'UPDATE_ELEMENT_STYLE', 
       payload: { elementId, styles } 

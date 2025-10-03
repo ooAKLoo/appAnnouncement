@@ -71,10 +71,10 @@ function EditorToolbar() {
           )}
         </button>
 
-        <button 
+        <button
           className={`relative flex items-center gap-1.5 px-4 py-2.5 text-sm font-normal transition-all duration-300 ${
-            state.currentPanel === 'templates' 
-              ? 'text-gray-700' 
+            state.currentPanel === 'templates'
+              ? 'text-gray-700'
               : 'text-gray-400 hover:text-gray-600'
           }`}
           onClick={() => handlePanelClick('templates')}
@@ -82,21 +82,6 @@ function EditorToolbar() {
           <Grid3x3 size={15} />
           <span>模板</span>
           {state.currentPanel === 'templates' && (
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-gray-600 rounded-full transition-all duration-300" />
-          )}
-        </button>
-
-        <button 
-          className={`relative flex items-center gap-1.5 px-4 py-2.5 text-sm font-normal transition-all duration-300 ${
-            state.currentPanel === 'layout' 
-              ? 'text-gray-700' 
-              : 'text-gray-400 hover:text-gray-600'
-          }`}
-          onClick={() => handlePanelClick('layout')}
-        >
-          <RectangleHorizontal size={15} />
-          <span>布局</span>
-          {state.currentPanel === 'layout' && (
             <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-gray-600 rounded-full transition-all duration-300" />
           )}
         </button>

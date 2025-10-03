@@ -1,12 +1,15 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import EditorToolbar from './EditorToolbar';
-import ContentPanel from './panels/ContentPanel';
-import DesignPanel from './panels/DesignPanel';
-import TemplatesPanel from './panels/TemplatesPanel';
-import LayoutPanel from './panels/LayoutPanel';
-import StylePanel from './panels/StylePanel';
-import ProjectsPanel from './ProjectsPanel';
+import {
+  ContentPanel,
+  DesignPanel,
+  TemplatesPanel,
+  LayoutPanel,
+  StylePanel,
+  ComponentLibraryPanel,
+  ProjectsPanel
+} from './sidebars';
 import MainContent from './MainContent';
 import BackgroundDecorations from './BackgroundDecorations';
 import SaveDialog from './SaveDialog';
@@ -15,12 +18,22 @@ import CreateProjectModal from './CreateProjectModal';
 import HomePage from './HomePage';
 
 function NewMainInterface() {
-  const { state } = useApp();
-  
+  console.log('🖥️ NewMainInterface 渲染中...');
+  const { state, setCurrentPanel } = useApp();
+
+  console.log('📊 NewMainInterface state:', {
+    appMode: state.appMode,
+    toolbarsVisible: state.toolbarsVisible,
+    currentPanel: state.currentPanel
+  });
+
   // 如果在首页模式，显示首页
   if (state.appMode === 'home') {
+    console.log('🏠 显示首页');
     return <HomePage />;
   }
+
+  console.log('📝 显示编辑器界面');
 
   const backgroundStyle = {
     background: state.design.colorMode === 'solid' 
@@ -38,9 +51,15 @@ function NewMainInterface() {
       <DesignPanel isActive={state.toolbarsVisible && state.currentPanel === 'design'} />
       <TemplatesPanel isActive={state.toolbarsVisible && state.currentPanel === 'templates'} />
       <LayoutPanel isActive={state.toolbarsVisible && state.currentPanel === 'layout'} />
-      
+
       {/* 样式编辑面板 - 当选中元素且面板为style时显示 */}
       <StylePanel isActive={state.toolbarsVisible && state.currentPanel === 'style' && state.selectedElement !== null} />
+
+      {/* 组件库面板 */}
+      <ComponentLibraryPanel
+        isActive={state.currentPanel === 'componentLibrary'}
+        onClose={() => setCurrentPanel('content')}
+      />
       
       {/* 项目面板 - 基于 currentTab 状态 */}
       <ProjectsPanel isActive={state.toolbarsVisible && state.currentTab === 'projects'} />

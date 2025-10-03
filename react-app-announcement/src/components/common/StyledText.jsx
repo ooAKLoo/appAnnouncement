@@ -1,104 +1,30 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 
-const StyledText = ({ 
-  variant = 'text', 
-  children, 
-  className = '', 
+/**
+ * 简化的文本组件 - 只提供基础样式，不预设特定类型
+ * 所有自定义样式通过 Editable 组件的 elementStyles 应用
+ */
+const StyledText = ({
+  children,
+  className = '',
   element = 'span',
-  template,
-  ...props 
+  ...props
 }) => {
   const { state } = useApp();
-  
-  // 获取基础样式
-  const getStyles = () => {
-    const baseStyle = {
-      color: state.typography.textColor || '#ffffff',
-      fontFamily: state.typography.fontFamily
-    };
-    
-    switch(variant) {
-      case 'app-name':
-        return {
-          ...baseStyle,
-          fontWeight: state.typography.appNameWeight || 600
-        };
-      case 'title':
-        return {
-          ...baseStyle,
-          fontWeight: state.typography.titleWeight || 700
-        };
-      case 'subtitle':
-        return {
-          ...baseStyle,
-          fontWeight: state.typography.subtitleWeight || 400
-        };
-      case 'text':
-      default:
-        return baseStyle;
-    }
+
+  // 只提供全局的基础样式
+  const baseStyle = {
+    color: state.typography?.textColor || '#ffffff',
+    fontFamily: state.typography?.fontFamily || 'inherit'
   };
 
-  // 获取对应的CSS类名
-  const getClassName = () => {
-    const baseClasses = {
-      'app-name': '',
-      'title': 'main-content-title',
-      'subtitle': 'main-content-subtitle',
-      'text': 'main-content-text'
-    };
-    
-    // 根据模板调整尺寸类名
-    const templateSizes = {
-      'diagonal': {
-        'title': 'text-5xl md:text-6xl font-black leading-tight',
-        'subtitle': 'text-xl leading-relaxed opacity-90',
-        'app-name': 'text-xl font-semibold'
-      },
-      'topBottom': {
-        'title': 'text-3xl font-bold leading-tight',
-        'subtitle': 'text-lg leading-relaxed',
-        'app-name': 'text-2xl font-semibold'
-      },
-      'default': {
-        'title': 'text-4xl font-bold leading-tight',
-        'subtitle': 'text-lg leading-relaxed',
-        'app-name': 'text-xl font-semibold'
-      },
-      'classic': {
-        'title': 'text-4xl font-bold leading-normal',
-        'subtitle': 'text-lg leading-loose',
-        'app-name': 'text-xl font-semibold'
-      },
-      'center': {
-        'title': 'text-4xl font-bold leading-normal',
-        'subtitle': 'text-lg leading-loose',
-        'app-name': 'text-xl font-semibold'
-      },
-      'minimal': {
-        'title': 'text-4xl font-bold leading-normal',
-        'subtitle': 'text-lg leading-loose',
-        'app-name': 'text-xl font-semibold'
-      }
-    };
-
-    const sizeClass = templateSizes[template] ? 
-      templateSizes[template][variant] : 
-      templateSizes['default'][variant];
-    
-    const baseClass = baseClasses[variant] || '';
-    
-    return `${baseClass} ${sizeClass || ''} ${className}`.trim();
-  };
-
-  // 动态创建元素
   const Element = element;
-  
+
   return (
-    <Element 
-      className={getClassName()} 
-      style={getStyles()}
+    <Element
+      className={className}
+      style={baseStyle}
       {...props}
     >
       {children}

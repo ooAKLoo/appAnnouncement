@@ -1,11 +1,12 @@
 import React from 'react';
 // 导入统一的模板组件
-import { 
-  ClassicTemplate, 
-  CenterTemplate, 
-  MinimalTemplate, 
-  TopBottomTemplate, 
-  DiagonalTemplate
+import {
+  ClassicTemplate,
+  CenterTemplate,
+  TopBottomTemplate,
+  DiagonalTemplate,
+  ProductHuntCenterTemplate,
+  ProductHuntTopTemplate
 } from '../components/templates/Templates';
 
 // 模板预览组件
@@ -30,18 +31,6 @@ const TemplatePreview = {
       <div className="w-1/2 h-0.5 bg-blue-500 rounded"></div>
       {/* 下方手机 */}
       <div className="w-2.5 h-4 bg-gray-400 rounded-sm mt-0.5"></div>
-    </div>
-  ),
-  minimal: (
-    <div className="flex items-center gap-1.5 w-full h-full p-1">
-      {/* 左侧手机 */}
-      <div className="w-3 h-6 bg-gray-400 rounded-sm flex-shrink-0"></div>
-      {/* 右侧文字内容 */}
-      <div className="flex-1 space-y-1">
-        <div className="w-full h-1 bg-gray-400 rounded"></div>
-        <div className="w-3/4 h-0.5 bg-gray-300 rounded"></div>
-        <div className="w-1/2 h-0.5 bg-blue-500 rounded"></div>
-      </div>
     </div>
   ),
   topBottom: (
@@ -80,7 +69,35 @@ const TemplatePreview = {
       <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-blue-100/50 to-transparent transform skew-x-12 origin-top-right"></div>
     </div>
   ),
-  
+
+  // Product Hunt - 居中图标
+  productHuntCenter: (
+    <div className="flex flex-col items-center justify-center w-full h-full p-1 gap-1">
+      {/* 顶部：现已推出 */}
+      <div className="w-1/3 h-0.5 bg-gray-400 rounded"></div>
+      {/* 名称 */}
+      <div className="w-1/2 h-0.5 bg-gray-600 rounded"></div>
+      {/* 中间大图标 */}
+      <div className="w-5 h-5 bg-blue-500 rounded-md my-0.5"></div>
+      {/* 底部按钮 */}
+      <div className="w-2 h-0.5 bg-gray-500 rounded"></div>
+    </div>
+  ),
+
+  // Product Hunt - 上图标
+  productHuntTop: (
+    <div className="flex flex-col items-center justify-center w-full h-full p-1 gap-0.5">
+      {/* 上图标 */}
+      <div className="w-4 h-4 bg-gradient-to-br from-pink-400 to-pink-500 rounded-lg mb-0.5"></div>
+      {/* 标题 */}
+      <div className="w-3/4 h-0.5 bg-gray-700 rounded"></div>
+      {/* 名称 */}
+      <div className="w-1/2 h-0.5 bg-gray-500 rounded"></div>
+      {/* Slogan */}
+      <div className="w-2/3 h-0.5 bg-gray-400 rounded"></div>
+    </div>
+  ),
+
 };
 
 // 统一的模板配置 - 包含组件引用和布局配置
@@ -91,17 +108,10 @@ export const TEMPLATES = {
     description: '文字内容在左，手机演示在右',
     preview: TemplatePreview.classic,
     component: ClassicTemplate,
+    deviceTypes: ['mobile', 'desktop'],
     layoutConfig: {
-      container: 'min-h-screen max-w-6xl mx-auto px-8 flex items-center justify-center relative',
-      wrapper: 'flex items-center justify-between z-10',
-      leftContent: 'flex-1 max-w-lg text-white animate-fadeInLeft',
-      phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative',
-      logo: 'flex items-center gap-4 mb-12',
-      title: 'text-5xl font-bold leading-normal mb-8 animate-fadeInUp',
-      subtitle: 'text-lg text-white/90 leading-loose mb-12 animate-fadeInUp',
       features: 'space-y-8 mb-12',
-      event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-10 mb-12',
-      buttons: 'flex flex-col sm:flex-row gap-6 mt-4 animate-fadeInUp'
+      event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-10 mb-12'
     },
     supportsFeatures: true,
     supportsEvent: true,
@@ -113,39 +123,10 @@ export const TEMPLATES = {
     description: '内容居中，简洁明了',
     preview: TemplatePreview.center,
     component: CenterTemplate,
+    deviceTypes: ['mobile', 'desktop'],
     layoutConfig: {
-      container: 'min-h-screen max-w-4xl mx-auto px-8 flex flex-col items-center justify-center relative text-center',
-      wrapper: 'flex flex-col items-center w-full',
-      leftContent: 'max-w-2xl order-1 text-center',
-      phoneContainer: 'min-h-[600px] order-2 w-full max-w-xl flex justify-center items-center relative',
-      logo: 'flex items-center justify-center gap-4 mb-12',
-      title: 'text-4xl md:text-5xl font-bold leading-normal mb-8',
-      subtitle: 'text-lg opacity-85 leading-loose mb-12',
       features: 'grid grid-cols-1 md:grid-cols-2 gap-8 mb-12',
-      event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-10 mb-12',
-      buttons: 'flex flex-col sm:flex-row gap-6 justify-center mt-4'
-    },
-    supportsFeatures: true,
-    supportsEvent: true,
-    supportsDownloads: true
-  },
-  minimal: {
-    id: 'minimal',
-    name: '左图右文',
-    description: '手机演示在左，文字内容在右',
-    preview: TemplatePreview.minimal,
-    component: MinimalTemplate,
-    layoutConfig: {
-      container: 'min-h-screen max-w-6xl mx-auto px-8 flex items-center justify-center relative',
-      wrapper: 'flex flex-row-reverse items-center justify-between z-10',
-      leftContent: 'flex-1 max-w-lg text-white animate-fadeInLeft',
-      phoneContainer: 'flex-1 max-w-md min-h-[600px] flex justify-center items-center relative',
-      logo: 'flex items-center gap-4 mb-12',
-      title: 'text-4xl font-bold leading-normal mb-8 animate-fadeInUp',
-      subtitle: 'text-lg text-white/90 leading-loose mb-12 animate-fadeInUp',
-      features: 'space-y-8 mb-12',
-      event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-10 mb-12',
-      buttons: 'flex flex-col sm:flex-row gap-6 mt-4 animate-fadeInUp'
+      event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-10 mb-12'
     },
     supportsFeatures: true,
     supportsEvent: true,
@@ -157,14 +138,10 @@ export const TEMPLATES = {
     description: '手机在上，应用信息横排在下',
     preview: TemplatePreview.topBottom,
     component: TopBottomTemplate,
+    deviceTypes: ['mobile', 'desktop'],
     layoutConfig: {
-      container: 'min-h-screen max-w-4xl mx-auto px-5 py-16 flex flex-col items-center justify-center relative',
-      wrapper: 'flex flex-col items-center gap-16 w-full',
-      phoneContainer: 'max-w-md min-h-[600px] flex justify-center items-center relative order-1',
-      leftContent: 'w-full max-w-2xl order-2',
       features: 'mt-8 space-y-4',
-      event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mt-8',
-      buttons: 'flex flex-col sm:flex-row gap-4 justify-center mt-8'
+      event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mt-8'
     },
     supportsFeatures: false,
     supportsEvent: false,
@@ -176,35 +153,38 @@ export const TEMPLATES = {
     description: '产品斜角摆放，动感时尚',
     preview: TemplatePreview.diagonal,
     component: DiagonalTemplate,
+    deviceTypes: ['mobile', 'desktop'],
     layoutConfig: {
-      container: 'min-h-screen max-w-7xl mx-auto px-8 flex items-center justify-center relative overflow-hidden',
-      wrapper: 'relative w-full h-screen flex items-center',
-      wrapperStyle: { width: '100%', height: '100vh', padding: '60px 0' },
-      leftContentStyle: { 
-        width: '50%',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        height: '75vh',
-        paddingRight: '80px',
-      },
-      phoneContainerStyle: {
-        position: 'absolute',
-        right: '0',
-        bottom: '0',
-        width: '50%',
-        height: '100%',
-        display: 'flex',
-        alignItems: 'flex-end',
-        justifyContent: 'flex-end',
-      },
-      leftContent: 'flex flex-col justify-between h-full',
-      phoneContainer: '',
-      buttons: 'flex gap-6 mt-6'
+      features: 'space-y-6',
+      event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8'
     },
     supportsFeatures: false,
     supportsEvent: false,
     supportsDownloads: true
+  },
+  productHuntCenter: {
+    id: 'productHuntCenter',
+    name: 'PH 居中',
+    description: '深色主题，图标居中，下载按钮',
+    preview: TemplatePreview.productHuntCenter,
+    component: ProductHuntCenterTemplate,
+    deviceTypes: ['product-hunt'],
+    layoutConfig: {},
+    supportsFeatures: false,
+    supportsEvent: false,
+    supportsDownloads: true
+  },
+  productHuntTop: {
+    id: 'productHuntTop',
+    name: 'PH 简约',
+    description: '浅色主题，图标在上，标语展示',
+    preview: TemplatePreview.productHuntTop,
+    component: ProductHuntTopTemplate,
+    deviceTypes: ['product-hunt'],
+    layoutConfig: {},
+    supportsFeatures: false,
+    supportsEvent: false,
+    supportsDownloads: false
   }
 };
 

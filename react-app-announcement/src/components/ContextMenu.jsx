@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { Type, List, Square, Image, Plus } from 'lucide-react';
+import { Type, List, Box, Plus } from 'lucide-react';
 
 function ContextMenu() {
-  const { state, hideContextMenu, addDynamicComponent } = useApp();
+  const { state, hideContextMenu, addDynamicComponent, setCurrentPanel } = useApp();
   
   // ✅ 添加详细的调试输出
   useEffect(() => {
@@ -38,15 +38,8 @@ function ContextMenu() {
       type: 'text',
       icon: Type,
       label: '文本',
-      description: '添加文本段落',
+      description: '添加文本或标题',
       defaultContent: '点击编辑文本内容'
-    },
-    {
-      type: 'heading',
-      icon: Type,
-      label: '标题',
-      description: '添加标题文字',
-      defaultContent: '新标题'
     },
     {
       type: 'list',
@@ -56,31 +49,46 @@ function ContextMenu() {
       defaultContent: ['列表项 1', '列表项 2', '列表项 3']
     },
     {
-      type: 'button',
-      icon: Square,
-      label: '按钮',
-      description: '添加交互按钮',
-      defaultContent: '点击按钮'
+      type: 'component',
+      icon: Box,
+      label: '组件',
+      description: '选择预设组件',
+      isLibrary: true // 标记这是打开组件库的选项
     }
   ];
   
   const handleAddComponent = (option) => {
     console.log('➕ 添加组件:', option.type);
+
+    // 如果是组件库选项，打开组件库面板
+    if (option.isLibrary) {
+      setCurrentPanel('componentLibrary');
+      hideContextMenu();
+      return;
+    }
+
+    // 获取可编辑区域的边界，将视口坐标转换为相对坐标
+    const editableArea = document.querySelector('[data-editable-area="true"]');
+    const rect = editableArea?.getBoundingClientRect() || { left: 0, top: 0 };
+
     const component = {
       id: generateId(),
       type: option.type,
       content: option.defaultContent,
-      position: { x: x - 20, y: y - 20 },
+      position: {
+        x: x - rect.left - 20,
+        y: y - rect.top - 20
+      },
       styles: {
-        fontSize: option.type === 'heading' ? '24px' : '16px',
-        fontWeight: option.type === 'heading' ? '600' : '400',
+        fontSize: '16px',
+        fontWeight: '400',
         color: '#333333',
         backgroundColor: 'transparent',
         padding: '8px',
         borderRadius: '4px'
       }
     };
-    
+
     addDynamicComponent(component);
     hideContextMenu();
   };

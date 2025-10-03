@@ -1,67 +1,32 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import PhoneModel from './PhoneModel';
 import PhoneModel2D from './PhoneModel2D';
+import MacBookModel2D from './MacBookModel2D';
 import { getStyleById } from '../data/styleConfig';
-import { getTemplateComponent, getTemplateConfig, templateSupports } from '../data/templateConfig';
+import { getTemplateConfig, templateSupports } from '../data/templateConfig';
 import StyledText from './common/StyledText';
-import EditableWrapper from './EditableWrapper';
+import Editable from './common/Editable';
 import DraggableWrapper from './DraggableWrapper';
-import StyleEditPanel from './panels/StyleEditPanel';
+import EditManager from './EditManager';
 import ContextMenu from './ContextMenu';
 import DynamicComponent from './DynamicComponent';
 
 function MainContent() {
-  const { state, updateDesign, toggleToolbars, reorderFeatures, deselectElement, showContextMenu, hideContextMenu } = useApp();
-  
-  // 获取当前模板配置
-  const currentTemplate = state.design.template || 'classic';
+  console.log('🏠 MainContent 渲染中...');
+  const { state, toggleToolbars, reorderFeatures, showContextMenu, hideContextMenu, clearSelection, updateElementStyle, deleteDynamicComponent } = useApp();
+
+  console.log('📊 MainContent state:', {
+    template: state.design.template,
+    currentStyle: state.currentStyle,
+    toolbarsVisible: state.toolbarsVisible
+  });
+
+  // 从统一状态获取配置
+  const currentTemplate = state.design.template;
   const templateConfig = getTemplateConfig(currentTemplate);
-  
-  // 获取当前风格配置
-  const currentStyle = getStyleById(state.currentStyle || 'minimal');
-
-  // 调试：监听所有阶段的右键事件
-  useEffect(() => {
-    const debugCapture = (e) => console.log('📍 DEBUG 捕获阶段:', e.target.tagName, e.target.className);
-    const debugBubble = (e) => console.log('📍 DEBUG 冒泡阶段:', e.target.tagName, e.target.className);
-    
-    window.addEventListener('contextmenu', debugCapture, true);
-    window.addEventListener('contextmenu', debugBubble, false);
-    
-    return () => {
-      window.removeEventListener('contextmenu', debugCapture, true);
-      window.removeEventListener('contextmenu', debugBubble, false);
-    };
-  }, []);
-
-  // 全局点击监听器，处理取消选中
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      // 排除右键点击
-      if (e.button === 2) return; // 右键是 button 2
-      
-      if (state.selectedElement) {
-        // 检查是否点击在任何可编辑元素上
-        const isEditableClick = e.target.closest('[data-editable-id]');
-        const isStylePanelClick = e.target.closest('.style-edit-panel');
-        
-        if (!isEditableClick && !isStylePanelClick) {
-          deselectElement();
-        }
-      }
-      
-      // 只在左键点击时隐藏右键菜单
-      if (state.contextMenu?.visible && e.button !== 2) {
-        hideContextMenu();
-      }
-    };
-    
-    // 使用 mousedown 代替 click，更早拦截，避免交互元素干扰
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [state.selectedElement, state.contextMenu, deselectElement, hideContextMenu]);
+  const currentStyle = getStyleById(state.currentStyle);
 
   // 保持对最新 showContextMenu 的引用，避免监听器闭包过期
   const showContextMenuRef = React.useRef(showContextMenu);
@@ -172,24 +137,8 @@ function MainContent() {
   // 直接从templateConfig获取布局配置
   const layout = templateConfig.layoutConfig;
 
-  // 统一的模板渲染器
-  const renderTemplate = () => {
-    // 直接从配置获取组件
-    const TemplateComponent = getTemplateComponent(currentTemplate);
-    
-    // 统一的模板props
-    const templateProps = {
-      appInfo: state.appInfo,
-      features: state.features,
-      contentSections: state.contentSections,
-      alignment: state.design.alignment || 'left',
-      layout: layout,
-      template: currentTemplate  // 传递模板ID给StyledText使用
-    };
-    
-    // 统一渲染所有模板
-    return <TemplateComponent {...templateProps} />;
-  };
+  // ⚠️ 模板不再直接渲染，而是通过 dynamicComponents 统一管理
+  // 所有模板元素在切换模板时已经转换为 dynamicComponents
 
   // 渲染功能列表
   const renderFeatures = () => {
@@ -207,14 +156,12 @@ function MainContent() {
           dragType="feature"
           className="group"
         >
-          <EditableWrapper
-            elementType="feature"
-            elementId={`feature-${index}`}
-            elementPath={`features.${index}.title`}
+          <Editable
+            path={`features.${index}.title`}
             className="w-full"
           >
             {content}
-          </EditableWrapper>
+          </Editable>
         </DraggableWrapper>
       );
     };
@@ -335,7 +282,7 @@ function MainContent() {
   // 渲染活动信息
   const renderEvent = () => {
     const eventStyle = currentStyle.eventCard;
-    const alignment = state.design.alignment || 'left';
+    const alignment = state.design.alignment;
     const eventAlignment = {
       'left': 'text-left',
       'center': 'text-center',
@@ -367,124 +314,116 @@ function MainContent() {
     );
   };
 
-  // 渲染下载按钮（装饰性展示）
-  const renderDownloads = () => {
-    // 获取对齐设置来调整按钮容器的对齐方式
-    const alignment = state.design.alignment || 'left';
-    const buttonAlignment = {
-      'left': 'justify-start',
-      'center': 'justify-center',
-      'right': 'justify-end'
-    }[alignment];
 
-    return (
-      <div className={`${layout.buttons} ${buttonAlignment}`}>
-        {state.downloads.showAppStore && (
-          <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl transition-all duration-300 hover:transform hover:scale-105 hover:shadow-lg backdrop-blur-sm cursor-default">
-            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-            </svg>
-            <StyledText variant="text" className="font-medium">App Store</StyledText>
-          </div>
-        )}
-        {state.downloads.showGooglePlay && (
-          <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl transition-all duration-300 hover:transform hover:scale-105 hover:shadow-lg backdrop-blur-sm cursor-default">
-            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z" />
-            </svg>
-            <StyledText variant="text" className="font-medium">Google Play</StyledText>
-          </div>
-        )}
-      </div>
-    );
+  // 点击背景清空选择
+  const handleBackgroundClick = (e) => {
+    // 检查是否点击的是背景（不是任何可拖拽元素）
+    const isBackground = !e.target.closest('[data-draggable="true"]') &&
+                        !e.target.closest('[data-editable="true"]') &&
+                        !e.target.closest('.component-control');
+
+    if (isBackground && state.selectedElements.length > 0) {
+      clearSelection();
+    }
   };
 
+  // 键盘快捷键处理
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Delete/Backspace 键删除选中元素
+      if ((e.key === 'Delete' || e.key === 'Backspace') && state.selectedElements.length > 0) {
+        // 防止在输入框中删除
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+        e.preventDefault();
+
+        state.selectedElements.forEach(element => {
+          // 检查是否是动态组件
+          const match = element.id.match(/^dynamicComponents-(\d+)-content$/);
+          if (match) {
+            const componentId = parseInt(match[1]);
+            const component = state.dynamicComponents.find(c => c.id === componentId);
+            if (component) {
+              deleteDynamicComponent(componentId);
+            }
+          } else {
+            // Editable 元素，设置 display: none
+            updateElementStyle(element.id, { display: 'none' });
+          }
+        });
+        clearSelection();
+      }
+
+      // Escape 键清空选择
+      if (e.key === 'Escape' && state.selectedElements.length > 0) {
+        clearSelection();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [state.selectedElements, clearSelection, updateElementStyle, deleteDynamicComponent, state.dynamicComponents]);
+
   return (
-    <div 
-      className={layout.container}
-      onContextMenu={(e) => {
-        console.log('📍 React 合成事件触发 - onContextMenu', e.target);
-        // 不要阻止默认行为，让原生事件继续传播
-      }}
-      style={{ minHeight: '100vh' }} // 确保容器有高度
-    >
-      {/* Eye Toggle Button */}
-      <button 
-        onClick={toggleToolbars}
-        className="fixed top-5 right-5 z-50 w-10 h-10 bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 rounded-full flex items-center justify-center text-white transition-all duration-300 hover:scale-105"
-        title={state.toolbarsVisible ? '隐藏工具栏' : '显示工具栏'}
+    <EditManager>
+      {/* 全屏画布容器 */}
+      <div
+        data-canvas="true"
+        data-editable-area="true"
+        onClick={handleBackgroundClick}
+        onContextMenu={(e) => {
+          console.log('📍 React 合成事件触发 - onContextMenu', e.target);
+        }}
+        style={{
+          position: 'relative',
+          width: '100vw',
+          height: '100vh',
+          overflow: 'hidden'
+        }}
       >
-        {state.toolbarsVisible ? <EyeOff size={20} /> : <Eye size={20} />}
-      </button>
-
-
-      <div className={layout.wrapper} style={layout.wrapperStyle}>
-        {/* Left Content */}
-        <div 
-          className={layout.leftContent} 
-          style={{
-            ...layout.leftContentStyle,
-            position: 'relative',
-            zIndex: 10, // 提升到手机模型之上
-          }}
+        {/* Eye Toggle Button */}
+        <button
+          onClick={toggleToolbars}
+          className="fixed top-5 right-5 z-50 w-10 h-10 bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 rounded-full flex items-center justify-center text-white transition-all duration-300 hover:scale-105"
+          title={state.toolbarsVisible ? '隐藏工具栏' : '显示工具栏'}
         >
-          {/* 统一模板渲染 */}
-          {renderTemplate()}
-          
-          {/* 功能列表 - 根据模板配置和contentSections.features控制显示 */}
-          {templateSupports(currentTemplate, 'features') && state.contentSections.features && (
-            <div className="mb-8">
-              {renderFeatures()}
-            </div>
-          )}
-          
-          {/* 活动信息 - 根据模板配置和contentSections.event控制显示 */}
-          {templateSupports(currentTemplate, 'event') && state.contentSections.event && (
-            <div className="mb-8">
-              {renderEvent()}
-            </div>
-          )}
-          
-          {/* 下载按钮 - 根据模板配置控制显示 */}
-          {templateSupports(currentTemplate, 'downloads') && renderDownloads()}
-        </div>
+          {state.toolbarsVisible ? <EyeOff size={20} /> : <Eye size={20} />}
+        </button>
 
-        {/* 手机占位元素 - 保持布局平衡 */}
-        {currentTemplate !== 'diagonal' && (
-          <div 
-            className={layout.phoneContainer}
-            style={{
-              pointerEvents: 'none',
-              minWidth: currentTemplate === 'center' ? '400px' : '350px',
-              minHeight: '600px',
-              ...(layout.phoneContainerStyle || {})
-            }}
-          />
+        {/* 手机模型 - 在最底层 */}
+        {state.deviceType !== 'product-hunt' && (
+          <div
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            style={{ zIndex: 1 }}
+          >
+            {state.deviceType === 'desktop' ? (
+              <MacBookModel2D />
+            ) : (
+              state.modelType === '2d' ? <PhoneModel2D /> : <PhoneModel />
+            )}
+          </div>
         )}
 
-        {/* Right Side Phone Model */}
-        <div 
-          className="fixed inset-0 w-screen h-screen pointer-events-none"
-          style={{
-            zIndex: 1, // 确保在背景之上，但低于文字层
-          }}
-        >
-          {/* 直接渲染模型,不要额外的 pointer-events-auto 包装 */}
-          {state.modelType === '2d' ? <PhoneModel2D /> : <PhoneModel />}
-        </div>
+        {/* ⚠️ 不再直接渲染模板，所有元素统一通过 dynamicComponents 管理 */}
+
+        {/* 功能列表 - 暂时保留，未来也可以转换为 dynamicComponents */}
+        {templateSupports(currentTemplate, 'features') && state.contentSections.features && renderFeatures()}
+
+        {/* 活动信息 - 暂时保留，未来也可以转换为 dynamicComponents */}
+        {templateSupports(currentTemplate, 'event') && state.contentSections.event && renderEvent()}
+
+        {/* 动态组件 - 现在包含模板元素和右键添加的元素 */}
+        {state.dynamicComponents.map((component) => (
+          <DynamicComponent
+            key={component.id}
+            component={component}
+          />
+        ))}
+
+        {/* 右键菜单 */}
+        <ContextMenu />
       </div>
-      
-      {/* 动态组件渲染 */}
-      {state.dynamicComponents.map((component) => (
-        <DynamicComponent
-          key={component.id}
-          component={component}
-        />
-      ))}
-      
-      {/* 右键菜单 */}
-      <ContextMenu />
-    </div>
+    </EditManager>
   );
 }
 
