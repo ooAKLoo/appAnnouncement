@@ -3,12 +3,32 @@ import { useApp } from '../context/AppContext';
 import { X, Move } from 'lucide-react';
 
 function DynamicComponent({ component }) {
-  const { state, updateDynamicComponent, deleteDynamicComponent, selectElement, setCurrentPanel, clearSelection, updateAppInfo, updateProductHuntInfo } = useApp();
+  const { state, updateDynamicComponent, deleteDynamicComponent, selectElement, setCurrentPanel, clearSelection, updateAppInfo, updateProductHuntInfo, updateTemplateConfigCode } = useApp();
   const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isEditing, setIsEditing] = useState(false);
-  const [dragStartPos, setDragStartPos] = useState({ x: 0, y: 0 });
-  const [initialPositions, setInitialPositions] = useState({});
+  const elementRef = React.useRef(null);
+
+  // 使用 ref 存储缩放相关的状态，避免闭包问题
+  const resizeStateRef = React.useRef({
+    isResizing: false,
+    direction: '',
+    startX: 0,
+    startY: 0,
+    startWidth: 0,
+    startHeight: 0,
+    startPosX: 0,
+    startPosY: 0
+  });
+
+  // 使用 ref 存储拖拽相关的状态
+  const dragStateRef = React.useRef({
+    startX: 0,
+    startY: 0,
+    offsetX: 0,
+    offsetY: 0,
+    isMultiDrag: false,
+    initialPositions: {}
+  });
 
   const { id, type, content, position, styles, dataPath } = component;
 
@@ -40,37 +60,102 @@ function DynamicComponent({ component }) {
   // 检查是否被选中
   const isSelected = state.selectedElements?.some(el => el.id === elementId) || false;
 
+  // 🔍 调试：监听选中状态变化
+  React.useEffect(() => {
+    console.log(`🎯 [DynamicComponent ${id}] 选中状态变化:`, {
+      isSelected,
+      elementId,
+      selectedElements: state.selectedElements.map(el => el.id),
+      totalSelected: state.selectedElements.length
+    });
+  }, [isSelected, state.selectedElements]);
+
+  // 生成整个模板的配置代码
+  const generateTemplateCode = () => {
+    if (!state.templateEditMode) return;
+
+    // 生成所有 dynamicComponents 的配置代码
+    const componentsCode = state.dynamicComponents.map((comp, index) => {
+      const compStyles = comp.styles || {};
+      const styleLines = Object.entries(compStyles)
+        .filter(([key, value]) => value) // 过滤掉空值
+        .map(([key, value]) => `      ${key}: '${value}'`);
+
+      // 构建每个组件的配置
+      const parts = [
+        `    id: generateId(),`,
+        `    type: '${comp.type}',`,
+        `    content: ${Array.isArray(comp.content) ? JSON.stringify(comp.content, null, 2).split('\n').map((line, i) => i === 0 ? line : '      ' + line).join('\n') : `'${comp.content}'`},`
+      ];
+
+      if (comp.dataPath) parts.push(`    dataPath: '${comp.dataPath}',`);
+      if (comp.icon) parts.push(`    icon: '${comp.icon}',`);
+
+      parts.push(`    position: { x: ${Math.round(comp.position.x)}, y: ${Math.round(comp.position.y)} },`);
+
+      if (styleLines.length > 0) {
+        parts.push(`    styles: {\n${styleLines.join(',\n')}\n    }`);
+      } else {
+        parts.push(`    styles: {}`);
+      }
+
+      return `  {\n${parts.join('\n')}\n  }`;
+    }).join(',\n\n');
+
+    const code = `// 模板动态组件配置 (共 ${state.dynamicComponents.length} 个元素)
+// 提示：复制此配置到模板文件中使用
+
+const dynamicComponents = [
+${componentsCode}
+];`;
+
+    console.log('📐 生成完整模板配置代码');
+    updateTemplateConfigCode(code);
+  };
+
   // 处理拖拽开始
   const handleMouseDown = (e) => {
-    // 如果点击的是控制按钮或正在编辑，不启动拖拽
-    if (e.target.closest('.component-control') || isEditing) return;
+    // 如果点击的是控制按钮、调整尺寸手柄或正在编辑，不启动拖拽
+    if (e.target.closest('.component-control') || e.target.closest('.resize-handle') || isEditing) return;
     // 如果点击的是输入框等交互元素，不启动拖拽
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
     setIsDragging(true);
-    setDragStartPos({ x: e.clientX, y: e.clientY });
 
-    // 记录鼠标相对于当前元素位置的偏移
-    setDragOffset({
-      x: e.clientX - position.x,
-      y: e.clientY - position.y
-    });
+    // 检查是否是多选拖拽
+    const isMultiDrag = isSelected && state.selectedElements.length > 1;
 
     // 如果是多选模式，记录所有选中的动态组件的初始位置
-    if (isSelected && state.selectedElements.length > 1) {
-      const positions = {};
+    const positions = {};
+    if (isMultiDrag) {
       state.selectedElements.forEach(element => {
-        const match = element.id.match(/^dynamicComponents-(\d+)-content$/);
+        // 修复：使用 (.+) 匹配任何 ID（包括小数点、字母等）
+        const match = element.id.match(/^dynamicComponents-(.+)-content$/);
         if (match) {
-          const componentId = parseInt(match[1]);
-          const comp = state.dynamicComponents.find(c => c.id === componentId);
+          const componentId = match[1]; // 保持原始 ID，不用 parseInt
+          const comp = state.dynamicComponents.find(c => String(c.id) === componentId);
           if (comp) {
             positions[componentId] = { ...comp.position };
           }
         }
       });
-      setInitialPositions(positions);
     }
+
+    // 将所有拖拽状态存储到 ref 中
+    dragStateRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      offsetX: e.clientX - position.x,
+      offsetY: e.clientY - position.y,
+      isMultiDrag: isMultiDrag,
+      initialPositions: positions
+    };
+
+    console.log(`🖱️ [DynamicComponent ${id}] DragStart:`, {
+      isMultiDrag,
+      selectedCount: state.selectedElements.length,
+      initialPositions: positions
+    });
 
     // 阻止事件传播到 EditManager
     e.stopPropagation();
@@ -78,33 +163,29 @@ function DynamicComponent({ component }) {
   };
 
   // 处理拖拽过程 - 支持批量拖拽
-  const handleMouseMove = (e) => {
-    if (!isDragging) return;
+  const handleDragMove = (e) => {
+    const ds = dragStateRef.current;
+    const deltaX = e.clientX - ds.startX;
+    const deltaY = e.clientY - ds.startY;
 
-    const deltaX = e.clientX - dragStartPos.x;
-    const deltaY = e.clientY - dragStartPos.y;
-
-    // 如果当前元素是多选中的一个，移动所有选中的动态组件
-    if (isSelected && state.selectedElements.length > 1) {
-      state.selectedElements.forEach(element => {
-        const match = element.id.match(/^dynamicComponents-(\d+)-content$/);
-        if (match) {
-          const componentId = parseInt(match[1]);
-          const initialPos = initialPositions[componentId];
-          if (initialPos) {
-            const newPosition = {
-              x: initialPos.x + deltaX,
-              y: initialPos.y + deltaY
-            };
-            updateDynamicComponent(componentId, { position: newPosition });
-          }
+    // 如果是多选拖拽，移动所有选中的动态组件
+    if (ds.isMultiDrag) {
+      Object.entries(ds.initialPositions).forEach(([componentId, initialPos]) => {
+        const newPosition = {
+          x: initialPos.x + deltaX,
+          y: initialPos.y + deltaY
+        };
+        // 查找组件时使用字符串比较
+        const comp = state.dynamicComponents.find(c => String(c.id) === componentId);
+        if (comp) {
+          updateDynamicComponent(comp.id, { position: newPosition });
         }
       });
     } else {
       // 单个组件拖拽
       const newPosition = {
-        x: e.clientX - dragOffset.x,
-        y: e.clientY - dragOffset.y
+        x: e.clientX - ds.offsetX,
+        y: e.clientY - ds.offsetY
       };
       updateDynamicComponent(id, { position: newPosition });
     }
@@ -112,37 +193,186 @@ function DynamicComponent({ component }) {
 
   // 处理拖拽结束
   const handleMouseUp = (e) => {
-    if (!isDragging) return;
+    const wasResizing = resizeStateRef.current.isResizing;
+    const wasDragging = isDragging;
+
+    if (!wasDragging && !wasResizing) return;
 
     // 检查是否真的移动了（移动距离小于 5px 算作点击）
+    const startX = wasDragging ? dragStateRef.current.startX : resizeStateRef.current.startX;
+    const startY = wasDragging ? dragStateRef.current.startY : resizeStateRef.current.startY;
+
     const moveDistance = Math.sqrt(
-      Math.pow(e.clientX - dragStartPos.x, 2) +
-      Math.pow(e.clientY - dragStartPos.y, 2)
+      Math.pow(e.clientX - startX, 2) +
+      Math.pow(e.clientY - startY, 2)
     );
 
-    if (moveDistance < 5) {
+    if (moveDistance < 5 && !wasResizing) {
       // 没有移动，当作点击处理 - 只选中，不打开样式面板
       // 检查是否按住了 Ctrl/Cmd 键进行多选
       const isMultiSelect = e.ctrlKey || e.metaKey;
       console.log('📝 单击选中动态组件:', id, '多选模式:', isMultiSelect);
       selectElement('element', `dynamicComponents-${id}-content`, `dynamicComponents.${id}.content`, isMultiSelect);
-      // 注意：这里不调用 setCurrentPanel，只选中不打开面板
+
+      // 模板编辑模式下，点击也生成代码
+      if (state.templateEditMode) {
+        setTimeout(() => generateTemplateCode(), 50);
+      }
+    } else {
+      // 移动或调整大小后，在模板编辑模式下生成配置代码
+      console.log(`🔄 [DynamicComponent ${id}] 移动/调整完成，生成代码...`);
+      if (state.templateEditMode) {
+        setTimeout(() => generateTemplateCode(), 50);
+      }
     }
 
     setIsDragging(false);
+    resizeStateRef.current.isResizing = false;
   };
   
+  // 处理调整尺寸开始
+  const handleResizeMouseDown = (direction) => (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    if (!elementRef.current) return;
+
+    const rect = elementRef.current.getBoundingClientRect();
+
+    resizeStateRef.current = {
+      isResizing: true,
+      direction: direction,
+      startX: e.clientX,
+      startY: e.clientY,
+      startWidth: rect.width,
+      startHeight: rect.height,
+      startPosX: position.x,
+      startPosY: position.y
+    };
+
+    console.log(`📏 [DynamicComponent ${id}] ResizeStart:`, {
+      direction,
+      startSize: { width: rect.width, height: rect.height },
+      startPosition: { x: position.x, y: position.y }
+    });
+
+    // 立即绑定全局事件监听器
+    const handleMove = (e) => {
+      handleResizeMove(e);
+    };
+
+    const handleUp = (e) => {
+      resizeStateRef.current.isResizing = false;
+      handleMouseUp(e);
+      document.removeEventListener('mousemove', handleMove);
+      document.removeEventListener('mouseup', handleUp);
+    };
+
+    document.addEventListener('mousemove', handleMove);
+    document.addEventListener('mouseup', handleUp);
+  };
+
+  // 处理调整尺寸过程
+  const handleResizeMove = (e) => {
+    const rs = resizeStateRef.current;
+    if (!rs.isResizing) return;
+
+    const deltaX = e.clientX - rs.startX;
+    const deltaY = e.clientY - rs.startY;
+
+    let newWidth = rs.startWidth;
+    let newHeight = rs.startHeight;
+    let newX = rs.startPosX;
+    let newY = rs.startPosY;
+
+    // 根据拖拽方向调整尺寸和位置
+    switch (rs.direction) {
+      case 'nw': // 左上角
+        newWidth = Math.max(50, rs.startWidth - deltaX);
+        newHeight = Math.max(20, rs.startHeight - deltaY);
+        newX = rs.startPosX + (rs.startWidth - newWidth);
+        newY = rs.startPosY + (rs.startHeight - newHeight);
+        break;
+      case 'n': // 上边
+        newHeight = Math.max(20, rs.startHeight - deltaY);
+        newY = rs.startPosY + (rs.startHeight - newHeight);
+        break;
+      case 'ne': // 右上角
+        newWidth = Math.max(50, rs.startWidth + deltaX);
+        newHeight = Math.max(20, rs.startHeight - deltaY);
+        newY = rs.startPosY + (rs.startHeight - newHeight);
+        break;
+      case 'e': // 右边
+        newWidth = Math.max(50, rs.startWidth + deltaX);
+        break;
+      case 'se': // 右下角
+        newWidth = Math.max(50, rs.startWidth + deltaX);
+        newHeight = Math.max(20, rs.startHeight + deltaY);
+        break;
+      case 's': // 下边
+        newHeight = Math.max(20, rs.startHeight + deltaY);
+        break;
+      case 'sw': // 左下角
+        newWidth = Math.max(50, rs.startWidth - deltaX);
+        newHeight = Math.max(20, rs.startHeight + deltaY);
+        newX = rs.startPosX + (rs.startWidth - newWidth);
+        break;
+      case 'w': // 左边
+        newWidth = Math.max(50, rs.startWidth - deltaX);
+        newX = rs.startPosX + (rs.startWidth - newWidth);
+        break;
+    }
+
+    updateDynamicComponent(id, {
+      position: { x: newX, y: newY },
+      styles: {
+        ...styles,
+        width: `${Math.round(newWidth)}px`,
+        height: `${Math.round(newHeight)}px`
+      }
+    });
+  };
+
   // 监听全局鼠标事件
   React.useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+    const handleMove = (e) => {
+      if (isDragging) {
+        console.log(`🔄 [DynamicComponent ${id}] 拖拽移动中...`, {
+          isDragging,
+          isMultiDrag: dragStateRef.current.isMultiDrag,
+          delta: {
+            x: e.clientX - dragStateRef.current.startX,
+            y: e.clientY - dragStateRef.current.startY
+          }
+        });
+        handleDragMove(e);
+      } else if (resizeStateRef.current.isResizing) {
+        handleResizeMove(e);
+      }
+    };
+
+    const handleUp = (e) => {
+      if (isDragging || resizeStateRef.current.isResizing) {
+        console.log(`🔚 [DynamicComponent ${id}] 拖拽/缩放结束`);
+        handleMouseUp(e);
+      }
+    };
+
+    if (isDragging || resizeStateRef.current.isResizing) {
+      console.log(`📌 [DynamicComponent ${id}] 绑定拖拽事件监听器`, {
+        isDragging,
+        isResizing: resizeStateRef.current.isResizing
+      });
+      document.addEventListener('mousemove', handleMove);
+      document.addEventListener('mouseup', handleUp);
+
       return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
+        console.log(`🗑️ [DynamicComponent ${id}] 移除拖拽事件监听器`);
+        document.removeEventListener('mousemove', handleMove);
+        document.removeEventListener('mouseup', handleUp);
       };
     }
-  }, [isDragging, dragOffset]);
+  }, [isDragging]); // 只依赖 isDragging，resizing 用 ref 管理
   
   // 处理双击 - 文本/组件类型进入编辑模式，其他类型打开样式面板
   const handleDoubleClick = (e) => {
@@ -337,11 +567,14 @@ function DynamicComponent({ component }) {
     // 如果当前元素是选中的多个元素之一，删除所有选中的动态组件
     if (isSelected && state.selectedElements.length > 1) {
       state.selectedElements.forEach(element => {
-        // 从 elementId 提取动态组件 ID
-        const match = element.id.match(/^dynamicComponents-(\d+)-content$/);
+        // 从 elementId 提取动态组件 ID - 修复：匹配任何 ID
+        const match = element.id.match(/^dynamicComponents-(.+)-content$/);
         if (match) {
-          const componentId = parseInt(match[1]);
-          deleteDynamicComponent(componentId);
+          const componentId = match[1];
+          const comp = state.dynamicComponents.find(c => String(c.id) === componentId);
+          if (comp) {
+            deleteDynamicComponent(comp.id);
+          }
         }
       });
       clearSelection();
@@ -353,7 +586,8 @@ function DynamicComponent({ component }) {
 
   return (
     <div
-      className={`absolute select-none group ${isDragging ? 'z-50' : 'z-20'} ${
+      ref={elementRef}
+      className={`absolute select-none group inline-block ${isDragging ? 'z-50' : 'z-20'} ${
         isSelected ? 'ring-2 ring-blue-500 ring-offset-2' : ''
       }`}
       style={{
@@ -384,7 +618,6 @@ function DynamicComponent({ component }) {
 
       {/* 内容区域 */}
       <div
-        className="min-w-[100px] min-h-[30px]"
         onClick={(e) => {
           // 如果正在编辑，阻止事件传播到 EditManager
           if (isEditing) {
@@ -403,6 +636,55 @@ function DynamicComponent({ component }) {
       {/* 拖拽时的半透明覆盖层 */}
       {isDragging && (
         <div className="absolute inset-0 bg-blue-500/20 border-2 border-blue-500 border-dashed rounded pointer-events-none" />
+      )}
+
+      {/* 模板编辑模式 - 8个调整尺寸手柄（Figma/Canva风格）*/}
+      {state.templateEditMode && isSelected && !isEditing && (
+        <>
+          {/* 四个角 */}
+          <div
+            className="resize-handle absolute w-4 h-4 bg-white border-2 border-blue-500 rounded-sm cursor-nwse-resize hover:bg-blue-100 transition-colors z-50"
+            style={{ top: '-8px', left: '-8px' }}
+            onMouseDown={handleResizeMouseDown('nw')}
+          />
+          <div
+            className="resize-handle absolute w-4 h-4 bg-white border-2 border-blue-500 rounded-sm cursor-nesw-resize hover:bg-blue-100 transition-colors z-50"
+            style={{ top: '-8px', right: '-8px' }}
+            onMouseDown={handleResizeMouseDown('ne')}
+          />
+          <div
+            className="resize-handle absolute w-4 h-4 bg-white border-2 border-blue-500 rounded-sm cursor-nesw-resize hover:bg-blue-100 transition-colors z-50"
+            style={{ bottom: '-8px', left: '-8px' }}
+            onMouseDown={handleResizeMouseDown('sw')}
+          />
+          <div
+            className="resize-handle absolute w-4 h-4 bg-white border-2 border-blue-500 rounded-sm cursor-nwse-resize hover:bg-blue-100 transition-colors z-50"
+            style={{ bottom: '-8px', right: '-8px' }}
+            onMouseDown={handleResizeMouseDown('se')}
+          />
+
+          {/* 四条边的中点 */}
+          <div
+            className="resize-handle absolute w-4 h-4 bg-white border-2 border-blue-500 rounded-sm cursor-ns-resize hover:bg-blue-100 transition-colors z-50"
+            style={{ top: '-8px', left: '50%', transform: 'translateX(-50%)' }}
+            onMouseDown={handleResizeMouseDown('n')}
+          />
+          <div
+            className="resize-handle absolute w-4 h-4 bg-white border-2 border-blue-500 rounded-sm cursor-ns-resize hover:bg-blue-100 transition-colors z-50"
+            style={{ bottom: '-8px', left: '50%', transform: 'translateX(-50%)' }}
+            onMouseDown={handleResizeMouseDown('s')}
+          />
+          <div
+            className="resize-handle absolute w-4 h-4 bg-white border-2 border-blue-500 rounded-sm cursor-ew-resize hover:bg-blue-100 transition-colors z-50"
+            style={{ top: '50%', left: '-8px', transform: 'translateY(-50%)' }}
+            onMouseDown={handleResizeMouseDown('w')}
+          />
+          <div
+            className="resize-handle absolute w-4 h-4 bg-white border-2 border-blue-500 rounded-sm cursor-ew-resize hover:bg-blue-100 transition-colors z-50"
+            style={{ top: '50%', right: '-8px', transform: 'translateY(-50%)' }}
+            onMouseDown={handleResizeMouseDown('e')}
+          />
+        </>
       )}
     </div>
   );

@@ -20,17 +20,17 @@ export const classicTemplate = (appInfo, downloads) => {
       type: 'icon',
       content: appInfo.iconImage || appInfo.icon,
       dataPath: 'appInfo.iconImage',
-      position: { x: 100, y: 100 },
+      position: { x: 380, y: 240 },
       styles: {
-        width: '64px',
-        height: '64px',
-        borderRadius: '16px',
+        width: '80px',
+        height: '80px',
+        borderRadius: '20px',
         overflow: 'hidden',
         backgroundColor: 'rgba(255,255,255,0.2)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize: '24px',
+        fontSize: '32px',
         fontWeight: 'bold'
       }
     },
@@ -39,9 +39,9 @@ export const classicTemplate = (appInfo, downloads) => {
       type: 'text',
       content: appInfo.name,
       dataPath: 'appInfo.name',
-      position: { x: 180, y: 115 },
+      position: { x: 480, y: 265 },
       styles: {
-        fontSize: '20px',
+        fontSize: '24px',
         fontWeight: '600'
       }
     },
@@ -50,11 +50,12 @@ export const classicTemplate = (appInfo, downloads) => {
       type: 'text',
       content: appInfo.title,
       dataPath: 'appInfo.title',
-      position: { x: 100, y: 200 },
+      position: { x: 380, y: 350 },
       styles: {
-        fontSize: '36px',
+        fontSize: '42px',
         fontWeight: 'bold',
-        lineHeight: 'normal'
+        lineHeight: '1.3',
+        maxWidth: '500px'
       }
     },
     {
@@ -62,10 +63,12 @@ export const classicTemplate = (appInfo, downloads) => {
       type: 'text',
       content: appInfo.subtitle,
       dataPath: 'appInfo.subtitle',
-      position: { x: 100, y: 320 },
+      position: { x: 380, y: 460 },
       styles: {
-        fontSize: '18px',
-        lineHeight: '1.8'
+        fontSize: '20px',
+        lineHeight: '1.8',
+        maxWidth: '480px',
+        opacity: '0.9'
       }
     },
     ...(downloads.showAppStore ? [{
@@ -74,16 +77,16 @@ export const classicTemplate = (appInfo, downloads) => {
       content: 'App Store',
       icon: 'appstore',
       dataPath: 'downloads.showAppStore',
-      position: { x: 100, y: 450 },
+      position: { x: 380, y: 570 },
       styles: {
         display: 'inline-flex',
         alignItems: 'center',
         gap: '12px',
-        padding: '12px 24px',
+        padding: '14px 28px',
         backgroundColor: 'rgba(255,255,255,0.1)',
         border: '1px solid rgba(255,255,255,0.3)',
-        borderRadius: '12px',
-        fontSize: '16px',
+        borderRadius: '14px',
+        fontSize: '17px',
         fontWeight: '500'
       }
     }] : []),
@@ -93,16 +96,16 @@ export const classicTemplate = (appInfo, downloads) => {
       content: 'Google Play',
       icon: 'googleplay',
       dataPath: 'downloads.showGooglePlay',
-      position: { x: 280, y: 450 },
+      position: { x: 580, y: 570 },
       styles: {
         display: 'inline-flex',
         alignItems: 'center',
         gap: '12px',
-        padding: '12px 24px',
+        padding: '14px 28px',
         backgroundColor: 'rgba(255,255,255,0.1)',
         border: '1px solid rgba(255,255,255,0.3)',
-        borderRadius: '12px',
-        fontSize: '16px',
+        borderRadius: '14px',
+        fontSize: '17px',
         fontWeight: '500'
       }
     }] : [])
@@ -121,17 +124,17 @@ export const centerTemplate = (appInfo, downloads) => {
       type: 'icon',
       content: appInfo.iconImage || appInfo.icon,
       dataPath: 'appInfo.iconImage',
-      position: { x: centerX - 50, y: 100 },
+      position: { x: centerX - 93, y: 91 },
       styles: {
-        width: '64px',
-        height: '64px',
-        borderRadius: '16px',
+        width: '54px',
+        height: '54px',
+        borderRadius: '13px',
         overflow: 'hidden',
         backgroundColor: 'rgba(255,255,255,0.2)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize: '24px',
+        fontSize: '22px',
         fontWeight: 'bold'
       }
     },
@@ -140,9 +143,9 @@ export const centerTemplate = (appInfo, downloads) => {
       type: 'text',
       content: appInfo.name,
       dataPath: 'appInfo.name',
-      position: { x: centerX + 30, y: 115 },
+      position: { x: centerX - 20, y: 114 },
       styles: {
-        fontSize: '20px',
+        fontSize: '16px',
         fontWeight: '600'
       }
     },
@@ -151,12 +154,13 @@ export const centerTemplate = (appInfo, downloads) => {
       type: 'text',
       content: appInfo.title,
       dataPath: 'appInfo.title',
-      position: { x: centerX - 200, y: 200 },
+      position: { x: centerX - 212, y: 163 },
       styles: {
-        fontSize: '36px',
+        fontSize: '28px',
         fontWeight: 'bold',
-        lineHeight: 'normal',
-        maxWidth: '400px'
+        lineHeight: '1.3',
+        width: '400px',
+        textAlign: 'center'
       }
     },
     {
@@ -164,11 +168,13 @@ export const centerTemplate = (appInfo, downloads) => {
       type: 'text',
       content: appInfo.subtitle,
       dataPath: 'appInfo.subtitle',
-      position: { x: centerX - 200, y: 320 },
+      position: { x: centerX - 184, y: 227 },
       styles: {
-        fontSize: '18px',
-        lineHeight: '1.8',
-        maxWidth: '400px'
+        fontSize: '15px',
+        lineHeight: '1.5',
+        width: '380px',
+        opacity: '0.85',
+        textAlign: 'center'
       }
     },
     ...(downloads.showAppStore ? [{
@@ -177,16 +183,16 @@ export const centerTemplate = (appInfo, downloads) => {
       content: 'App Store',
       icon: 'appstore',
       dataPath: 'downloads.showAppStore',
-      position: { x: centerX - 180, y: 450 },
+      position: { x: centerX - 148, y: 276 },
       styles: {
         display: 'inline-flex',
         alignItems: 'center',
-        gap: '12px',
-        padding: '12px 24px',
+        gap: '6px',
+        padding: '8px 16px',
         backgroundColor: 'rgba(255,255,255,0.1)',
         border: '1px solid rgba(255,255,255,0.3)',
-        borderRadius: '12px',
-        fontSize: '16px',
+        borderRadius: '8px',
+        fontSize: '13px',
         fontWeight: '500'
       }
     }] : []),
@@ -196,220 +202,19 @@ export const centerTemplate = (appInfo, downloads) => {
       content: 'Google Play',
       icon: 'googleplay',
       dataPath: 'downloads.showGooglePlay',
-      position: { x: centerX, y: 450 },
+      position: { x: centerX + 17, y: 276 },
       styles: {
         display: 'inline-flex',
         alignItems: 'center',
-        gap: '12px',
-        padding: '12px 24px',
+        gap: '6px',
+        padding: '8px 16px',
         backgroundColor: 'rgba(255,255,255,0.1)',
         border: '1px solid rgba(255,255,255,0.3)',
-        borderRadius: '12px',
-        fontSize: '16px',
+        borderRadius: '8px',
+        fontSize: '13px',
         fontWeight: '500'
       }
     }] : [])
   ];
 };
 
-/**
- * 上图下文模板
- */
-export const topBottomTemplate = (appInfo, downloads) => {
-  const centerX = getCenterX();
-
-  return [
-    {
-      id: generateId(),
-      type: 'icon',
-      content: appInfo.iconImage || appInfo.icon,
-      dataPath: 'appInfo.iconImage',
-      position: { x: centerX - 300, y: 300 },
-      styles: {
-        width: '80px',
-        height: '80px',
-        borderRadius: '24px',
-        overflow: 'hidden',
-        backgroundColor: 'rgba(255,255,255,0.2)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '30px',
-        fontWeight: 'bold'
-      }
-    },
-    {
-      id: generateId(),
-      type: 'text',
-      content: appInfo.title,
-      dataPath: 'appInfo.title',
-      position: { x: centerX - 200, y: 310 },
-      styles: {
-        fontSize: '36px',
-        fontWeight: 'bold',
-        lineHeight: 'normal',
-        maxWidth: '400px'
-      }
-    },
-    {
-      id: generateId(),
-      type: 'text',
-      content: appInfo.subtitle,
-      dataPath: 'appInfo.subtitle',
-      position: { x: centerX - 200, y: 370 },
-      styles: {
-        fontSize: '18px',
-        lineHeight: '1.8',
-        maxWidth: '400px'
-      }
-    },
-    {
-      id: generateId(),
-      type: 'text',
-      content: appInfo.name,
-      dataPath: 'appInfo.name',
-      position: { x: centerX + 200, y: 330 },
-      styles: {
-        fontSize: '20px',
-        fontWeight: '600'
-      }
-    },
-    ...(downloads.showAppStore ? [{
-      id: generateId(),
-      type: 'button',
-      content: 'App Store',
-      icon: 'appstore',
-      dataPath: 'downloads.showAppStore',
-      position: { x: centerX - 180, y: 480 },
-      styles: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '12px',
-        padding: '12px 24px',
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        border: '1px solid rgba(255,255,255,0.3)',
-        borderRadius: '12px',
-        fontSize: '16px',
-        fontWeight: '500'
-      }
-    }] : []),
-    ...(downloads.showGooglePlay ? [{
-      id: generateId(),
-      type: 'button',
-      content: 'Google Play',
-      icon: 'googleplay',
-      dataPath: 'downloads.showGooglePlay',
-      position: { x: centerX, y: 480 },
-      styles: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '12px',
-        padding: '12px 24px',
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        border: '1px solid rgba(255,255,255,0.3)',
-        borderRadius: '12px',
-        fontSize: '16px',
-        fontWeight: '500'
-      }
-    }] : [])
-  ];
-};
-
-/**
- * 斜角展示模板
- */
-export const diagonalTemplate = (appInfo, downloads) => {
-  return [
-    {
-      id: generateId(),
-      type: 'icon',
-      content: appInfo.iconImage || appInfo.icon,
-      dataPath: 'appInfo.iconImage',
-      position: { x: 100, y: 100 },
-      styles: {
-        width: '64px',
-        height: '64px',
-        borderRadius: '12px',
-        overflow: 'hidden',
-        backgroundColor: 'rgba(255,255,255,0.2)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '18px',
-        fontWeight: 'bold'
-      }
-    },
-    {
-      id: generateId(),
-      type: 'text',
-      content: appInfo.name,
-      dataPath: 'appInfo.name',
-      position: { x: 180, y: 115 },
-      styles: {
-        fontSize: '20px',
-        fontWeight: '600'
-      }
-    },
-    {
-      id: generateId(),
-      type: 'text',
-      content: appInfo.title,
-      dataPath: 'appInfo.title',
-      position: { x: 100, y: 200 },
-      styles: {
-        fontSize: '36px',
-        fontWeight: 'bold',
-        lineHeight: 'normal'
-      }
-    },
-    {
-      id: generateId(),
-      type: 'text',
-      content: appInfo.subtitle,
-      dataPath: 'appInfo.subtitle',
-      position: { x: 100, y: 320 },
-      styles: {
-        fontSize: '18px',
-        lineHeight: '1.8'
-      }
-    },
-    ...(downloads.showAppStore ? [{
-      id: generateId(),
-      type: 'button',
-      content: 'App Store',
-      icon: 'appstore',
-      dataPath: 'downloads.showAppStore',
-      position: { x: 100, y: 450 },
-      styles: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '12px',
-        padding: '12px 24px',
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        border: '1px solid rgba(255,255,255,0.3)',
-        borderRadius: '12px',
-        fontSize: '16px',
-        fontWeight: '500'
-      }
-    }] : []),
-    ...(downloads.showGooglePlay ? [{
-      id: generateId(),
-      type: 'button',
-      content: 'Google Play',
-      icon: 'googleplay',
-      dataPath: 'downloads.showGooglePlay',
-      position: { x: 280, y: 450 },
-      styles: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '12px',
-        padding: '12px 24px',
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        border: '1px solid rgba(255,255,255,0.3)',
-        borderRadius: '12px',
-        fontSize: '16px',
-        fontWeight: '500'
-      }
-    }] : [])
-  ];
-};

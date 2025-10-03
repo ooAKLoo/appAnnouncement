@@ -95,7 +95,9 @@ const initialState = {
 
   dynamicComponents: [],
   contextMenu: { visible: false, x: 0, y: 0 }, // ✅ 修复：使用对象而不是 null
-  templateVersion: 0 // 用于强制重新渲染模板
+  templateVersion: 0, // 用于强制重新渲染模板
+  templateEditMode: false, // 模板编辑模式
+  templateConfigCode: '' // 生成的模板配置代码
 };
 
 function appReducer(state, action) {
@@ -446,6 +448,18 @@ function appReducer(state, action) {
         ...state,
         dynamicComponents: state.dynamicComponents.filter(comp => comp.id !== action.payload)
       };
+    case 'TOGGLE_TEMPLATE_EDIT_MODE':
+      console.log('🔄 [Reducer] TOGGLE_TEMPLATE_EDIT_MODE:', !state.templateEditMode);
+      return {
+        ...state,
+        templateEditMode: !state.templateEditMode
+      };
+    case 'UPDATE_TEMPLATE_CONFIG_CODE':
+      console.log('🔄 [Reducer] UPDATE_TEMPLATE_CONFIG_CODE:', action.payload.substring(0, 100) + '...');
+      return {
+        ...state,
+        templateConfigCode: action.payload
+      };
     default:
       return state;
   }
@@ -588,9 +602,14 @@ export function AppProvider({ children }) {
       type: 'UPDATE_DYNAMIC_COMPONENT', 
       payload: { id, updates } 
     }),
-    deleteDynamicComponent: (id) => dispatch({ 
-      type: 'DELETE_DYNAMIC_COMPONENT', 
-      payload: id 
+    deleteDynamicComponent: (id) => dispatch({
+      type: 'DELETE_DYNAMIC_COMPONENT',
+      payload: id
+    }),
+    toggleTemplateEditMode: () => dispatch({ type: 'TOGGLE_TEMPLATE_EDIT_MODE' }),
+    updateTemplateConfigCode: (code) => dispatch({
+      type: 'UPDATE_TEMPLATE_CONFIG_CODE',
+      payload: code
     })
   };
 

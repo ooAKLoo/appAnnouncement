@@ -1,15 +1,16 @@
 import React from 'react';
-import { ArrowLeft, Download, FileText, Palette, Smartphone, RectangleHorizontal, Grid3x3 } from 'lucide-react';
+import { ArrowLeft, Download, FileText, Palette, Smartphone, RectangleHorizontal, Grid3x3, Code } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useDownload } from '../hooks/useDownload';
 
 function EditorToolbar() {
-  const { 
-    state, 
+  const {
+    state,
     setCurrentPanel,
     setAppMode,
     toggleDownloadMenu,
-    setModelType 
+    setModelType,
+    toggleTemplateEditMode
   } = useApp();
   
   const { downloadAs } = useDownload();
@@ -92,6 +93,23 @@ function EditorToolbar() {
 
       {/* 右侧操作按钮 */}
       <div className="flex items-center gap-1">
+        {/* 制作模板按钮 */}
+        <button
+          className={`p-2.5 rounded-xl transition-all duration-200 flex items-center justify-center ${
+            state.templateEditMode
+              ? 'text-blue-600 bg-blue-50'
+              : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50/50'
+          }`}
+          onClick={() => {
+            console.log('🔧 点击制作模板按钮，当前状态:', state.templateEditMode);
+            toggleTemplateEditMode();
+            console.log('🔧 切换后状态应该变为:', !state.templateEditMode);
+          }}
+          title="制作模板"
+        >
+          <Code size={16} />
+        </button>
+
         {/* 下载按钮 */}
         <div className="relative">
           <button 

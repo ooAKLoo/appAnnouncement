@@ -338,13 +338,13 @@ function MainContent() {
         e.preventDefault();
 
         state.selectedElements.forEach(element => {
-          // 检查是否是动态组件
-          const match = element.id.match(/^dynamicComponents-(\d+)-content$/);
+          // 检查是否是动态组件 - 修复：匹配任何 ID
+          const match = element.id.match(/^dynamicComponents-(.+)-content$/);
           if (match) {
-            const componentId = parseInt(match[1]);
-            const component = state.dynamicComponents.find(c => c.id === componentId);
+            const componentId = match[1];
+            const component = state.dynamicComponents.find(c => String(c.id) === componentId);
             if (component) {
-              deleteDynamicComponent(componentId);
+              deleteDynamicComponent(component.id);
             }
           } else {
             // Editable 元素，设置 display: none

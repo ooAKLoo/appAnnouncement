@@ -6,9 +6,7 @@
 // 导入手机/桌面模板
 import {
   classicTemplate,
-  centerTemplate,
-  topBottomTemplate,
-  diagonalTemplate
+  centerTemplate
 } from './mobile/mobileTemplateData';
 
 // 导入 Product Hunt 模板
@@ -31,8 +29,6 @@ export const TEMPLATE_DATA = {
   // 手机/桌面模板
   classic: classicTemplate,
   center: centerTemplate,
-  topBottom: topBottomTemplate,
-  diagonal: diagonalTemplate,
 
   // Product Hunt 模板
   productHuntCenter: productHuntCenterTemplate,

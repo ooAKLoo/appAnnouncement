@@ -6,9 +6,7 @@
 // 手机模板
 export {
   ClassicTemplate,
-  CenterTemplate,
-  TopBottomTemplate,
-  DiagonalTemplate
+  CenterTemplate
 } from './MobileTemplates';
 
 // Product Hunt 模板

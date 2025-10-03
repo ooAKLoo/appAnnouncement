@@ -3,8 +3,6 @@ import React from 'react';
 import {
   ClassicTemplate,
   CenterTemplate,
-  TopBottomTemplate,
-  DiagonalTemplate,
   ProductHuntCenterTemplate,
   ProductHuntTopTemplate,
   KlavisStrataTemplate,
@@ -38,42 +36,6 @@ const TemplatePreview = {
       <div className="w-1/2 h-0.5 bg-blue-500 rounded"></div>
       {/* 下方手机 */}
       <div className="w-2.5 h-4 bg-gray-400 rounded-sm mt-0.5"></div>
-    </div>
-  ),
-  topBottom: (
-    <div className="flex flex-col gap-1 w-full h-full p-1">
-      {/* 上方手机 */}
-      <div className="w-2.5 h-3.5 bg-gray-400 rounded-sm mx-auto"></div>
-      {/* 下方水平信息条 */}
-      <div className="flex items-end gap-1">
-        {/* App Icon */}
-        <div className="w-1.5 h-1.5 bg-gray-400 rounded flex-shrink-0"></div>
-        {/* 中间标题区域 */}
-        <div className="flex-1 space-y-0.5">
-          <div className="w-full h-0.5 bg-gray-400 rounded"></div>
-          <div className="w-2/3 h-0.5 bg-gray-300 rounded"></div>
-        </div>
-        {/* 右侧App名称 */}
-        <div className="w-1 h-0.5 bg-blue-500 rounded"></div>
-      </div>
-    </div>
-  ),
-  
-  // 新增：斜角产品展示
-  diagonal: (
-    <div className="relative w-full h-full p-1 overflow-hidden">
-      {/* 左上文字区域 */}
-      <div className="absolute top-0 left-0 w-2/3 space-y-0.5">
-        <div className="w-full h-0.5 bg-gray-400 rounded"></div>
-        <div className="w-3/4 h-0.5 bg-gray-300 rounded"></div>
-        <div className="w-1/2 h-0.5 bg-gray-300 rounded"></div>
-      </div>
-      {/* 右下斜角手机 */}
-      <div className="absolute bottom-0 right-0 w-3 h-5 bg-gray-400 rounded-sm transform rotate-12 origin-bottom-right"></div>
-      {/* 下载按钮 */}
-      <div className="absolute bottom-0 left-0 w-2 h-0.5 bg-blue-500 rounded"></div>
-      {/* 背景斜角装饰 */}
-      <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-blue-100/50 to-transparent transform skew-x-12 origin-top-right"></div>
     </div>
   ),
 
@@ -246,36 +208,6 @@ export const TEMPLATES = {
     },
     supportsFeatures: true,
     supportsEvent: true,
-    supportsDownloads: true
-  },
-  topBottom: {
-    id: 'topBottom',
-    name: '上图下文',
-    description: '手机在上，应用信息横排在下',
-    preview: TemplatePreview.topBottom,
-    component: TopBottomTemplate,
-    deviceTypes: ['mobile', 'desktop'],
-    layoutConfig: {
-      features: 'mt-8 space-y-4',
-      event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 mt-8'
-    },
-    supportsFeatures: false,
-    supportsEvent: false,
-    supportsDownloads: true
-  },
-  diagonal: {
-    id: 'diagonal',
-    name: '斜角展示',
-    description: '产品斜角摆放，动感时尚',
-    preview: TemplatePreview.diagonal,
-    component: DiagonalTemplate,
-    deviceTypes: ['mobile', 'desktop'],
-    layoutConfig: {
-      features: 'space-y-6',
-      event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8'
-    },
-    supportsFeatures: false,
-    supportsEvent: false,
     supportsDownloads: true
   },
   productHuntCenter: {

@@ -18,10 +18,12 @@ import { Move, X } from 'lucide-react';
  * 4. 无需任何测量和转换
  */
 function Editable({ path, x = 100, y = 100, children, className = '' }) {
-  const { state, updateElementStyle, selectElement, setCurrentPanel, clearSelection, updateAppInfo, updateProductHuntInfo } = useApp();
+  const { state, updateElementStyle, selectElement, setCurrentPanel, clearSelection, updateAppInfo, updateProductHuntInfo, updateTemplateConfigCode } = useApp();
   const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
   const [dragStartPos, setDragStartPos] = useState({ x: 0, y: 0 });
   const [dragStartElementPos, setDragStartElementPos] = useState({ x: 0, y: 0 });
+  const [dragStartSize, setDragStartSize] = useState({ width: 0, height: 0 });
   const [initialOffsets, setInitialOffsets] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const elementRef = React.useRef(null);
@@ -29,6 +31,16 @@ function Editable({ path, x = 100, y = 100, children, className = '' }) {
 
   // 缓存初始位置，避免 props 变化导致跳动
   const initialPosition = React.useMemo(() => ({ x, y }), []);
+
+  // 组件挂载时输出日志
+  React.useEffect(() => {
+    console.log(`📦 [Editable] 组件挂载: path=${path}, templateEditMode=${state.templateEditMode}`);
+  }, []);
+
+  // 监听 templateEditMode 变化
+  React.useEffect(() => {
+    console.log(`🔄 [Editable ${path}] templateEditMode 变化:`, state.templateEditMode);
+  }, [state.templateEditMode, path]);
 
   const id = path.replace(/\./g, '-');
   const customStyles = state.elementStyles?.[id] || {};
@@ -65,15 +77,105 @@ function Editable({ path, x = 100, y = 100, children, className = '' }) {
 
   const position = getPosition();
 
-  // 🔍 监听位置和选中状态的变化，记录详细信息
+  // 生成模板配置代码
+  const generateConfigCode = React.useCallback(() => {
+    if (!state.templateEditMode) {
+      console.log('⚠️ 不在模板编辑模式，跳过代码生成');
+      return;
+    }
+
+    if (!elementRef.current) {
+      console.log('⚠️ 元素引用不存在，跳过代码生成');
+      return;
+    }
+
+    // 直接从 state 获取最新位置
+    const elementStyles = state.elementStyles?.[id] || {};
+    const currentX = elementStyles.left !== undefined ? parseFloat(elementStyles.left) : initialPosition.x;
+    const currentY = elementStyles.top !== undefined ? parseFloat(elementStyles.top) : initialPosition.y;
+
+    const rect = elementRef.current.getBoundingClientRect();
+
+    // 获取子元素的className
+    const childElement = elementRef.current.firstElementChild;
+    const childClassName = childElement?.className || '';
+
+    const config = {
+      path,
+      position: { x: Math.round(currentX), y: Math.round(currentY) },
+      size: {
+        width: Math.round(rect.width),
+        height: Math.round(rect.height)
+      },
+      className: childClassName,
+      styles: customStyles
+    };
+
+    const code = `<Editable path="${path}" x={${config.position.x}} y={${config.position.y}}>
+  <div className="${childClassName}">
+    {/* 元素内容 */}
+  </div>
+</Editable>
+
+// 数据配置:
+{
+  id: generateId(),
+  type: 'element',
+  dataPath: '${path}',
+  position: { x: ${config.position.x}, y: ${config.position.y} },
+  styles: {
+    width: '${config.size.width}px',
+    height: '${config.size.height}px',
+    // ... 其他样式
+  }
+}`;
+
+    console.log('📐 生成模板配置代码:', config);
+    updateTemplateConfigCode(code);
+  }, [state.templateEditMode, state.elementStyles, id, initialPosition, path, customStyles, updateTemplateConfigCode]);
+
+  // 🔍 监听选中状态，打印 APP icon 诊断信息
   React.useEffect(() => {
+    if (isSelected && elementRef.current && path === 'appInfo.icon') {
+      setTimeout(() => {
+        const rect = elementRef.current.getBoundingClientRect();
+        const computedStyle = window.getComputedStyle(elementRef.current);
+
+        // 获取实际内容子元素（跳过控制栏等）
+        const contentChild = Array.from(elementRef.current.children).find(
+          child => !child.classList.contains('component-control') && !child.classList.contains('resize-handle')
+        );
+        const childRect = contentChild ? contentChild.getBoundingClientRect() : null;
+        const childComputedStyle = contentChild ? window.getComputedStyle(contentChild) : null;
+
+        console.log('='.repeat(80));
+        console.log('🔍 APP ICON 尺寸诊断报告');
+        console.log('='.repeat(80));
+        console.log('外层 Editable 容器:');
+        console.log('  - 实际渲染尺寸:', rect.width, 'x', rect.height);
+        console.log('  - 计算后的width样式:', computedStyle.width);
+        console.log('  - 计算后的height样式:', computedStyle.height);
+        console.log('  - display:', computedStyle.display);
+        console.log('  - boxSizing:', computedStyle.boxSizing);
+        console.log('');
+        console.log('内层 APP icon div:');
+        console.log('  - 实际渲染尺寸:', childRect?.width, 'x', childRect?.height);
+        console.log('  - className:', contentChild?.className);
+        console.log('');
+        console.log('尺寸差异:');
+        console.log('  - 宽度差:', rect.width - (childRect?.width || 0), 'px');
+        console.log('  - 高度差:', rect.height - (childRect?.height || 0), 'px');
+        console.log('='.repeat(80));
+      }, 100);
+    }
+
     if (elementRef.current) {
       const rect = elementRef.current.getBoundingClientRect();
       const computedStyle = window.getComputedStyle(elementRef.current);
 
       // 获取第一个子元素的样式
       const firstChild = elementRef.current.firstElementChild;
-      const childComputedStyle = firstChild ? window.getComputedStyle(firstChild) : null;
+      const childComputedStyle2 = firstChild ? window.getComputedStyle(firstChild) : null;
 
       console.log(`📊 [${path}] 状态变化:`, {
         isSelected,
@@ -111,7 +213,7 @@ function Editable({ path, x = 100, y = 100, children, className = '' }) {
   // 处理拖拽开始
   const handleMouseDown = (e) => {
     // 如果正在编辑或点击的是控制按钮或输入框，不启动拖拽
-    if (e.target.closest('.component-control') || isEditing) return;
+    if (e.target.closest('.component-control') || e.target.closest('.resize-handle') || isEditing) return;
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
     const currentPos = getPosition();
@@ -144,34 +246,64 @@ function Editable({ path, x = 100, y = 100, children, className = '' }) {
     e.preventDefault();
   };
 
+  // 处理调整尺寸开始
+  const handleResizeMouseDown = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    if (!elementRef.current) return;
+
+    const rect = elementRef.current.getBoundingClientRect();
+    setIsResizing(true);
+    setDragStartPos({ x: e.clientX, y: e.clientY });
+    setDragStartSize({ width: rect.width, height: rect.height });
+
+    console.log(`📏 [${path}] ResizeStart:`, {
+      startSize: { width: rect.width, height: rect.height },
+      startPos: { x: e.clientX, y: e.clientY }
+    });
+  };
+
   // 处理拖拽过程
   const handleMouseMove = (e) => {
-    if (!isDragging) return;
+    if (!isDragging && !isResizing) return;
 
     const deltaX = e.clientX - dragStartPos.x;
     const deltaY = e.clientY - dragStartPos.y;
 
-    if (isSelected && state.selectedElements.length > 1) {
-      // 批量移动
-      state.selectedElements.forEach(element => {
-        const initialOffset = initialOffsets[element.id] || { x: 0, y: 0 };
-        updateElementStyle(element.id, {
-          left: `${initialOffset.x + deltaX}px`,
-          top: `${initialOffset.y + deltaY}px`
-        });
-      });
-    } else {
-      // 单个移动 - 使用拖拽开始时的位置
+    if (isResizing) {
+      // 调整尺寸
+      const newWidth = Math.max(50, dragStartSize.width + deltaX);
+      const newHeight = Math.max(20, dragStartSize.height + deltaY);
+
       updateElementStyle(id, {
-        left: `${dragStartElementPos.x + deltaX}px`,
-        top: `${dragStartElementPos.y + deltaY}px`
+        width: `${newWidth}px`,
+        height: `${newHeight}px`
       });
+    } else if (isDragging) {
+      // 拖拽移动
+      if (isSelected && state.selectedElements.length > 1) {
+        // 批量移动
+        state.selectedElements.forEach(element => {
+          const initialOffset = initialOffsets[element.id] || { x: 0, y: 0 };
+          updateElementStyle(element.id, {
+            left: `${initialOffset.x + deltaX}px`,
+            top: `${initialOffset.y + deltaY}px`
+          });
+        });
+      } else {
+        // 单个移动 - 使用拖拽开始时的位置
+        updateElementStyle(id, {
+          left: `${dragStartElementPos.x + deltaX}px`,
+          top: `${dragStartElementPos.y + deltaY}px`
+        });
+      }
     }
   };
 
   // 处理拖拽结束
   const handleMouseUp = (e) => {
-    if (!isDragging) return;
+    if (!isDragging && !isResizing) return;
 
     // 检查是否真的移动了（移动距离小于 5px 算作点击）
     const moveDistance = Math.sqrt(
@@ -186,7 +318,7 @@ function Editable({ path, x = 100, y = 100, children, className = '' }) {
       isClick: moveDistance < 5
     });
 
-    if (moveDistance < 5) {
+    if (moveDistance < 5 && !isResizing) {
       // 没有移动，当作点击处理 - 只选中，不打开样式面板
       const isMultiSelect = e.ctrlKey || e.metaKey;
 
@@ -199,10 +331,21 @@ function Editable({ path, x = 100, y = 100, children, className = '' }) {
       });
 
       selectElement('element', id, path, isMultiSelect);
-      // 注意：这里不调用 setCurrentPanel，只选中不打开面板
+
+      // 模板编辑模式下，点击也生成代码
+      if (state.templateEditMode) {
+        setTimeout(() => generateConfigCode(), 50);
+      }
+    } else {
+      // 移动或调整大小后，在模板编辑模式下生成配置代码
+      console.log(`🔄 [${path}] 移动/调整完成，生成代码...`);
+      if (state.templateEditMode) {
+        setTimeout(() => generateConfigCode(), 50);
+      }
     }
 
     setIsDragging(false);
+    setIsResizing(false);
   };
 
   // 处理双击 - 进入编辑模式或打开样式面板
@@ -260,7 +403,7 @@ function Editable({ path, x = 100, y = 100, children, className = '' }) {
 
   // 监听全局鼠标事件
   React.useEffect(() => {
-    if (isDragging) {
+    if (isDragging || isResizing) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
       return () => {
@@ -268,7 +411,7 @@ function Editable({ path, x = 100, y = 100, children, className = '' }) {
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [isDragging, dragStartPos, dragStartElementPos, isSelected, state.selectedElements, initialOffsets]);
+  }, [isDragging, isResizing, dragStartPos, dragStartElementPos, dragStartSize, isSelected, state.selectedElements, initialOffsets]);
 
   // 处理删除
   const handleDelete = (e) => {
@@ -301,6 +444,9 @@ function Editable({ path, x = 100, y = 100, children, className = '' }) {
     top: `${position.y}px`,
     // 🔧 如果用户没有自定义宽度，使用 fit-content 让容器收缩到内容大小
     width: customStyles.width || 'fit-content',
+    height: customStyles.height || 'fit-content',
+    // 🔧 使用 inline-block 确保 fit-content 能正确计算尺寸
+    display: customStyles.display || 'inline-block',
     cursor: isDragging ? 'grabbing' : 'grab',
     zIndex: isDragging ? 50 : (customStyles.zIndex || 10),
     // 选中时使用 box-shadow 和背景色，避免影响布局
@@ -370,6 +516,14 @@ function Editable({ path, x = 100, y = 100, children, className = '' }) {
         />
       ) : (
         children
+      )}
+
+      {/* 模板编辑模式 - 调整尺寸手柄 */}
+      {state.templateEditMode && isSelected && !isEditing && (
+        <div
+          className="resize-handle absolute bottom-0 right-0 w-4 h-4 bg-blue-500 hover:bg-blue-600 cursor-nwse-resize rounded-tl transition-colors"
+          onMouseDown={handleResizeMouseDown}
+        />
       )}
     </div>
   );

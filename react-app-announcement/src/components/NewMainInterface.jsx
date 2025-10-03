@@ -15,6 +15,7 @@ import SaveDialog from './SaveDialog';
 import ConfirmDialog from './ConfirmDialog';
 import CreateProjectModal from './CreateProjectModal';
 import HomePage from './HomePage';
+import TemplateCodePanel from './TemplateCodePanel';
 
 function NewMainInterface() {
   console.log('🖥️ NewMainInterface 渲染中...');
@@ -73,8 +74,11 @@ function NewMainInterface() {
       <ConfirmDialog />
       <CreateProjectModal />
 
+      {/* 模板代码预览面板 */}
+      <TemplateCodePanel />
+
       {/* 快捷键提示 */}
-      {state.toolbarsVisible && (
+      {state.toolbarsVisible && !state.templateEditMode && (
         <div className="fixed bottom-4 right-4 bg-black/80 text-white text-xs px-3 py-2 rounded-lg backdrop-blur-sm">
           <div className="flex items-center gap-4">
             <span>按 <kbd className="bg-white/20 px-1.5 py-0.5 rounded text-xs">H</kbd> 隐藏界面</span>
