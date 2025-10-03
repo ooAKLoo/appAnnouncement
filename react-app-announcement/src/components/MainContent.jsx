@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import PhoneModel from './PhoneModel';
-import PhoneModel2D from './PhoneModel2D';
-import MacBookModel2D from './MacBookModel2D';
+import PhoneModel from './models/PhoneModel';
+import PhoneModel2D from './models/PhoneModel2D';
+import MacBookModel2D from './models/MacBookModel2D';
 import { getStyleById } from '../data/styleConfig';
 import { getTemplateConfig, templateSupports } from '../data/templateConfig';
 import StyledText from './common/StyledText';

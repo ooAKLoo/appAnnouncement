@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { RotateCw } from 'lucide-react';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../../context/AppContext';
 
 function MacBookModel2D() {
   const { state } = useApp();

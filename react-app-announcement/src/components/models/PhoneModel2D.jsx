@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { RotateCw } from 'lucide-react';
-import { useApp } from '../context/AppContext';
-import { getStyleFontClass } from '../data/styleConfig';
+import { useApp } from '../../context/AppContext';
+import { getStyleFontClass } from '../../data/styleConfig';
 
 function PhoneModel2D() {
   const { state } = useApp();

@@ -5,8 +5,8 @@ import { Move, RotateCw } from "lucide-react";
 import * as THREE from "three/webgpu";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
-import { useApp } from "../context/AppContext";
-import { getStyleFontClass } from "../data/styleConfig";
+import { useApp } from "../../context/AppContext";
+import { getStyleFontClass } from "../../data/styleConfig";
 import PhoneModelMesh from "./PhoneModelMesh";
 
 // 扩展 THREE WebGPU 对象到 R3F
