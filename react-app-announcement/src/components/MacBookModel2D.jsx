@@ -174,11 +174,63 @@ function MacBookModel2D() {
     };
   }, []);
 
+  // 预处理图片以适配 MacBook 屏幕比例
+  const preprocessImage = (imageSrc) => {
+    return new Promise((resolve) => {
+      // 根据实际尺寸：屏幕 1632x1058，MacBook 整体 2048x1349.5
+      // 屏幕比例：1632 / 1058 ≈ 1.542
+      const targetRatio = 1632 / 1058;
+
+      const img = new Image();
+      img.onload = () => {
+        const imgRatio = img.width / img.height;
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // 启用最高质量的图像平滑
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+        // cover模式：按比例裁剪，保持原图质量
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        if (imgRatio > targetRatio) {
+          // 图片更宽，按高度适配，裁剪左右
+          const drawWidth = img.height * targetRatio;
+          const offsetX = (img.width - drawWidth) / 2;
+          ctx.drawImage(img, offsetX, 0, drawWidth, img.height, 0, 0, img.width, img.height);
+        } else {
+          // 图片更高，按宽度适配，裁剪上下
+          const drawHeight = img.width / targetRatio;
+          const offsetY = (img.height - drawHeight) / 2;
+          ctx.drawImage(img, 0, offsetY, img.width, drawHeight, 0, 0, img.width, img.height);
+        }
+
+        // 使用PNG格式保持最高质量
+        resolve(canvas.toDataURL('image/png', 1.0));
+      };
+
+      if (imageSrc.startsWith('data:') || imageSrc.startsWith('blob:')) {
+        img.src = imageSrc;
+      } else {
+        img.crossOrigin = 'anonymous';
+        img.src = imageSrc;
+      }
+    });
+  };
+
   // 使用用户上传的截图作为屏幕内容
   useEffect(() => {
-    if (state.screenImage) {
-      setScreenContent(state.screenImage);
-    }
+    const updateScreenContent = async () => {
+      if (state.screenImage) {
+        const processedImage = await preprocessImage(state.screenImage);
+        setScreenContent(processedImage);
+      }
+    };
+
+    updateScreenContent();
   }, [state.screenImage]);
 
   return (
@@ -227,11 +279,16 @@ function MacBookModel2D() {
           <div
             className="absolute z-10"
             style={{
-              top: macbookSize.height > 0 ? `${macbookSize.height * 0.055}px` : '30px',
-              left: macbookSize.width > 0 ? `${macbookSize.width * 0.105}px` : '65px',
-              width: macbookSize.width > 0 ? `${macbookSize.width * 0.79}px` : '488px',
-              height: macbookSize.height > 0 ? `${macbookSize.height * 0.71}px` : '307px',
-              borderRadius: macbookSize.width > 0 ? `${(macbookSize.width * 0.79) * 0.02}px` : '10px',
+              // 基于 Figma 实测数据：
+              // MacBook: 2048 × 1349.5px (X:6394, Y:-10319)
+              // 屏幕区域: 1632 × 1058px (X:6602, Y:-10173)
+              // 左边距: 6602 - 6394 = 208px
+              // 顶部距: -10173 - (-10319) = 146px
+              top: macbookSize.height > 0 ? `${macbookSize.height * (146 / 1349.5)}px` : '146px',  // 顶部偏移 146px
+              left: macbookSize.width > 0 ? `${macbookSize.width * (208 / 2048)}px` : '208px',   // 左边距 208px
+              width: macbookSize.width > 0 ? `${macbookSize.width * (1632 / 2048)}px` : '1632px',  // 宽度 1632px
+              height: macbookSize.height > 0 ? `${macbookSize.height * (1058 / 1349.5)}px` : '1058px',  // 高度 1058px
+              borderRadius: macbookSize.width > 0 ? `${macbookSize.width * (23 / 2048)}px 23px 0 0` : '23px 23px 0 0',  // 只有顶部圆角
               overflow: 'hidden',
               backgroundColor: '#000'
             }}

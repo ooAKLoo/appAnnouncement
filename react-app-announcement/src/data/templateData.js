@@ -418,7 +418,7 @@ export const diagonalTemplate = (appInfo, downloads) => {
 /**
  * Product Hunt 居中模板
  */
-export const productHuntCenterTemplate = (productHuntInfo, downloads) => {
+export const productHuntCenterTemplate = (appInfo, productHuntInfo, downloads) => {
   const centerX = getCenterX();
 
   return [
@@ -439,8 +439,8 @@ export const productHuntCenterTemplate = (productHuntInfo, downloads) => {
     {
       id: generateId(),
       type: 'icon',
-      content: productHuntInfo.iconImage || productHuntInfo.name.charAt(0),
-      dataPath: 'productHuntInfo.iconImage',
+      content: appInfo.iconImage || appInfo.icon,
+      dataPath: 'appInfo.iconImage',
       position: { x: centerX - 80, y: 250 },
       styles: {
         width: '160px',
@@ -458,8 +458,8 @@ export const productHuntCenterTemplate = (productHuntInfo, downloads) => {
     {
       id: generateId(),
       type: 'text',
-      content: productHuntInfo.name,
-      dataPath: 'productHuntInfo.name',
+      content: appInfo.name,
+      dataPath: 'appInfo.name',
       position: { x: centerX - 60, y: 420 },
       styles: {
         fontSize: '30px',
@@ -504,15 +504,15 @@ export const productHuntCenterTemplate = (productHuntInfo, downloads) => {
 /**
  * Product Hunt 简约模板
  */
-export const productHuntTopTemplate = (productHuntInfo) => {
+export const productHuntTopTemplate = (appInfo, productHuntInfo) => {
   const centerX = getCenterX();
 
   return [
     {
       id: generateId(),
       type: 'icon',
-      content: productHuntInfo.iconImage || productHuntInfo.name.charAt(0),
-      dataPath: 'productHuntInfo.iconImage',
+      content: appInfo.iconImage || appInfo.icon,
+      dataPath: 'appInfo.iconImage',
       position: { x: centerX - 75, y: 150 },
       styles: {
         width: '144px',
@@ -530,8 +530,8 @@ export const productHuntTopTemplate = (productHuntInfo) => {
     {
       id: generateId(),
       type: 'text',
-      content: productHuntInfo.name,
-      dataPath: 'productHuntInfo.name',
+      content: appInfo.name,
+      dataPath: 'appInfo.name',
       position: { x: centerX - 65, y: 330 },
       styles: {
         fontSize: '36px',
@@ -589,9 +589,9 @@ export function getTemplateElements(templateId, state) {
     return [];
   }
 
-  // 根据模板类型传递不同的参数
+  // 所有模板都传递 appInfo，Product Hunt 模板额外需要 productHuntInfo
   if (templateId.startsWith('productHunt')) {
-    return templateFn(state.productHuntInfo, state.downloads);
+    return templateFn(state.appInfo, state.productHuntInfo, state.downloads);
   } else {
     return templateFn(state.appInfo, state.downloads);
   }

@@ -12,6 +12,24 @@ function DynamicComponent({ component }) {
 
   const { id, type, content, position, styles, dataPath } = component;
 
+  // 🔧 根据 dataPath 实时获取当前内容
+  const getCurrentContent = () => {
+    if (!dataPath) return content;
+
+    const pathParts = dataPath.split('.');
+    if (pathParts[0] === 'appInfo') {
+      return state.appInfo[pathParts[1]] || content;
+    } else if (pathParts[0] === 'productHuntInfo') {
+      return state.productHuntInfo[pathParts[1]] || content;
+    } else if (pathParts[0] === 'downloads') {
+      // downloads 只是控制显示/隐藏，不需要内容
+      return content;
+    }
+    return content;
+  };
+
+  const currentContent = getCurrentContent();
+
   // 从 state.elementStyles 获取当前元素的样式
   const elementId = `dynamicComponents-${id}-content`;
   const elementStyles = state.elementStyles?.[elementId] || {};
@@ -168,7 +186,7 @@ function DynamicComponent({ component }) {
       return (
         <input
           type="text"
-          value={content}
+          value={currentContent}
           onChange={handleContentChange}
           onBlur={handleBlur}
           autoFocus
@@ -183,18 +201,24 @@ function DynamicComponent({ component }) {
       case 'text':
         return (
           <div style={mergedStyles}>
-            {content}
+            {currentContent}
           </div>
         );
 
       case 'icon':
-        // 图标类型：可以是图片URL或者emoji/文字
+        // 图标类型：可以是图片URL、blob URL或者emoji/文字
+        const isImageUrl = currentContent && (
+          currentContent.startsWith('http') ||
+          currentContent.startsWith('/') ||
+          currentContent.startsWith('blob:')
+        );
+
         return (
           <div style={mergedStyles}>
-            {content && content.startsWith('http') || content && content.startsWith('/') ? (
-              <img src={content} alt="Icon" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            {isImageUrl ? (
+              <img src={currentContent} alt="Icon" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
-              content
+              currentContent
             )}
           </div>
         );
@@ -202,7 +226,7 @@ function DynamicComponent({ component }) {
       case 'component':
         return (
           <div style={mergedStyles}>
-            {content}
+            {currentContent}
           </div>
         );
 
@@ -297,7 +321,7 @@ function DynamicComponent({ component }) {
             }}
           >
             {renderButtonIcon()}
-            <span>{content}</span>
+            <span>{currentContent}</span>
           </button>
         );
 

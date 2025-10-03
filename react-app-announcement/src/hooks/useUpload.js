@@ -42,13 +42,14 @@ export function useUpload() {
   const handleIconUpload = async (event) => {
     const file = event.target.files[0];
     if (!validateImage(file)) return;
-    
+
     try {
       const compressedFile = await compressImage(file, 200, 0.9);
       const imageUrl = URL.createObjectURL(compressedFile);
-      
+
+      // 统一更新到 appInfo，所有模板都从这里读取
       updateAppInfo({ iconImage: imageUrl });
-      
+
       console.log('Icon uploaded successfully');
     } catch (error) {
       console.error('Error uploading icon:', error);
