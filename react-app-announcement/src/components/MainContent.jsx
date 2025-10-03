@@ -415,7 +415,7 @@ function MainContent() {
         {/* 动态组件 - 现在包含模板元素和右键添加的元素 */}
         {state.dynamicComponents.map((component) => (
           <DynamicComponent
-            key={component.id}
+            key={`${state.templateVersion}-${component.id}`}
             component={component}
           />
         ))}

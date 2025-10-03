@@ -148,43 +148,6 @@ function ContentPanel({ isActive }) {
             </div>
           </div>
           
-          {/* 下载按钮显示控制 */}
-          <div>
-            <div className="text-base font-medium text-gray-700 mb-4 flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-primary-blue"></div>
-              下载按钮
-            </div>
-
-
-            <div className="space-y-4">
-              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
-                <input
-                  type="checkbox"
-                  id="showAppStore"
-                  checked={state.downloads.showAppStore}
-                  onChange={(e) => handleDownloadChange('showAppStore', e.target.checked)}
-                  className="w-4 h-4 text-primary-blue border-gray-300 rounded focus:ring-primary-blue"
-                />
-                <label htmlFor="showAppStore" className="flex-1 text-sm font-medium text-gray-700">
-                  显示 App Store 按钮
-                </label>
-              </div>
-
-              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
-                <input
-                  type="checkbox"
-                  id="showGooglePlay"
-                  checked={state.downloads.showGooglePlay}
-                  onChange={(e) => handleDownloadChange('showGooglePlay', e.target.checked)}
-                  className="w-4 h-4 text-primary-blue border-gray-300 rounded focus:ring-primary-blue"
-                />
-                <label htmlFor="showGooglePlay" className="flex-1 text-sm font-medium text-gray-700">
-                  显示 Google Play 按钮
-                </label>
-              </div>
-            </div>
-          </div>
-
         </div>
       </div>
     </div>

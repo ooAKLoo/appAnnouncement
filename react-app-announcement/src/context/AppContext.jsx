@@ -94,7 +94,8 @@ const initialState = {
   draggedElement: null,
 
   dynamicComponents: [],
-  contextMenu: { visible: false, x: 0, y: 0 } // ✅ 修复：使用对象而不是 null
+  contextMenu: { visible: false, x: 0, y: 0 }, // ✅ 修复：使用对象而不是 null
+  templateVersion: 0 // 用于强制重新渲染模板
 };
 
 function appReducer(state, action) {
@@ -279,7 +280,8 @@ function appReducer(state, action) {
         dynamicComponents: templateElements, // 使用模板数据直接生成
         elementStyles: {}, // 清空元素样式
         selectedElement: null, // 取消选中
-        selectedElements: [] // 清空多选
+        selectedElements: [], // 清空多选
+        templateVersion: state.templateVersion + 1 // 增加版本号，强制重新渲染
       };
     case 'TOGGLE_CONTENT_SECTION':
       return {
