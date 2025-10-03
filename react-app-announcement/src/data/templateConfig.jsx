@@ -5,13 +5,8 @@ import {
   CenterTemplate,
   ProductHuntCenterTemplate,
   ProductHuntTopTemplate,
-  KlavisStrataTemplate,
-  InfluencerMarketingTemplate,
-  ScrumballTemplate,
   VoiceAITemplate,
-  SpeakCreateLaunchTemplate,
-  PalifyTemplate,
-  ClipsTemplate
+  PalifyTemplate
 } from '../components/templates/Templates';
 
 // 模板预览组件
@@ -67,59 +62,6 @@ const TemplatePreview = {
     </div>
   ),
 
-  // Klavis AI - Strata
-  klavisStrata: (
-    <div className="relative w-full h-full p-1">
-      {/* Logo */}
-      <div className="absolute top-0 left-0 w-1/4 h-0.5 bg-gray-600 rounded"></div>
-      {/* 标题文字 */}
-      <div className="absolute top-2 left-1/4 w-1/2 h-0.5 bg-gray-500 rounded"></div>
-      {/* 选项卡 */}
-      <div className="absolute top-4 left-1/4 flex gap-0.5">
-        <div className="w-2 h-1 bg-blue-500/30 rounded"></div>
-        <div className="w-2 h-1 bg-blue-500 rounded"></div>
-        <div className="w-2 h-1 bg-blue-500/30 rounded"></div>
-      </div>
-      {/* 代码块 */}
-      <div className="absolute bottom-0 left-1/4 w-2/3 h-6 bg-gray-900 rounded border border-gray-600"></div>
-    </div>
-  ),
-
-  // Influencer Marketing
-  influencerMarketing: (
-    <div className="grid grid-cols-3 gap-0.5 w-full h-full p-1">
-      {/* 左列 */}
-      <div className="space-y-0.5">
-        <div className="w-full h-2 bg-blue-500/20 rounded"></div>
-        <div className="w-full h-2 bg-blue-500/20 rounded"></div>
-      </div>
-      {/* 中列 */}
-      <div className="space-y-0.5">
-        <div className="w-full h-3 bg-gradient-to-br from-purple-500/30 to-pink-500/30 rounded"></div>
-        <div className="w-full h-2 bg-blue-500/20 rounded"></div>
-      </div>
-      {/* 右列 */}
-      <div className="space-y-0.5">
-        <div className="w-full h-2 bg-blue-500/20 rounded"></div>
-        <div className="w-full h-1.5 bg-blue-500/20 rounded"></div>
-      </div>
-    </div>
-  ),
-
-  // Scrumball
-  scrumball: (
-    <div className="relative w-full h-full p-1">
-      {/* 标题 */}
-      <div className="absolute top-0 left-1/4 w-1/2 h-0.5 bg-gray-600 rounded"></div>
-      {/* 副标题 */}
-      <div className="absolute top-1.5 left-1/3 w-1/3 h-0.5 bg-gray-400 rounded"></div>
-      {/* 倾斜卡片 */}
-      <div className="absolute bottom-1 left-0 w-5 h-3 bg-blue-500/20 rounded transform -rotate-6"></div>
-      <div className="absolute bottom-0.5 left-1/3 w-5 h-3 bg-purple-500/20 rounded transform rotate-3"></div>
-      <div className="absolute bottom-1 right-0 w-5 h-3 bg-pink-500/20 rounded transform -rotate-3"></div>
-    </div>
-  ),
-
   // Voice AI
   voiceAI: (
     <div className="flex flex-col items-center w-full h-full p-1 gap-0.5">
@@ -137,21 +79,6 @@ const TemplatePreview = {
     </div>
   ),
 
-  // Speak Create Launch
-  speakCreateLaunch: (
-    <div className="flex flex-col items-center w-full h-full p-1 gap-0.5">
-      {/* 标题 */}
-      <div className="w-3/4 h-0.5 bg-gray-600 rounded"></div>
-      {/* 按钮 */}
-      <div className="w-1/3 h-0.5 bg-pink-500 rounded mb-0.5"></div>
-      {/* 双设备 */}
-      <div className="flex gap-1 w-full">
-        <div className="flex-1 h-4 bg-gray-900/50 rounded border border-gray-600"></div>
-        <div className="flex-1 h-4 bg-gray-900/50 rounded border border-gray-600"></div>
-      </div>
-    </div>
-  ),
-
   // Palify
   palify: (
     <div className="flex items-center justify-center gap-1 w-full h-full p-1">
@@ -162,28 +89,15 @@ const TemplatePreview = {
     </div>
   ),
 
-  // Clips
-  clips: (
-    <div className="flex flex-col items-center w-full h-full p-1 gap-0.5">
-      {/* 标题 */}
-      <div className="w-3/4 h-0.5 bg-gray-600 rounded mb-0.5"></div>
-      {/* 三个手机 */}
-      <div className="flex gap-0.5 justify-center">
-        <div className="w-4 h-6 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded border border-white/30"></div>
-        <div className="w-4 h-6 bg-gradient-to-br from-pink-500/20 to-purple-500/20 rounded border border-white/30"></div>
-        <div className="w-4 h-6 bg-gradient-to-br from-blue-500/20 to-green-500/20 rounded border border-white/30"></div>
-      </div>
-    </div>
-  ),
-
 };
+
 
 // 统一的模板配置 - 包含组件引用和布局配置
 export const TEMPLATES = {
   classic: {
     id: 'classic',
-    name: '左文右图',
-    description: '文字内容在左，手机演示在右',
+    name: '水平布局',
+    description: '内容与模型水平排列，适合展示详细信息',
     preview: TemplatePreview.classic,
     component: ClassicTemplate,
     deviceTypes: ['mobile', 'desktop'],
@@ -210,14 +124,27 @@ export const TEMPLATES = {
   },
   center: {
     id: 'center',
-    name: '居中布局',
-    description: '内容居中，简洁明了',
+    name: '垂直布局',
+    description: '内容垂直堆叠，层次分明',
     preview: TemplatePreview.center,
     component: CenterTemplate,
     deviceTypes: ['mobile', 'desktop'],
     layoutConfig: {
       features: 'grid grid-cols-1 md:grid-cols-2 gap-8 mb-12',
       event: 'bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-10 mb-12'
+    },
+    // 模型状态配置
+    modelState: {
+      '2d': {
+        scale: 1.136502953442501,
+        rotation: { x: 0, y: 0, z: 0 },
+        position: { x: 6, y: 440, z: 0 }
+      },
+      '3d': {
+        rotation: { x: -11, y: -10, z: 40 },
+        position: { x: 0.20, y: -0.64, z: 0.00 },
+        cameraDistance: 2.13
+      }
     },
     supportsFeatures: true,
     supportsEvent: true,
@@ -247,42 +174,6 @@ export const TEMPLATES = {
     supportsEvent: false,
     supportsDownloads: false
   },
-  klavisStrata: {
-    id: 'klavisStrata',
-    name: 'Strata 代码',
-    description: 'Logo + 代码块展示，适合开发者工具',
-    preview: TemplatePreview.klavisStrata,
-    component: KlavisStrataTemplate,
-    deviceTypes: ['product-hunt'],
-    layoutConfig: {},
-    supportsFeatures: false,
-    supportsEvent: false,
-    supportsDownloads: false
-  },
-  influencerMarketing: {
-    id: 'influencerMarketing',
-    name: 'Marketing 卡片',
-    description: '网格卡片布局，数据展示',
-    preview: TemplatePreview.influencerMarketing,
-    component: InfluencerMarketingTemplate,
-    deviceTypes: ['product-hunt'],
-    layoutConfig: {},
-    supportsFeatures: false,
-    supportsEvent: false,
-    supportsDownloads: false
-  },
-  scrumball: {
-    id: 'scrumball',
-    name: 'Scrumball',
-    description: '倾斜卡片，动感展示团队成员',
-    preview: TemplatePreview.scrumball,
-    component: ScrumballTemplate,
-    deviceTypes: ['product-hunt'],
-    layoutConfig: {},
-    supportsFeatures: false,
-    supportsEvent: false,
-    supportsDownloads: false
-  },
   voiceAI: {
     id: 'voiceAI',
     name: 'Voice AI',
@@ -295,36 +186,12 @@ export const TEMPLATES = {
     supportsEvent: false,
     supportsDownloads: false
   },
-  speakCreateLaunch: {
-    id: 'speakCreateLaunch',
-    name: 'Speak & Create',
-    description: '双设备展示，内容创作应用',
-    preview: TemplatePreview.speakCreateLaunch,
-    component: SpeakCreateLaunchTemplate,
-    deviceTypes: ['product-hunt'],
-    layoutConfig: {},
-    supportsFeatures: false,
-    supportsEvent: false,
-    supportsDownloads: false
-  },
   palify: {
     id: 'palify',
     name: 'Palify',
     description: '设备对比，黑白主题展示',
     preview: TemplatePreview.palify,
     component: PalifyTemplate,
-    deviceTypes: ['product-hunt'],
-    layoutConfig: {},
-    supportsFeatures: false,
-    supportsEvent: false,
-    supportsDownloads: false
-  },
-  clips: {
-    id: 'clips',
-    name: 'Clips',
-    description: '多手机展示，适合视频剪辑应用',
-    preview: TemplatePreview.clips,
-    component: ClipsTemplate,
     deviceTypes: ['product-hunt'],
     layoutConfig: {},
     supportsFeatures: false,

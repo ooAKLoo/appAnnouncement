@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Palette, Droplets, Type, Palette as PaletteIcon, X } from 'lucide-react';
+import { Palette, Droplets, Type, Palette as PaletteIcon, X, Maximize2, ArrowLeftRight, ArrowUpDown } from 'lucide-react';
 import { generateSecondaryColor, colorSchemeTypes } from '../../data/styleConfig';
 
 function DesignPanel({ isActive }) {
@@ -33,6 +33,16 @@ function DesignPanel({ isActive }) {
     { name: '友好手写', family: 'Caveat, Nunito, Comic Sans MS, cursive, sans-serif' },
   ];
 
+  // 尺寸预设
+  const sizePresets = [
+    { name: '正方形 1:1', width: 1080, height: 1080, ratio: '1:1', desc: '社交媒体通用' },
+    { name: '横向 16:9', width: 1920, height: 1080, ratio: '16:9', desc: '视频/演示文稿' },
+    { name: '横向 4:3', width: 1600, height: 1200, ratio: '4:3', desc: '经典横屏' },
+    { name: '横向 21:9', width: 2560, height: 1080, ratio: '21:9', desc: '超宽屏显示' },
+    { name: '竖向 9:16', width: 1080, height: 1920, ratio: '9:16', desc: '移动端视频' },
+    { name: '竖向 3:4', width: 1200, height: 1600, ratio: '3:4', desc: '移动端竖屏' },
+  ];
+
   const handleColorPresetSelect = (preset) => {
     updateDesign({
       bgColor: preset.bg,
@@ -44,6 +54,17 @@ function DesignPanel({ isActive }) {
   const handleFontPresetSelect = (preset) => {
     updateTypography({
       fontFamily: preset.family
+    });
+  };
+
+  const handleSizePresetSelect = (preset) => {
+    // 更新导出框尺寸，并重置位置和缩放
+    updateDesign({
+      exportWidth: preset.width,
+      exportHeight: preset.height,
+      exportX: null,      // 重置为居中
+      exportY: null,      // 重置为居中
+      exportScale: 1      // 重置缩放
     });
   };
 
@@ -273,6 +294,167 @@ function DesignPanel({ isActive }) {
           </div>
         </section>
 
+        {/* 尺寸布局 */}
+        <section>
+          <div className="flex items-center gap-2 mb-4">
+            <Maximize2 size={16} className="text-gray-600" />
+            <h3 className="font-medium text-gray-900">尺寸布局</h3>
+          </div>
+
+          {/* 提示信息 */}
+          <div className="mb-4 p-3 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-lg">
+            <div className="flex items-start gap-2">
+              <div className="text-amber-600 mt-0.5">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <p className="text-xs text-amber-800 leading-relaxed">
+                选择尺寸后将在画布中心显示导出框预览
+              </p>
+            </div>
+          </div>
+
+          {/* 尺寸预设 - 网格布局 */}
+          <div className="grid grid-cols-2 gap-2">
+            {sizePresets.map((preset, index) => {
+              const aspectRatio = preset.width / preset.height;
+              const isSelected = state.design.exportWidth === preset.width && state.design.exportHeight === preset.height;
+
+              return (
+                <button
+                  key={index}
+                  className={`p-2.5 text-left border rounded-lg transition-all hover:shadow-md hover:-translate-y-0.5 ${
+                    isSelected
+                      ? 'border-blue-500 bg-blue-50 shadow-sm'
+                      : 'border-gray-200 hover:border-blue-300 bg-white'
+                  }`}
+                  onClick={() => handleSizePresetSelect(preset)}
+                >
+                  {/* 形状预览 */}
+                  <div className="flex items-center justify-center h-12 bg-gray-50 rounded mb-2">
+                    <div
+                      className={`rounded transition-all ${
+                        isSelected
+                          ? 'bg-gradient-to-br from-blue-400 to-indigo-500'
+                          : 'bg-gradient-to-br from-gray-300 to-gray-400'
+                      }`}
+                      style={{
+                        width: aspectRatio >= 1
+                          ? `${Math.min(40, aspectRatio * 24)}px`
+                          : '24px',
+                        height: aspectRatio < 1
+                          ? `${Math.min(40, (1/aspectRatio) * 24)}px`
+                          : '24px'
+                      }}
+                    />
+                  </div>
+
+                  {/* 名称和比例 */}
+                  <div className="mb-1">
+                    <div className="flex items-center justify-between">
+                      <span className={`text-xs font-semibold ${isSelected ? 'text-blue-700' : 'text-gray-900'}`}>
+                        {preset.name}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <span className={`text-xs font-mono px-1 py-0.5 rounded ${
+                        isSelected ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        {preset.ratio}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* 描述和尺寸 */}
+                  <div className="text-xs text-gray-500 truncate">{preset.desc}</div>
+                  <div className="text-xs text-gray-400 font-mono mt-0.5">{preset.width}×{preset.height}</div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 自定义尺寸 */}
+          <div className="mt-4">
+            <div className="text-sm font-medium text-gray-700 mb-3">自定义导出尺寸</div>
+            <div className="space-y-3">
+              {/* 宽度输入 */}
+              <div className="relative">
+                <label className="block text-xs text-gray-600 mb-2">宽度</label>
+                <div className="relative group">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-blue-500 transition-colors">
+                    <ArrowLeftRight size={16} />
+                  </div>
+                  <input
+                    type="number"
+                    value={state.design.exportWidth || 1920}
+                    onChange={(e) => updateDesign({ exportWidth: parseInt(e.target.value) || 1920 })}
+                    className="w-full pl-10 pr-12 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-900
+                             hover:border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none"
+                    min="320"
+                    max="4096"
+                    placeholder="1920"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">
+                    px
+                  </span>
+                </div>
+              </div>
+
+              {/* 高度输入 */}
+              <div className="relative">
+                <label className="block text-xs text-gray-600 mb-2">高度</label>
+                <div className="relative group">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-blue-500 transition-colors">
+                    <ArrowUpDown size={16} />
+                  </div>
+                  <input
+                    type="number"
+                    value={state.design.exportHeight || 1080}
+                    onChange={(e) => updateDesign({ exportHeight: parseInt(e.target.value) || 1080 })}
+                    className="w-full pl-10 pr-12 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-900
+                             hover:border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none"
+                    min="320"
+                    max="4096"
+                    placeholder="1080"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">
+                    px
+                  </span>
+                </div>
+              </div>
+
+              {/* 快捷尺寸调整按钮 */}
+              <div className="flex gap-2 pt-2">
+                <button
+                  onClick={() => {
+                    const temp = state.design.exportWidth;
+                    updateDesign({
+                      exportWidth: state.design.exportHeight,
+                      exportHeight: temp
+                    });
+                  }}
+                  className="flex-1 px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-medium rounded-lg transition-colors flex items-center justify-center gap-1"
+                >
+                  <ArrowLeftRight size={12} className="rotate-90" />
+                  旋转尺寸
+                </button>
+                <button
+                  onClick={() => updateDesign({
+                    exportWidth: null,
+                    exportHeight: null,
+                    exportX: null,
+                    exportY: null,
+                    exportScale: 1
+                  })}
+                  className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium rounded-lg transition-colors"
+                >
+                  隐藏框
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
 
       </div>
     </div>

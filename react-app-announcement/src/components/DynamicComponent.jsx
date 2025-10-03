@@ -415,6 +415,23 @@ function DynamicComponent({ component }) {
           </div>
         );
 
+      case 'image':
+        // 图片类型：显示用户上传的截图
+        return (
+          <div style={mergedStyles}>
+            <img
+              src={currentContent}
+              alt="Screenshot"
+              style={{
+                width: '100%',
+                height: 'auto',
+                objectFit: 'contain',
+                display: 'block'
+              }}
+            />
+          </div>
+        );
+
       case 'component':
         return (
           <div style={mergedStyles}>

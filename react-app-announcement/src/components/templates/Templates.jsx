@@ -13,11 +13,6 @@ export {
 export {
   ProductHuntCenterTemplate,
   ProductHuntTopTemplate,
-  KlavisStrataTemplate,
-  InfluencerMarketingTemplate,
-  ScrumballTemplate,
   VoiceAITemplate,
-  SpeakCreateLaunchTemplate,
-  PalifyTemplate,
-  ClipsTemplate
+  PalifyTemplate
 } from './ProductHuntTemplates';

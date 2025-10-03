@@ -13,13 +13,8 @@ import {
 import {
   productHuntCenterTemplate,
   productHuntTopTemplate,
-  klavisStrataTemplate,
-  influencerMarketingTemplate,
-  scrumballTemplate,
   voiceAITemplate,
-  speakCreateLaunchTemplate,
-  palifyTemplate,
-  clipsTemplate
+  palifyTemplate
 } from './productHunt/productHuntTemplateData';
 
 /**
@@ -33,13 +28,8 @@ export const TEMPLATE_DATA = {
   // Product Hunt 模板
   productHuntCenter: productHuntCenterTemplate,
   productHuntTop: productHuntTopTemplate,
-  klavisStrata: klavisStrataTemplate,
-  influencerMarketing: influencerMarketingTemplate,
-  scrumball: scrumballTemplate,
   voiceAI: voiceAITemplate,
-  speakCreateLaunch: speakCreateLaunchTemplate,
-  palify: palifyTemplate,
-  clips: clipsTemplate
+  palify: palifyTemplate
 };
 
 /**
@@ -56,19 +46,14 @@ export function getTemplateElements(templateId, state) {
   const productHuntTemplates = [
     'productHuntCenter',
     'productHuntTop',
-    'klavisStrata',
-    'influencerMarketing',
-    'scrumball',
     'voiceAI',
-    'speakCreateLaunch',
-    'palify',
-    'clips'
+    'palify'
   ];
 
   // Product Hunt 模板需要 productHuntInfo
   if (productHuntTemplates.includes(templateId)) {
-    return templateFn(state.appInfo, state.productHuntInfo, state.downloads);
+    return templateFn(state.appInfo, state.productHuntInfo, state.downloads, state);
   } else {
-    return templateFn(state.appInfo, state.downloads);
+    return templateFn(state.appInfo, state.downloads, state);
   }
 }

@@ -113,7 +113,7 @@ export const classicTemplate = (appInfo, downloads) => {
 };
 
 /**
- * 居中布局模板
+ * 垂直布局模板
  */
 export const centerTemplate = (appInfo, downloads) => {
   const centerX = getCenterX();
@@ -124,7 +124,7 @@ export const centerTemplate = (appInfo, downloads) => {
       type: 'icon',
       content: appInfo.iconImage || appInfo.icon,
       dataPath: 'appInfo.iconImage',
-      position: { x: centerX - 93, y: 91 },
+      position: { x: 770, y: 159 },
       styles: {
         width: '54px',
         height: '54px',
@@ -143,7 +143,7 @@ export const centerTemplate = (appInfo, downloads) => {
       type: 'text',
       content: appInfo.name,
       dataPath: 'appInfo.name',
-      position: { x: centerX - 20, y: 114 },
+      position: { x: 843, y: 182 },
       styles: {
         fontSize: '16px',
         fontWeight: '600'
@@ -154,7 +154,7 @@ export const centerTemplate = (appInfo, downloads) => {
       type: 'text',
       content: appInfo.title,
       dataPath: 'appInfo.title',
-      position: { x: centerX - 212, y: 163 },
+      position: { x: 651, y: 231 },
       styles: {
         fontSize: '28px',
         fontWeight: 'bold',
@@ -168,7 +168,7 @@ export const centerTemplate = (appInfo, downloads) => {
       type: 'text',
       content: appInfo.subtitle,
       dataPath: 'appInfo.subtitle',
-      position: { x: centerX - 184, y: 227 },
+      position: { x: 679, y: 295 },
       styles: {
         fontSize: '15px',
         lineHeight: '1.5',
@@ -181,9 +181,9 @@ export const centerTemplate = (appInfo, downloads) => {
       id: generateId(),
       type: 'button',
       content: 'App Store',
-      icon: 'appstore',
       dataPath: 'downloads.showAppStore',
-      position: { x: centerX - 148, y: 276 },
+      icon: 'appstore',
+      position: { x: 715, y: 344 },
       styles: {
         display: 'inline-flex',
         alignItems: 'center',
@@ -200,9 +200,9 @@ export const centerTemplate = (appInfo, downloads) => {
       id: generateId(),
       type: 'button',
       content: 'Google Play',
-      icon: 'googleplay',
       dataPath: 'downloads.showGooglePlay',
-      position: { x: centerX + 17, y: 276 },
+      icon: 'googleplay',
+      position: { x: 880, y: 344 },
       styles: {
         display: 'inline-flex',
         alignItems: 'center',

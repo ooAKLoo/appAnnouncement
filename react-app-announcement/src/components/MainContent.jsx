@@ -14,6 +14,7 @@ import ContextMenu from './ContextMenu';
 import DynamicComponent from './DynamicComponent';
 import SelectionBox from './SelectionBox';
 import MultiSelectionBox from './MultiSelectionBox';
+import ExportFrame from './ExportFrame';
 
 function MainContent() {
   console.log('🏠 MainContent 渲染中...');
@@ -596,6 +597,9 @@ function MainContent() {
 
         {/* 多选边界框 */}
         <MultiSelectionBox />
+
+        {/* 导出框预览 - 可拖拽和缩放 */}
+        <ExportFrame />
       </div>
     </EditManager>
   );

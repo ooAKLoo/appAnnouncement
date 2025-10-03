@@ -20,7 +20,8 @@ const initialState = {
     name: 'Postory',
     tagline: 'Create your story, share your moments',
     description: 'Transform your ideas into beautiful stories',
-    iconImage: '/postory-icon.png'
+    iconImage: '/postory-icon.png',
+    welcome: 'Welcome to Palify'
   },
   design: {
     template: 'classic',
@@ -29,7 +30,12 @@ const initialState = {
     gradientColor: '#764ba2',
     colorMode: 'gradient',
     gradientAngle: '135deg',
-    spacing: 8
+    spacing: 8,
+    exportWidth: null,
+    exportHeight: null,
+    exportX: null,      // 导出框 X 位置（null 表示居中）
+    exportY: null,      // 导出框 Y 位置（null 表示居中）
+    exportScale: 1      // 导出框缩放比例
   },
   typography: {
     fontFamily: 'Inter, SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
@@ -547,8 +553,12 @@ export function AppProvider({ children }) {
 
     // 生成所有 dynamicComponents 的配置代码
     const componentsCode = state.dynamicComponents.map((comp, index) => {
-      const compStyles = comp.styles || {};
-      const styleLines = Object.entries(compStyles)
+      // 🔥 合并原始样式和实时修改的样式
+      const elementId = `dynamicComponents-${comp.id}-content`;
+      const runtimeStyles = state.elementStyles[elementId] || {};
+      const mergedStyles = { ...comp.styles, ...runtimeStyles };
+
+      const styleLines = Object.entries(mergedStyles)
         .filter(([key, value]) => value) // 过滤掉空值
         .map(([key, value]) => `      ${key}: '${value}'`);
 
@@ -607,7 +617,7 @@ ${componentsCode}
       type: 'UPDATE_TEMPLATE_CONFIG_CODE',
       payload: code
     });
-  }, [state.templateEditMode, state.dynamicComponents, state.modelState, state.deviceType, state.modelType, dispatch]);
+  }, [state.templateEditMode, state.dynamicComponents, state.modelState, state.deviceType, state.modelType, state.elementStyles, dispatch]);
 
   // 当模板编辑模式开启时，立即生成一次代码
   useEffect(() => {
