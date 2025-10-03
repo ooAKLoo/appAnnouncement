@@ -73,6 +73,7 @@ export const classicTemplate = (appInfo, downloads) => {
       id: generateId(),
       type: 'button',
       content: 'App Store',
+      icon: 'appstore',
       dataPath: 'downloads.showAppStore',
       position: { x: 100, y: 450 },
       styles: {
@@ -91,6 +92,7 @@ export const classicTemplate = (appInfo, downloads) => {
       id: generateId(),
       type: 'button',
       content: 'Google Play',
+      icon: 'googleplay',
       dataPath: 'downloads.showGooglePlay',
       position: { x: 280, y: 450 },
       styles: {
@@ -174,6 +176,7 @@ export const centerTemplate = (appInfo, downloads) => {
       id: generateId(),
       type: 'button',
       content: 'App Store',
+      icon: 'appstore',
       dataPath: 'downloads.showAppStore',
       position: { x: centerX - 180, y: 450 },
       styles: {
@@ -192,6 +195,7 @@ export const centerTemplate = (appInfo, downloads) => {
       id: generateId(),
       type: 'button',
       content: 'Google Play',
+      icon: 'googleplay',
       dataPath: 'downloads.showGooglePlay',
       position: { x: centerX, y: 450 },
       styles: {
@@ -275,6 +279,7 @@ export const topBottomTemplate = (appInfo, downloads) => {
       id: generateId(),
       type: 'button',
       content: 'App Store',
+      icon: 'appstore',
       dataPath: 'downloads.showAppStore',
       position: { x: centerX - 180, y: 480 },
       styles: {
@@ -293,6 +298,7 @@ export const topBottomTemplate = (appInfo, downloads) => {
       id: generateId(),
       type: 'button',
       content: 'Google Play',
+      icon: 'googleplay',
       dataPath: 'downloads.showGooglePlay',
       position: { x: centerX, y: 480 },
       styles: {
@@ -372,6 +378,7 @@ export const diagonalTemplate = (appInfo, downloads) => {
       id: generateId(),
       type: 'button',
       content: 'App Store',
+      icon: 'appstore',
       dataPath: 'downloads.showAppStore',
       position: { x: 100, y: 450 },
       styles: {
@@ -390,6 +397,7 @@ export const diagonalTemplate = (appInfo, downloads) => {
       id: generateId(),
       type: 'button',
       content: 'Google Play',
+      icon: 'googleplay',
       dataPath: 'downloads.showGooglePlay',
       position: { x: 280, y: 450 },
       styles: {
@@ -475,6 +483,7 @@ export const productHuntCenterTemplate = (productHuntInfo, downloads) => {
       id: generateId(),
       type: 'button',
       content: 'App Store',
+      icon: 'appstore',
       dataPath: 'downloads.showAppStore',
       position: { x: centerX - 85, y: 560 },
       styles: {

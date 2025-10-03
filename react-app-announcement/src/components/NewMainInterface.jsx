@@ -5,7 +5,6 @@ import {
   ContentPanel,
   DesignPanel,
   TemplatesPanel,
-  LayoutPanel,
   StylePanel,
   ComponentLibraryPanel,
   ProjectsPanel
@@ -50,7 +49,6 @@ function NewMainInterface() {
       <ContentPanel isActive={state.toolbarsVisible && state.currentPanel === 'content'} />
       <DesignPanel isActive={state.toolbarsVisible && state.currentPanel === 'design'} />
       <TemplatesPanel isActive={state.toolbarsVisible && state.currentPanel === 'templates'} />
-      <LayoutPanel isActive={state.toolbarsVisible && state.currentPanel === 'layout'} />
 
       {/* 样式编辑面板 - 当选中元素且面板为style时显示 */}
       <StylePanel isActive={state.toolbarsVisible && state.currentPanel === 'style' && state.selectedElement !== null} />
