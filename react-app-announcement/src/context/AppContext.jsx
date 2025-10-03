@@ -602,10 +602,34 @@ const modelState = {
   }`}
 };`;
 
+    // 生成导出框配置代码（如果存在）
+    const exportFrameConfig = state.design.exportWidth && state.design.exportHeight ? `
+// 导出框/裁剪框配置
+// 用于定义导出时的裁剪区域，超出此框的内容将被裁剪
+const exportFrame = {
+  enabled: true,
+  width: ${state.design.exportWidth},      // 导出框宽度（像素）
+  height: ${state.design.exportHeight},     // 导出框高度（像素）
+  x: ${state.design.exportX !== null ? state.design.exportX : 'null'},           // X 位置（null 表示居中）
+  y: ${state.design.exportY !== null ? state.design.exportY : 'null'},           // Y 位置（null 表示居中）
+  scale: ${state.design.exportScale || 1}          // 用户自定义缩放比例（基于自动计算的缩放之上）
+};
+
+// 💡 使用说明：
+// 1. 将 exportFrame.width 和 height 设置到 design.exportWidth/exportHeight
+// 2. 将 exportFrame.x 和 y 设置到 design.exportX/exportY（null 表示自动居中）
+// 3. 将 exportFrame.scale 设置到 design.exportScale
+// 4. 系统会自动应用 clipPath 裁剪，超出框的内容不可见` : `
+// 导出框/裁剪框配置
+const exportFrame = {
+  enabled: false  // 未启用导出框
+};`;
+
     const code = `// 模板配置代码
 // 提示：复制此配置到模板文件中使用
 
 ${modelConfig}
+${exportFrameConfig}
 
 // 动态组件配置 (共 ${state.dynamicComponents.length} 个元素)
 const dynamicComponents = [
@@ -617,7 +641,7 @@ ${componentsCode}
       type: 'UPDATE_TEMPLATE_CONFIG_CODE',
       payload: code
     });
-  }, [state.templateEditMode, state.dynamicComponents, state.modelState, state.deviceType, state.modelType, state.elementStyles, dispatch]);
+  }, [state.templateEditMode, state.dynamicComponents, state.modelState, state.deviceType, state.modelType, state.elementStyles, state.design, dispatch]);
 
   // 当模板编辑模式开启时，立即生成一次代码
   useEffect(() => {

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { Move } from 'lucide-react';
+import { Move, Trash2, Eye, EyeOff } from 'lucide-react';
 
 // 导出框显示配置常量
 const EXPORT_FRAME_MARGIN = 100;
@@ -13,6 +13,7 @@ function ExportFrame() {
   const [isResizing, setIsResizing] = useState(false);
   const [resizeCorner, setResizeCorner] = useState(null);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [isFrameVisible, setIsFrameVisible] = useState(true); // 控制框的可见性
 
   // 拖拽手柄开始
   const handleDragHandleMouseDown = (e) => {
@@ -29,6 +30,26 @@ function ExportFrame() {
       x: e.clientX - currentX,
       y: e.clientY - currentY
     });
+  };
+
+  // 删除导出框
+  const handleDeleteFrame = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    updateDesign({
+      exportWidth: null,
+      exportHeight: null,
+      exportX: null,
+      exportY: null,
+      exportScale: 1
+    });
+  };
+
+  // 切换框的可见性
+  const toggleFrameVisibility = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setIsFrameVisible(!isFrameVisible);
   };
 
   // 缩放开始
@@ -133,18 +154,18 @@ function ExportFrame() {
 
   return (
     <div
-      ref={frameRef}
-      className="absolute select-none pointer-events-none"
-      style={{
-        left: `${frameX}px`,
-        top: `${frameY}px`,
-        transform: 'translate(-50%, -50%)',
-        width: `${displayWidth}px`,
-        height: `${displayHeight}px`,
-        border: '2px dashed rgba(59, 130, 246, 0.6)',
-        zIndex: 1000
-      }}
-    >
+        ref={frameRef}
+        className="absolute select-none pointer-events-none"
+        style={{
+          left: `${frameX}px`,
+          top: `${frameY}px`,
+          transform: 'translate(-50%, -50%)',
+          width: `${displayWidth}px`,
+          height: `${displayHeight}px`,
+          border: isFrameVisible ? '2px dashed rgba(59, 130, 246, 0.6)' : 'none',
+          zIndex: 1000
+        }}
+      >
       {/* 尺寸标签 */}
       <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-3 py-1 bg-blue-600 text-white text-xs font-mono rounded shadow-lg whitespace-nowrap pointer-events-none">
         {state.design.exportWidth} × {state.design.exportHeight}
@@ -153,38 +174,63 @@ function ExportFrame() {
         </span>
       </div>
 
-      {/* 拖拽手柄 - 右上角 */}
-      <div
-        className="absolute -top-3 -right-3 w-8 h-8 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center cursor-move transition-all hover:scale-110 pointer-events-auto"
-        onMouseDown={handleDragHandleMouseDown}
-        title="拖拽移动导出框"
-      >
-        <Move size={16} />
+      {/* 控制按钮组 - 右上角 */}
+      <div className="absolute -top-12 -right-3 flex gap-2 pointer-events-auto">
+        {/* 拖拽手柄 */}
+        <div
+          className="w-8 h-8 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center cursor-move transition-all hover:scale-110"
+          onMouseDown={handleDragHandleMouseDown}
+          title="拖拽移动导出框"
+        >
+          <Move size={16} />
+        </div>
+
+        {/* 可见性切换按钮 */}
+        <div
+          className="w-8 h-8 bg-gray-600 hover:bg-gray-700 text-white rounded-full shadow-lg flex items-center justify-center cursor-pointer transition-all hover:scale-110"
+          onClick={toggleFrameVisibility}
+          title={isFrameVisible ? "隐藏导出框" : "显示导出框"}
+        >
+          {isFrameVisible ? <Eye size={16} /> : <EyeOff size={16} />}
+        </div>
+
+        {/* 删除按钮 */}
+        <div
+          className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg flex items-center justify-center cursor-pointer transition-all hover:scale-110"
+          onClick={handleDeleteFrame}
+          title="删除导出框"
+        >
+          <Trash2 size={16} />
+        </div>
       </div>
 
-      {/* 四个角的缩放控制点 */}
-      <div
-        className="resize-handle absolute -top-2 -left-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-nwse-resize hover:scale-125 transition-transform pointer-events-auto"
-        onMouseDown={(e) => handleResizeStart('tl', e)}
-      />
-      <div
-        className="resize-handle absolute -top-2 -right-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-nesw-resize hover:scale-125 transition-transform pointer-events-auto"
-        onMouseDown={(e) => handleResizeStart('tr', e)}
-      />
-      <div
-        className="resize-handle absolute -bottom-2 -left-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-nesw-resize hover:scale-125 transition-transform pointer-events-auto"
-        onMouseDown={(e) => handleResizeStart('bl', e)}
-      />
-      <div
-        className="resize-handle absolute -bottom-2 -right-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-nwse-resize hover:scale-125 transition-transform pointer-events-auto"
-        onMouseDown={(e) => handleResizeStart('br', e)}
-      />
+      {/* 四个角的缩放控制点 - 仅在框可见时显示 */}
+      {isFrameVisible && (
+        <>
+          <div
+            className="resize-handle absolute -top-2 -left-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-nwse-resize hover:scale-125 transition-transform pointer-events-auto"
+            onMouseDown={(e) => handleResizeStart('tl', e)}
+          />
+          <div
+            className="resize-handle absolute -top-2 -right-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-nesw-resize hover:scale-125 transition-transform pointer-events-auto"
+            onMouseDown={(e) => handleResizeStart('tr', e)}
+          />
+          <div
+            className="resize-handle absolute -bottom-2 -left-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-nesw-resize hover:scale-125 transition-transform pointer-events-auto"
+            onMouseDown={(e) => handleResizeStart('bl', e)}
+          />
+          <div
+            className="resize-handle absolute -bottom-2 -right-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-nwse-resize hover:scale-125 transition-transform pointer-events-auto"
+            onMouseDown={(e) => handleResizeStart('br', e)}
+          />
 
-      {/* 四个角的装饰线 */}
-      <div className="absolute -top-1 -left-1 w-6 h-6 border-l-2 border-t-2 border-blue-500 pointer-events-none"></div>
-      <div className="absolute -top-1 -right-1 w-6 h-6 border-r-2 border-t-2 border-blue-500 pointer-events-none"></div>
-      <div className="absolute -bottom-1 -left-1 w-6 h-6 border-l-2 border-b-2 border-blue-500 pointer-events-none"></div>
-      <div className="absolute -bottom-1 -right-1 w-6 h-6 border-r-2 border-b-2 border-blue-500 pointer-events-none"></div>
+          {/* 四个角的装饰线 */}
+          <div className="absolute -top-1 -left-1 w-6 h-6 border-l-2 border-t-2 border-blue-500 pointer-events-none"></div>
+          <div className="absolute -top-1 -right-1 w-6 h-6 border-r-2 border-t-2 border-blue-500 pointer-events-none"></div>
+          <div className="absolute -bottom-1 -left-1 w-6 h-6 border-l-2 border-b-2 border-blue-500 pointer-events-none"></div>
+          <div className="absolute -bottom-1 -right-1 w-6 h-6 border-r-2 border-b-2 border-blue-500 pointer-events-none"></div>
+        </>
+      )}
     </div>
   );
 }

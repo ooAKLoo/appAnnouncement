@@ -16,6 +16,10 @@ import SelectionBox from './SelectionBox';
 import MultiSelectionBox from './MultiSelectionBox';
 import ExportFrame from './ExportFrame';
 
+// 导出框显示配置常量（与 ExportFrame 保持一致）
+const EXPORT_FRAME_MARGIN = 100;
+const EXPORT_FRAME_SCALE = 0.9;
+
 function MainContent() {
   console.log('🏠 MainContent 渲染中...');
   const { state, toggleToolbars, reorderFeatures, showContextMenu, hideContextMenu, clearSelection, updateElementStyle, deleteDynamicComponent, selectElement } = useApp();
@@ -528,6 +532,36 @@ function MainContent() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [state.selectedElements, clearSelection, updateElementStyle, deleteDynamicComponent, state.dynamicComponents]);
 
+  // 计算裁剪区域
+  const getClipPath = () => {
+    if (!state.design.exportWidth || !state.design.exportHeight) {
+      return 'none';
+    }
+
+    const canvasWidth = window.innerWidth - EXPORT_FRAME_MARGIN;
+    const canvasHeight = window.innerHeight - EXPORT_FRAME_MARGIN;
+    const scaleX = canvasWidth / state.design.exportWidth;
+    const scaleY = canvasHeight / state.design.exportHeight;
+    const baseScale = Math.min(scaleX, scaleY, 1);
+    const autoScale = baseScale * EXPORT_FRAME_SCALE;
+    const finalScale = autoScale * (state.design.exportScale || 1);
+
+    const displayWidth = state.design.exportWidth * finalScale;
+    const displayHeight = state.design.exportHeight * finalScale;
+
+    const defaultX = window.innerWidth / 2;
+    const defaultY = window.innerHeight / 2;
+    const frameX = state.design.exportX !== null ? state.design.exportX : defaultX;
+    const frameY = state.design.exportY !== null ? state.design.exportY : defaultY;
+
+    const left = frameX - displayWidth / 2;
+    const top = frameY - displayHeight / 2;
+    const right = frameX + displayWidth / 2;
+    const bottom = frameY + displayHeight / 2;
+
+    return `inset(${top}px ${window.innerWidth - right}px ${window.innerHeight - bottom}px ${left}px)`;
+  };
+
   return (
     <EditManager>
       {/* 全屏画布容器 */}
@@ -555,35 +589,44 @@ function MainContent() {
           {state.toolbarsVisible ? <EyeOff size={20} /> : <Eye size={20} />}
         </button>
 
-        {/* 手机模型 - 在最底层 */}
-        {state.deviceType !== 'product-hunt' && (
-          <div
-            className="absolute inset-0 w-full h-full pointer-events-none"
-            style={{ zIndex: 1 }}
-          >
-            {state.deviceType === 'desktop' ? (
-              <MacBookModel2D />
-            ) : (
-              state.modelType === '2d' ? <PhoneModel2D /> : <PhoneModel />
-            )}
-          </div>
-        )}
+        {/* 裁剪容器 - 包裹所有需要被裁剪的内容 */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            clipPath: getClipPath()
+          }}
+        >
+          {/* 手机模型 - 在最底层 */}
+          {state.deviceType !== 'product-hunt' && (
+            <div
+              className="absolute inset-0 w-full h-full pointer-events-none"
+              style={{ zIndex: 1 }}
+            >
+              {state.deviceType === 'desktop' ? (
+                <MacBookModel2D />
+              ) : (
+                state.modelType === '2d' ? <PhoneModel2D /> : <PhoneModel />
+              )}
+            </div>
+          )}
 
-        {/* ⚠️ 不再直接渲染模板，所有元素统一通过 dynamicComponents 管理 */}
+          {/* ⚠️ 不再直接渲染模板，所有元素统一通过 dynamicComponents 管理 */}
 
-        {/* 功能列表 - 暂时保留，未来也可以转换为 dynamicComponents */}
-        {templateSupports(currentTemplate, 'features') && state.contentSections.features && renderFeatures()}
+          {/* 功能列表 - 暂时保留，未来也可以转换为 dynamicComponents */}
+          {templateSupports(currentTemplate, 'features') && state.contentSections.features && renderFeatures()}
 
-        {/* 活动信息 - 暂时保留，未来也可以转换为 dynamicComponents */}
-        {templateSupports(currentTemplate, 'event') && state.contentSections.event && renderEvent()}
+          {/* 活动信息 - 暂时保留，未来也可以转换为 dynamicComponents */}
+          {templateSupports(currentTemplate, 'event') && state.contentSections.event && renderEvent()}
 
-        {/* 动态组件 - 现在包含模板元素和右键添加的元素 */}
-        {state.dynamicComponents.map((component) => (
-          <DynamicComponent
-            key={`${state.templateVersion}-${component.id}`}
-            component={component}
-          />
-        ))}
+          {/* 动态组件 - 现在包含模板元素和右键添加的元素 */}
+          {state.dynamicComponents.map((component) => (
+            <DynamicComponent
+              key={`${state.templateVersion}-${component.id}`}
+              component={component}
+            />
+          ))}
+        </div>
 
         {/* 右键菜单 */}
         <ContextMenu />
