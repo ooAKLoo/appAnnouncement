@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import PhoneModel from './models/PhoneModel';
@@ -12,10 +12,18 @@ import DraggableWrapper from './DraggableWrapper';
 import EditManager from './EditManager';
 import ContextMenu from './ContextMenu';
 import DynamicComponent from './DynamicComponent';
+import SelectionBox from './SelectionBox';
+import MultiSelectionBox from './MultiSelectionBox';
 
 function MainContent() {
   console.log('🏠 MainContent 渲染中...');
-  const { state, toggleToolbars, reorderFeatures, showContextMenu, hideContextMenu, clearSelection, updateElementStyle, deleteDynamicComponent } = useApp();
+  const { state, toggleToolbars, reorderFeatures, showContextMenu, hideContextMenu, clearSelection, updateElementStyle, deleteDynamicComponent, selectElement } = useApp();
+
+  // 框选状态
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [selectionStart, setSelectionStart] = useState(null);
+  const [selectionEnd, setSelectionEnd] = useState(null);
+  const [justFinishedSelecting, setJustFinishedSelecting] = useState(false);
 
   console.log('📊 MainContent state:', {
     template: state.design.template,
@@ -317,15 +325,170 @@ function MainContent() {
 
   // 点击背景清空选择
   const handleBackgroundClick = (e) => {
+    // 🔥 如果刚完成框选，跳过清空逻辑（防止框选后立即被清空）
+    if (justFinishedSelecting) {
+      console.log('🔲 刚完成框选，跳过背景点击清空');
+      return;
+    }
+
     // 检查是否点击的是背景（不是任何可拖拽元素）
     const isBackground = !e.target.closest('[data-draggable="true"]') &&
                         !e.target.closest('[data-editable="true"]') &&
-                        !e.target.closest('.component-control');
+                        !e.target.closest('.component-control') &&
+                        !e.target.closest('.multi-selection-box');
 
     if (isBackground && state.selectedElements.length > 0) {
+      console.log('✅ 点击背景，清空选择');
       clearSelection();
     }
   };
+
+  // 框选功能 - 检查矩形碰撞
+  const checkRectIntersection = (rect1, rect2) => {
+    return !(
+      rect1.right < rect2.left ||
+      rect1.left > rect2.right ||
+      rect1.bottom < rect2.top ||
+      rect1.top > rect2.bottom
+    );
+  };
+
+  // 框选开始
+  const handleSelectionStart = (e) => {
+    // 只在空白区域才开始框选
+    const isBackground = !e.target.closest('[data-draggable="true"]') &&
+                        !e.target.closest('[data-editable="true"]') &&
+                        !e.target.closest('.component-control') &&
+                        !e.target.closest('.multi-selection-box') &&
+                        !e.target.closest('button');
+
+    if (!isBackground) return;
+
+    const isMultiSelect = e.ctrlKey || e.metaKey;
+    if (!isMultiSelect) {
+      clearSelection();
+    }
+
+    setIsSelecting(true);
+    setSelectionStart({ x: e.clientX, y: e.clientY });
+    setSelectionEnd({ x: e.clientX, y: e.clientY });
+
+    console.log('🔲 框选开始:', { x: e.clientX, y: e.clientY });
+  };
+
+  // 框选移动 - 实时选中范围内的元素
+  const handleSelectionMove = (e) => {
+    if (!isSelecting) return;
+
+    setSelectionEnd({ x: e.clientX, y: e.clientY });
+
+    // 🔥 实时计算选框范围并选中元素
+    const left = Math.min(selectionStart.x, e.clientX);
+    const top = Math.min(selectionStart.y, e.clientY);
+    const right = Math.max(selectionStart.x, e.clientX);
+    const bottom = Math.max(selectionStart.y, e.clientY);
+    const selectionRect = { left, top, right, bottom };
+
+    // 检查哪些元素在选框内
+    const allDraggables = document.querySelectorAll('[data-draggable="true"]');
+    const elementsInRange = [];
+
+    allDraggables.forEach(element => {
+      const rect = element.getBoundingClientRect();
+
+      if (checkRectIntersection(rect, selectionRect)) {
+        // 1. 检查是否是 DynamicComponent
+        const componentId = element.getAttribute('data-component-id');
+        if (componentId) {
+          const matchedComp = state.dynamicComponents.find(comp =>
+            String(comp.id) === String(componentId)
+          );
+          if (matchedComp) {
+            elementsInRange.push({
+              type: 'element',
+              id: `dynamicComponents-${matchedComp.id}-content`,
+              path: `dynamicComponents.${matchedComp.id}.content`
+            });
+          }
+          return;
+        }
+
+        // 2. 检查是否是 Editable 组件
+        const editableId = element.getAttribute('data-editable-id');
+        const editablePath = element.getAttribute('data-editable-path');
+        if (editableId && editablePath) {
+          elementsInRange.push({
+            type: 'element',
+            id: editableId,
+            path: editablePath
+          });
+        }
+      }
+    });
+
+    // 🔥 实时更新选中状态（批量选中）
+    if (elementsInRange.length > 0) {
+      // 先清空选择
+      if (state.selectedElements.length > 0) {
+        clearSelection();
+      }
+      // 批量选中范围内的元素
+      elementsInRange.forEach((elem, index) => {
+        // 第一个元素不使用多选模式（清空之前的选择），后续元素使用多选模式（追加）
+        selectElement(elem.type, elem.id, elem.path, index > 0);
+      });
+    } else if (state.selectedElements.length > 0) {
+      // 如果没有元素在范围内，清空选择
+      clearSelection();
+    }
+  };
+
+  // 框选结束
+  const handleSelectionEnd = (e) => {
+    if (!isSelecting) return;
+
+    // 计算拖拽距离
+    const dragDistance = Math.sqrt(
+      Math.pow(e.clientX - selectionStart.x, 2) +
+      Math.pow(e.clientY - selectionStart.y, 2)
+    );
+
+    // 如果拖拽距离小于 5px，认为是点击而非框选
+    if (dragDistance < 5) {
+      console.log('🔲 拖拽距离太小，取消框选');
+      setIsSelecting(false);
+      setSelectionStart(null);
+      setSelectionEnd(null);
+      return;
+    }
+
+    // 选中逻辑已经在 handleSelectionMove 中实时完成
+    console.log('🔲 框选结束，已选中', state.selectedElements.length, '个元素');
+
+    // 🔥 设置标志，防止后续 click 事件清空选择
+    setJustFinishedSelecting(true);
+    setTimeout(() => {
+      setJustFinishedSelecting(false);
+      console.log('🔲 清除框选完成标志');
+    }, 150);  // 150ms 足够让 click 事件处理完成
+
+    setIsSelecting(false);
+    setSelectionStart(null);
+    setSelectionEnd(null);
+  };
+
+  // 框选事件监听
+  useEffect(() => {
+    if (isSelecting) {
+      document.addEventListener('mousemove', handleSelectionMove);
+      document.addEventListener('mouseup', handleSelectionEnd);
+
+      return () => {
+        document.removeEventListener('mousemove', handleSelectionMove);
+        document.removeEventListener('mouseup', handleSelectionEnd);
+      };
+    }
+  }, [isSelecting, selectionStart]);
 
   // 键盘快捷键处理
   useEffect(() => {
@@ -371,6 +534,7 @@ function MainContent() {
         data-canvas="true"
         data-editable-area="true"
         onClick={handleBackgroundClick}
+        onMouseDown={handleSelectionStart}
         onContextMenu={(e) => {
           console.log('📍 React 合成事件触发 - onContextMenu', e.target);
         }}
@@ -422,6 +586,16 @@ function MainContent() {
 
         {/* 右键菜单 */}
         <ContextMenu />
+
+        {/* 框选组件 */}
+        <SelectionBox
+          start={selectionStart}
+          end={selectionEnd}
+          isActive={isSelecting}
+        />
+
+        {/* 多选边界框 */}
+        <MultiSelectionBox />
       </div>
     </EditManager>
   );

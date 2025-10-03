@@ -24,6 +24,7 @@ function Editable({ path, x = 100, y = 100, children, className = '' }) {
   const [dragStartPos, setDragStartPos] = useState({ x: 0, y: 0 });
   const [dragStartElementPos, setDragStartElementPos] = useState({ x: 0, y: 0 });
   const [dragStartSize, setDragStartSize] = useState({ width: 0, height: 0 });
+  const [currentSize, setCurrentSize] = useState({ width: 0, height: 0 });
   const [initialOffsets, setInitialOffsets] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const elementRef = React.useRef(null);
@@ -276,6 +277,9 @@ function Editable({ path, x = 100, y = 100, children, className = '' }) {
       const newWidth = Math.max(50, dragStartSize.width + deltaX);
       const newHeight = Math.max(20, dragStartSize.height + deltaY);
 
+      // 更新尺寸显示
+      setCurrentSize({ width: Math.round(newWidth), height: Math.round(newHeight) });
+
       updateElementStyle(id, {
         width: `${newWidth}px`,
         height: `${newHeight}px`
@@ -488,6 +492,13 @@ function Editable({ path, x = 100, y = 100, children, className = '' }) {
           <span className="text-xs ml-1">({state.selectedElements.length})</span>
         )}
       </div>
+
+      {/* 尺寸信息浮标 - 只在调整尺寸时显示 */}
+      {isResizing && (
+        <div className="absolute -top-8 left-0 bg-blue-500 text-white text-xs px-2 py-1 rounded shadow-lg pointer-events-none whitespace-nowrap z-50">
+          {currentSize.width} × {currentSize.height}
+        </div>
+      )}
 
       {/* 内容区域 - 根据编辑状态切换 */}
       {isEditing ? (

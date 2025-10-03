@@ -528,11 +528,87 @@ export function AppProvider({ children }) {
     state.elementStyles
   ]);
 
+  // 生成模板配置代码的统一函数
+  const generateTemplateCode = useCallback(() => {
+    if (!state.templateEditMode) return;
+
+    // 生成所有 dynamicComponents 的配置代码
+    const componentsCode = state.dynamicComponents.map((comp, index) => {
+      const compStyles = comp.styles || {};
+      const styleLines = Object.entries(compStyles)
+        .filter(([key, value]) => value) // 过滤掉空值
+        .map(([key, value]) => `      ${key}: '${value}'`);
+
+      // 构建每个组件的配置
+      const parts = [
+        `    id: generateId(),`,
+        `    type: '${comp.type}',`,
+        `    content: ${Array.isArray(comp.content) ? JSON.stringify(comp.content, null, 2).split('\n').map((line, i) => i === 0 ? line : '      ' + line).join('\n') : `'${comp.content}'`},`
+      ];
+
+      if (comp.dataPath) parts.push(`    dataPath: '${comp.dataPath}',`);
+      if (comp.icon) parts.push(`    icon: '${comp.icon}',`);
+
+      parts.push(`    position: { x: ${Math.round(comp.position.x)}, y: ${Math.round(comp.position.y)} },`);
+
+      if (styleLines.length > 0) {
+        parts.push(`    styles: {\n${styleLines.join(',\n')}\n    }`);
+      } else {
+        parts.push(`    styles: {}`);
+      }
+
+      return `  {\n${parts.join('\n')}\n  }`;
+    }).join(',\n\n');
+
+    // 生成模型配置代码
+    const modelConfig = `// 模型配置
+const modelState = {
+  deviceType: '${state.deviceType}',  // 'mobile' | 'desktop' | 'product-hunt'
+  modelType: '${state.modelType}',    // '3d' | '2d'
+  ${state.modelType === '3d' ? `
+  // 3D 模型状态
+  rotation: { x: ${Math.round(state.modelState.rotation?.x || 0)}, y: ${Math.round(state.modelState.rotation?.y || 0)}, z: ${Math.round(state.modelState.rotation?.z || 0)} },
+  position: { x: ${(state.modelState.position?.x || 0).toFixed(2)}, y: ${(state.modelState.position?.y || 0).toFixed(2)}, z: ${(state.modelState.position?.z || 0).toFixed(2)} },
+  cameraDistance: ${state.modelState.cameraDistance || 3}` : `
+  // 2D 模型状态
+  transform: {
+    scale: ${state.modelState.scale || 1},
+    rotation: ${state.modelState.rotation?.z || 0},
+    x: ${state.modelState.position?.x || 0},
+    y: ${state.modelState.position?.y || 0}
+  }`}
+};`;
+
+    const code = `// 模板配置代码
+// 提示：复制此配置到模板文件中使用
+
+${modelConfig}
+
+// 动态组件配置 (共 ${state.dynamicComponents.length} 个元素)
+const dynamicComponents = [
+${componentsCode}
+];`;
+
+    console.log('📐 生成完整模板配置代码');
+    dispatch({
+      type: 'UPDATE_TEMPLATE_CONFIG_CODE',
+      payload: code
+    });
+  }, [state.templateEditMode, state.dynamicComponents, state.modelState, state.deviceType, state.modelType, dispatch]);
+
+  // 当模板编辑模式开启时，立即生成一次代码
+  useEffect(() => {
+    if (state.templateEditMode) {
+      generateTemplateCode();
+    }
+  }, [state.templateEditMode, generateTemplateCode]);
+
   const value = {
     state,
     dispatch,
     currentProjectId,
     setCurrentProjectId,
+    generateTemplateCode,
     updateAppInfo: (info) => dispatch({ type: 'UPDATE_APP_INFO', payload: info }),
     updateProductHuntInfo: (info) => dispatch({ type: 'UPDATE_PRODUCT_HUNT_INFO', payload: info }),
     updateDesign: (design) => dispatch({ type: 'UPDATE_DESIGN', payload: design }),

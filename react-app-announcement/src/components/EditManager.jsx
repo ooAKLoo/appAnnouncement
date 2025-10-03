@@ -19,6 +19,20 @@ function EditManager({ children }) {
       const isStylePanelClick = e.target.closest('.style-edit-panel');
       if (isStylePanelClick) return;
 
+      // 🔧 检查是否点击了多选边界框（重要：在捕获阶段需要排除）
+      const isMultiSelectionBox = e.target.closest('.multi-selection-box');
+      if (isMultiSelectionBox) {
+        console.log('🖱️ 点击了多选边界框，跳过选中逻辑');
+        return;
+      }
+
+      // 检查是否点击了组件控制栏
+      const isComponentControl = e.target.closest('.component-control');
+      if (isComponentControl) {
+        console.log('🖱️ 点击了组件控制栏，跳过选中逻辑');
+        return;
+      }
+
       // 检查是否点击了可拖动元素，如果是则跳过处理
       const draggableElement = e.target.closest('[data-draggable="true"]');
       if (draggableElement) {
@@ -38,13 +52,14 @@ function EditManager({ children }) {
         selectElement('element', id, path);
         setCurrentPanel('style'); // 自动切换到样式面板
         e.stopPropagation();
-      } else {
-        // 点击了空白区域，取消选中
-        if (state.selectedElement) {
-          console.log('❌ 取消选中');
-          deselectElement();
-        }
       }
+      // 🔥 移除这里的取消选中逻辑，让 MainContent 的 handleBackgroundClick 统一处理
+      // else {
+      //   if (state.selectedElement) {
+      //     console.log('❌ 取消选中');
+      //     deselectElement();
+      //   }
+      // }
     };
 
     document.addEventListener('mousedown', handleClick, true);

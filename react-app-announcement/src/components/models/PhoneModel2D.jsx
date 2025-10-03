@@ -4,22 +4,22 @@ import { useApp } from '../../context/AppContext';
 import { getStyleFontClass } from '../../data/styleConfig';
 
 function PhoneModel2D() {
-  const { state } = useApp();
+  const { state, updateModelState, generateTemplateCode } = useApp();
   const canvasRef = useRef(null);
   const [screenContent, setScreenContent] = useState(null);
   const [phoneSize, setPhoneSize] = useState({ width: 0, height: 0 });
   const [fitMode, setFitMode] = useState('cover'); // 'cover' | 'contain' | 'fill'
-  const [transform, setTransform] = useState({ 
-    scale: 1, 
-    rotation: 0, 
-    x: 0, 
-    y: 0 
+  const [transform, setTransform] = useState({
+    scale: 1,
+    rotation: 0,
+    x: 0,
+    y: 0
   });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const imgRef = useRef(null);
   const containerRef = useRef(null);
-  
+
   // 旋转图标相关状态
   const [showRotateIcon, setShowRotateIcon] = useState(false);
   const [isRotating, setIsRotating] = useState(false);
@@ -255,6 +255,19 @@ function PhoneModel2D() {
       };
     }
   }, [isRotating, rotateStart]);
+
+  // 同步 2D 模型状态到全局 context
+  useEffect(() => {
+    if (state.templateEditMode) {
+      updateModelState({
+        scale: transform.scale,
+        rotation: { x: 0, y: 0, z: transform.rotation },
+        position: { x: transform.x, y: transform.y, z: 0 }
+      });
+      // 延迟生成代码，确保 state 已更新
+      setTimeout(() => generateTemplateCode(), 50);
+    }
+  }, [transform, state.templateEditMode, updateModelState, generateTemplateCode]);
 
   // 清理定时器
   useEffect(() => {

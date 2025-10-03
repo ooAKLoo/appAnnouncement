@@ -428,7 +428,7 @@ function PhoneModel3D({ customImage, ...props }) {
 }
 
 function PhoneModel() {
-  const { state } = useApp();
+  const { state, updateModelState, generateTemplateCode } = useApp();
   const [isLoading, setIsLoading] = useState(true);
   const containerRef = useRef(null);
 
@@ -690,6 +690,19 @@ function PhoneModel() {
     modelPosition,
     modelRotation,
   ]);
+
+  // 同步 3D 模型状态到全局 context
+  useEffect(() => {
+    if (state.templateEditMode) {
+      updateModelState({
+        rotation: modelRotation,
+        position: { x: modelPosition[0], y: modelPosition[1], z: modelPosition[2] },
+        cameraDistance: cameraDistance
+      });
+      // 延迟生成代码，确保 state 已更新
+      setTimeout(() => generateTemplateCode(), 50);
+    }
+  }, [modelRotation, modelPosition, cameraDistance, state.templateEditMode, updateModelState, generateTemplateCode]);
 
   // 清理定时器
   useEffect(() => {

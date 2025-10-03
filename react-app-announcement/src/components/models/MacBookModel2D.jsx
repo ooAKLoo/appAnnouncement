@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { RotateCw } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { getStyleFontClass } from '../../data/styleConfig';
 
 function MacBookModel2D() {
-  const { state } = useApp();
+  const { state, updateModelState, generateTemplateCode } = useApp();
   const [screenContent, setScreenContent] = useState(null);
   const [macbookSize, setMacbookSize] = useState({ width: 0, height: 0 });
   const [transform, setTransform] = useState({
@@ -166,6 +167,19 @@ function MacBookModel2D() {
     }
   }, [isRotating, rotateStart]);
 
+  // 同步 MacBook 2D 模型状态到全局 context
+  useEffect(() => {
+    if (state.templateEditMode) {
+      updateModelState({
+        scale: transform.scale,
+        rotation: { x: 0, y: 0, z: transform.rotation },
+        position: { x: transform.x, y: transform.y, z: 0 }
+      });
+      // 延迟生成代码，确保 state 已更新
+      setTimeout(() => generateTemplateCode(), 50);
+    }
+  }, [transform, state.templateEditMode, updateModelState, generateTemplateCode]);
+
   useEffect(() => {
     return () => {
       if (hideIconTimeoutRef.current) {
@@ -173,6 +187,59 @@ function MacBookModel2D() {
       }
     };
   }, []);
+
+  // 生成默认屏幕内容（MacBook 桌面）
+  const generateScreenContent = () => {
+    const canvas = document.createElement('canvas');
+    // MacBook 屏幕比例 1632 x 1058
+    canvas.width = 1632;
+    canvas.height = 1058;
+    const ctx = canvas.getContext('2d');
+
+    // 获取当前风格的字体配置
+    const titleFont = getStyleFontClass(state.currentStyle, 'title');
+    const subtitleFont = getStyleFontClass(state.currentStyle, 'subtitle');
+
+    // Draw background (gradient or solid based on colorMode)
+    if (state.design.colorMode === 'solid') {
+      ctx.fillStyle = state.design.bgColor;
+      ctx.fillRect(0, 0, 1632, 1058);
+    } else {
+      const gradient = ctx.createLinearGradient(0, 0, 0, 1058);
+      gradient.addColorStop(0, state.design.bgColor);
+      gradient.addColorStop(1, state.design.gradientColor);
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 1632, 1058);
+    }
+
+    // Draw APP icon (居中显示)
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(716, 329, 200, 200);
+    ctx.fillStyle = state.design.bgColor;
+    ctx.font = 'bold 96px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(state.appInfo.icon, 816, 459);
+
+    // Draw APP name
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `${titleFont.fontWeight} 48px ${titleFont.fontFamily.split(',')[0]}`;
+    ctx.fillText(state.appInfo.name, 816, 580);
+
+    // Draw description
+    ctx.font = `${subtitleFont.fontWeight} 32px ${subtitleFont.fontFamily.split(',')[0]}`;
+    const subtitleLines = state.appInfo.subtitle.split('\n');
+    subtitleLines.forEach((line, index) => {
+      ctx.fillText(line, 816, 650 + (index * 50));
+    });
+
+    // Draw some UI elements (macOS style windows)
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.fillRect(100, 800, 600, 80);
+    ctx.fillRect(750, 800, 600, 80);
+    ctx.fillRect(1400, 800, 150, 80);
+
+    return canvas.toDataURL('image/png');
+  };
 
   // 预处理图片以适配 MacBook 屏幕比例
   const preprocessImage = (imageSrc) => {
@@ -227,11 +294,24 @@ function MacBookModel2D() {
       if (state.screenImage) {
         const processedImage = await preprocessImage(state.screenImage);
         setScreenContent(processedImage);
+      } else {
+        // 如果没有上传图片，生成默认内容
+        const defaultScreenData = generateScreenContent();
+        setScreenContent(defaultScreenData);
       }
     };
 
     updateScreenContent();
-  }, [state.screenImage]);
+  }, [
+    state.screenImage,
+    state.design.bgColor,
+    state.design.gradientColor,
+    state.design.colorMode,
+    state.appInfo.icon,
+    state.appInfo.name,
+    state.appInfo.subtitle,
+    state.currentStyle
+  ]);
 
   return (
     <div
@@ -284,11 +364,15 @@ function MacBookModel2D() {
               // 屏幕区域: 1632 × 1058px (X:6602, Y:-10173)
               // 左边距: 6602 - 6394 = 208px
               // 顶部距: -10173 - (-10319) = 146px
-              top: macbookSize.height > 0 ? `${macbookSize.height * (146 / 1349.5)}px` : '146px',  // 顶部偏移 146px
-              left: macbookSize.width > 0 ? `${macbookSize.width * (208 / 2048)}px` : '208px',   // 左边距 208px
-              width: macbookSize.width > 0 ? `${macbookSize.width * (1632 / 2048)}px` : '1632px',  // 宽度 1632px
-              height: macbookSize.height > 0 ? `${macbookSize.height * (1058 / 1349.5)}px` : '1058px',  // 高度 1058px
-              borderRadius: macbookSize.width > 0 ? `${macbookSize.width * (23 / 2048)}px 23px 0 0` : '23px 23px 0 0',  // 只有顶部圆角
+              // 圆角: 23px（按屏幕宽度比例缩放，23/1632）
+              top: macbookSize.height > 0 ? `${macbookSize.height * (146 / 1349.5)}px` : '146px',
+              left: macbookSize.width > 0 ? `${macbookSize.width * (208 / 2048)}px` : '208px',
+              width: macbookSize.width > 0 ? `${macbookSize.width * (1632 / 2048)}px` : '1632px',
+              height: macbookSize.height > 0 ? `${macbookSize.height * (1058 / 1349.5)}px` : '1058px',
+              // 圆角按屏幕区域宽度比例缩放
+              borderRadius: macbookSize.width > 0
+                ? `${macbookSize.width * (1632 / 2048) * (23 / 1632)}px ${macbookSize.width * (1632 / 2048) * (23 / 1632)}px 0 0`
+                : '23px 23px 0 0',
               overflow: 'hidden',
               backgroundColor: '#000'
             }}

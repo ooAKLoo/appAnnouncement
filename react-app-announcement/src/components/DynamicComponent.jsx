@@ -3,9 +3,10 @@ import { useApp } from '../context/AppContext';
 import { X, Move } from 'lucide-react';
 
 function DynamicComponent({ component }) {
-  const { state, updateDynamicComponent, deleteDynamicComponent, selectElement, setCurrentPanel, clearSelection, updateAppInfo, updateProductHuntInfo, updateTemplateConfigCode } = useApp();
+  const { state, updateDynamicComponent, deleteDynamicComponent, selectElement, setCurrentPanel, clearSelection, updateAppInfo, updateProductHuntInfo, generateTemplateCode } = useApp();
   const [isDragging, setIsDragging] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [currentSize, setCurrentSize] = useState({ width: 0, height: 0 });
   const elementRef = React.useRef(null);
 
   // 使用 ref 存储缩放相关的状态，避免闭包问题
@@ -70,48 +71,6 @@ function DynamicComponent({ component }) {
     });
   }, [isSelected, state.selectedElements]);
 
-  // 生成整个模板的配置代码
-  const generateTemplateCode = () => {
-    if (!state.templateEditMode) return;
-
-    // 生成所有 dynamicComponents 的配置代码
-    const componentsCode = state.dynamicComponents.map((comp, index) => {
-      const compStyles = comp.styles || {};
-      const styleLines = Object.entries(compStyles)
-        .filter(([key, value]) => value) // 过滤掉空值
-        .map(([key, value]) => `      ${key}: '${value}'`);
-
-      // 构建每个组件的配置
-      const parts = [
-        `    id: generateId(),`,
-        `    type: '${comp.type}',`,
-        `    content: ${Array.isArray(comp.content) ? JSON.stringify(comp.content, null, 2).split('\n').map((line, i) => i === 0 ? line : '      ' + line).join('\n') : `'${comp.content}'`},`
-      ];
-
-      if (comp.dataPath) parts.push(`    dataPath: '${comp.dataPath}',`);
-      if (comp.icon) parts.push(`    icon: '${comp.icon}',`);
-
-      parts.push(`    position: { x: ${Math.round(comp.position.x)}, y: ${Math.round(comp.position.y)} },`);
-
-      if (styleLines.length > 0) {
-        parts.push(`    styles: {\n${styleLines.join(',\n')}\n    }`);
-      } else {
-        parts.push(`    styles: {}`);
-      }
-
-      return `  {\n${parts.join('\n')}\n  }`;
-    }).join(',\n\n');
-
-    const code = `// 模板动态组件配置 (共 ${state.dynamicComponents.length} 个元素)
-// 提示：复制此配置到模板文件中使用
-
-const dynamicComponents = [
-${componentsCode}
-];`;
-
-    console.log('📐 生成完整模板配置代码');
-    updateTemplateConfigCode(code);
-  };
 
   // 处理拖拽开始
   const handleMouseDown = (e) => {
@@ -322,6 +281,9 @@ ${componentsCode}
         newX = rs.startPosX + (rs.startWidth - newWidth);
         break;
     }
+
+    // 更新尺寸显示
+    setCurrentSize({ width: Math.round(newWidth), height: Math.round(newHeight) });
 
     updateDynamicComponent(id, {
       position: { x: newX, y: newY },
@@ -598,6 +560,7 @@ ${componentsCode}
       onMouseDown={handleMouseDown}
       onDoubleClick={handleDoubleClick}
       data-draggable="true"
+      data-component-id={id}
     >
       {/* 控制栏 */}
       <div className={`absolute -top-8 right-0 ${
@@ -615,6 +578,13 @@ ${componentsCode}
           <span className="text-xs ml-1">({state.selectedElements.length})</span>
         )}
       </div>
+
+      {/* 尺寸信息浮标 - 只在调整尺寸时显示 */}
+      {resizeStateRef.current.isResizing && (
+        <div className="absolute -top-8 left-0 bg-blue-500 text-white text-xs px-2 py-1 rounded shadow-lg pointer-events-none whitespace-nowrap">
+          {currentSize.width} × {currentSize.height}
+        </div>
+      )}
 
       {/* 内容区域 */}
       <div
