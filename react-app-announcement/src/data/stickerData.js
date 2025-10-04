@@ -46,6 +46,22 @@ export const STICKER_CATEGORIES = {
     icon: '📏',
     count: 32,
     filePattern: (i) => `underline_${i}.svg`
+  },
+  brands: {
+    id: 'brands',
+    name: 'Brands',
+    displayName: '品牌标志',
+    path: '/stickers/brands/',
+    icon: '🏢',
+    items: [
+      { id: 'apple', name: 'Apple', fileName: 'apple.svg' },
+      { id: 'android', name: 'Android', fileName: 'android.svg' },
+      { id: 'windows', name: 'Windows', fileName: 'windows.svg' },
+      { id: 'microsoft', name: 'Microsoft', fileName: 'microsoft.svg' },
+      { id: 'mac', name: 'macOS', fileName: 'mac.svg' },
+      { id: 'app-store', name: 'App Store', fileName: 'app-store.svg' },
+      { id: 'google-play', name: 'Google Play', fileName: 'google-play.svg' }
+    ]
   }
 };
 
@@ -59,6 +75,19 @@ export const getStickersInCategory = (categoryId) => {
   const category = STICKER_CATEGORIES[categoryId];
   if (!category) return [];
 
+  // 品牌标志分类使用 items 数组
+  if (category.items) {
+    return category.items.map(item => ({
+      id: `${categoryId}_${item.id}`,
+      categoryId: categoryId,
+      fileName: item.fileName,
+      filePath: `${category.path}${item.fileName}`,
+      name: item.name,
+      thumbnail: `${category.path}${item.fileName}`
+    }));
+  }
+
+  // 其他分类使用计数器生成
   const stickers = [];
   for (let i = 1; i <= category.count; i++) {
     stickers.push({
@@ -97,7 +126,10 @@ export const searchStickers = (query, categoryId = null) => {
 // 获取分类统计信息
 export const getCategoryStats = () => {
   const categories = getAllCategories();
-  const totalCount = categories.reduce((sum, cat) => sum + cat.count, 0);
+  const totalCount = categories.reduce((sum, cat) => {
+    // 品牌分类使用 items.length，其他使用 count
+    return sum + (cat.items ? cat.items.length : cat.count);
+  }, 0);
 
   return {
     totalCategories: categories.length,
@@ -105,7 +137,7 @@ export const getCategoryStats = () => {
     categories: categories.map(cat => ({
       id: cat.id,
       name: cat.displayName,
-      count: cat.count
+      count: cat.items ? cat.items.length : cat.count
     }))
   };
 };

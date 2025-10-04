@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
-import { Type, List, Box, Plus } from 'lucide-react';
+import { Type, List, Image as ImageIcon, Plus } from 'lucide-react';
 
 function ContextMenu() {
-  const { state, hideContextMenu, addDynamicComponent, setCurrentPanel, setAssetsLibraryTab } = useApp();
-  
+  const { state, hideContextMenu, addDynamicComponent } = useApp();
+  const fileInputRef = useRef(null);
+
   // ✅ 添加详细的调试输出
   useEffect(() => {
     console.log('🎨 ContextMenu 状态更新:', {
@@ -14,9 +15,9 @@ function ContextMenu() {
       y: state.contextMenu?.y
     });
   }, [state.contextMenu]);
-  
+
   console.log('🎨 ContextMenu 渲染:', state.contextMenu);
-  
+
   if (!state.contextMenu?.visible) {
     console.log('❌ ContextMenu 未显示，原因:', {
       contextMenuExists: !!state.contextMenu,
@@ -24,14 +25,14 @@ function ContextMenu() {
     });
     return null;
   }
-  
+
   console.log('✅ ContextMenu 正在渲染，位置:', state.contextMenu.x, state.contextMenu.y);
-  
+
   const { x, y } = state.contextMenu;
-  
+
   // 生成唯一ID
   const generateId = () => 'comp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-  
+
   // 组件选项
   const componentOptions = [
     {
@@ -49,22 +50,57 @@ function ContextMenu() {
       defaultContent: ['列表项 1', '列表项 2', '列表项 3']
     },
     {
-      type: 'component',
-      icon: Box,
-      label: '组件',
-      description: '选择预设组件',
-      isLibrary: true // 标记这是打开组件库的选项
+      type: 'image',
+      icon: ImageIcon,
+      label: '图片',
+      description: '上传本地图片',
+      isUpload: true // 标记这是上传图片的选项
     }
   ];
   
+  // 处理图片上传
+  const handleImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const imageData = event.target?.result;
+
+      // 获取可编辑区域的边界
+      const editableArea = document.querySelector('[data-editable-area="true"]');
+      const rect = editableArea?.getBoundingClientRect() || { left: 0, top: 0 };
+
+      const component = {
+        id: generateId(),
+        type: 'image',
+        content: imageData,
+        position: {
+          x: x - rect.left - 100,
+          y: y - rect.top - 100
+        },
+        styles: {
+          width: '200px',
+          height: 'auto',
+          objectFit: 'contain',
+          backgroundColor: 'transparent'
+        }
+      };
+
+      addDynamicComponent(component);
+      console.log('✅ 添加图片到画布');
+    };
+
+    reader.readAsDataURL(file);
+    hideContextMenu();
+  };
+
   const handleAddComponent = (option) => {
     console.log('➕ 添加组件:', option.type);
 
-    // 如果是组件库选项，打开资源库面板并定位到组件Tab
-    if (option.isLibrary) {
-      setAssetsLibraryTab('components'); // 设置资源库Tab为组件
-      setCurrentPanel('assets'); // 打开资源库面板
-      hideContextMenu();
+    // 如果是上传图片选项，触发文件选择
+    if (option.isUpload) {
+      fileInputRef.current?.click();
       return;
     }
 
@@ -121,9 +157,18 @@ function ContextMenu() {
         <div className="px-3 py-2 border-b border-gray-100">
           <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
             <Plus size={14} />
-            添加组件
+            添加元素
           </div>
         </div>
+
+        {/* 隐藏的文件输入 */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleImageUpload}
+        />
         
         <div className="py-1">
           {componentOptions.map((option) => (

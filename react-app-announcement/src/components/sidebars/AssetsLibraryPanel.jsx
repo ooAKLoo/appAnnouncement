@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { X, Loader2, Sparkles, Box, ArrowRight, Pencil, ImageIcon, BarChart3, Minus, ExternalLink } from 'lucide-react';
+import { X, Loader2, Sparkles, Box, ArrowRight, Pencil, ImageIcon, BarChart3, Minus, ExternalLink, Building2 } from 'lucide-react';
 import { getAllCategories, getStickersInCategory } from '../../data/stickerData';
 import { getAllComponentTypes, generateComponent } from '../../data/componentLibrary';
 
@@ -21,7 +21,8 @@ function AssetsLibraryPanel({ isActive, initialTab = 'stickers' }) {
     doodles: Pencil,
     illustrations: ImageIcon,
     infographic: BarChart3,
-    underlines: Minus
+    underlines: Minus,
+    brands: Building2  // 品牌标志图标
   };
 
   // 加载素材列表
@@ -103,7 +104,7 @@ function AssetsLibraryPanel({ isActive, initialTab = 'stickers' }) {
             <div>
               <h2 className="text-base font-semibold text-gray-900">资源库</h2>
               <p className="text-xs text-gray-500">
-                {activeTab === 'components' ? '10 个组件' : `${stickerCategories.reduce((sum, cat) => sum + cat.count, 0)} 个素材`}
+                {activeTab === 'components' ? '10 个组件' : `${stickerCategories.reduce((sum, cat) => sum + (cat.items ? cat.items.length : cat.count), 0)} 个素材`}
               </p>
             </div>
           </div>
@@ -197,6 +198,7 @@ function AssetsLibraryPanel({ isActive, initialTab = 'stickers' }) {
             <div className="flex gap-1.5">
               {stickerCategories.map((category) => {
                 const Icon = categoryIcons[category.id];
+                const count = category.items ? category.items.length : category.count;
                 return (
                   <button
                     key={category.id}
@@ -207,10 +209,10 @@ function AssetsLibraryPanel({ isActive, initialTab = 'stickers' }) {
                         : 'bg-white text-gray-600 hover:bg-gray-100'
                     }`}
                   >
-                    <Icon size={12} />
+                    {Icon && <Icon size={12} />}
                     {category.displayName}
                     <span className={`text-[10px] ${selectedCategory === category.id ? 'opacity-80' : 'opacity-50'}`}>
-                      {category.count}
+                      {count}
                     </span>
                   </button>
                 );
