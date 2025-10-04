@@ -21,6 +21,15 @@ function DynamicComponent({ component }) {
     startPosY: 0
   });
 
+  // 使用 ref 存储旋转相关的状态
+  const rotateStateRef = React.useRef({
+    isRotating: false,
+    startAngle: 0,
+    currentRotation: 0
+  });
+
+  const [currentRotation, setCurrentRotation] = React.useState(0);
+
   // 使用 ref 存储拖拽相关的状态
   const dragStateRef = React.useRef({
     startX: 0,
@@ -58,6 +67,9 @@ function DynamicComponent({ component }) {
   // 合并样式：elementStyles 优先
   const mergedStyles = { ...styles, ...elementStyles };
 
+  // 提取 transform 到最外层，让选中框也能跟随旋转
+  const { transform, ...contentStyles } = mergedStyles;
+
   // 检查是否被选中
   const isSelected = state.selectedElements?.some(el => el.id === elementId) || false;
 
@@ -74,8 +86,8 @@ function DynamicComponent({ component }) {
 
   // 处理拖拽开始
   const handleMouseDown = (e) => {
-    // 如果点击的是控制按钮、调整尺寸手柄或正在编辑，不启动拖拽
-    if (e.target.closest('.component-control') || e.target.closest('.resize-handle') || isEditing) return;
+    // 如果点击的是控制按钮、调整尺寸手柄、旋转手柄或正在编辑，不启动拖拽
+    if (e.target.closest('.component-control') || e.target.closest('.resize-handle') || e.target.closest('.rotate-handle') || isEditing) return;
     // 如果点击的是输入框等交互元素，不启动拖拽
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
@@ -154,19 +166,20 @@ function DynamicComponent({ component }) {
   const handleMouseUp = (e) => {
     const wasResizing = resizeStateRef.current.isResizing;
     const wasDragging = isDragging;
+    const wasRotating = rotateStateRef.current.isRotating;
 
-    if (!wasDragging && !wasResizing) return;
+    if (!wasDragging && !wasResizing && !wasRotating) return;
 
     // 检查是否真的移动了（移动距离小于 5px 算作点击）
-    const startX = wasDragging ? dragStateRef.current.startX : resizeStateRef.current.startX;
-    const startY = wasDragging ? dragStateRef.current.startY : resizeStateRef.current.startY;
+    const startX = wasDragging ? dragStateRef.current.startX : (wasRotating ? 0 : resizeStateRef.current.startX);
+    const startY = wasDragging ? dragStateRef.current.startY : (wasRotating ? 0 : resizeStateRef.current.startY);
 
     const moveDistance = Math.sqrt(
       Math.pow(e.clientX - startX, 2) +
       Math.pow(e.clientY - startY, 2)
     );
 
-    if (moveDistance < 5 && !wasResizing) {
+    if (moveDistance < 5 && !wasResizing && !wasRotating) {
       // 没有移动，当作点击处理 - 选中元素
       // 检查是否按住了 Ctrl/Cmd 键进行多选
       const isMultiSelect = e.ctrlKey || e.metaKey;
@@ -184,8 +197,8 @@ function DynamicComponent({ component }) {
         setTimeout(() => generateTemplateCode(), 50);
       }
     } else {
-      // 移动或调整大小后，在模板编辑模式下生成配置代码
-      console.log(`🔄 [DynamicComponent ${id}] 移动/调整完成，生成代码...`);
+      // 移动、调整大小或旋转后，在模板编辑模式下生成配置代码
+      console.log(`🔄 [DynamicComponent ${id}] 移动/调整/旋转完成，生成代码...`);
       if (state.templateEditMode) {
         setTimeout(() => generateTemplateCode(), 50);
       }
@@ -193,6 +206,7 @@ function DynamicComponent({ component }) {
 
     setIsDragging(false);
     resizeStateRef.current.isResizing = false;
+    rotateStateRef.current.isRotating = false;
   };
   
   // 处理调整尺寸开始
@@ -235,6 +249,78 @@ function DynamicComponent({ component }) {
 
     document.addEventListener('mousemove', handleMove);
     document.addEventListener('mouseup', handleUp);
+  };
+
+  // 提取当前旋转角度（从 transform 中）
+  const getCurrentRotation = () => {
+    if (!transform) return 0;
+    const match = transform.match(/rotate\((-?\d+\.?\d*)deg\)/);
+    return match ? parseFloat(match[1]) : 0;
+  };
+
+  // 处理旋转开始
+  const handleRotateMouseDown = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    if (!elementRef.current) return;
+
+    const rect = elementRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    // 计算初始角度
+    const startAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * (180 / Math.PI);
+    const currentRot = getCurrentRotation();
+
+    rotateStateRef.current = {
+      isRotating: true,
+      startAngle: startAngle,
+      currentRotation: currentRot,
+      centerX: centerX,
+      centerY: centerY
+    };
+
+    setCurrentRotation(currentRot);
+
+    console.log(`🔄 [DynamicComponent ${id}] RotateStart:`, {
+      startAngle,
+      currentRotation: currentRot
+    });
+
+    // 立即绑定全局事件监听器
+    const handleMove = (e) => {
+      handleRotateMove(e);
+    };
+
+    const handleUp = (e) => {
+      rotateStateRef.current.isRotating = false;
+      handleMouseUp(e);
+      document.removeEventListener('mousemove', handleMove);
+      document.removeEventListener('mouseup', handleUp);
+    };
+
+    document.addEventListener('mousemove', handleMove);
+    document.addEventListener('mouseup', handleUp);
+  };
+
+  // 处理旋转过程
+  const handleRotateMove = (e) => {
+    const rs = rotateStateRef.current;
+    if (!rs.isRotating) return;
+
+    const currentAngle = Math.atan2(e.clientY - rs.centerY, e.clientX - rs.centerX) * (180 / Math.PI);
+    const deltaAngle = currentAngle - rs.startAngle;
+    const newRotation = rs.currentRotation + deltaAngle;
+
+    setCurrentRotation(Math.round(newRotation));
+
+    updateDynamicComponent(id, {
+      styles: {
+        ...styles,
+        transform: `rotate(${newRotation}deg)`
+      }
+    });
   };
 
   // 处理调整尺寸过程
@@ -316,20 +402,23 @@ function DynamicComponent({ component }) {
         handleDragMove(e);
       } else if (resizeStateRef.current.isResizing) {
         handleResizeMove(e);
+      } else if (rotateStateRef.current.isRotating) {
+        handleRotateMove(e);
       }
     };
 
     const handleUp = (e) => {
-      if (isDragging || resizeStateRef.current.isResizing) {
-        console.log(`🔚 [DynamicComponent ${id}] 拖拽/缩放结束`);
+      if (isDragging || resizeStateRef.current.isResizing || rotateStateRef.current.isRotating) {
+        console.log(`🔚 [DynamicComponent ${id}] 拖拽/缩放/旋转结束`);
         handleMouseUp(e);
       }
     };
 
-    if (isDragging || resizeStateRef.current.isResizing) {
+    if (isDragging || resizeStateRef.current.isResizing || rotateStateRef.current.isRotating) {
       console.log(`📌 [DynamicComponent ${id}] 绑定拖拽事件监听器`, {
         isDragging,
-        isResizing: resizeStateRef.current.isResizing
+        isResizing: resizeStateRef.current.isResizing,
+        isRotating: rotateStateRef.current.isRotating
       });
       document.addEventListener('mousemove', handleMove);
       document.addEventListener('mouseup', handleUp);
@@ -340,7 +429,7 @@ function DynamicComponent({ component }) {
         document.removeEventListener('mouseup', handleUp);
       };
     }
-  }, [isDragging]); // 只依赖 isDragging，resizing 用 ref 管理
+  }, [isDragging]); // 只依赖 isDragging，resizing 和 rotating 用 ref 管理
   
   // 处理双击 - 文本/组件类型进入编辑模式，图片类型打开图片侧边栏，其他类型打开样式面板
   const handleDoubleClick = (e) => {
@@ -392,7 +481,7 @@ function DynamicComponent({ component }) {
           onBlur={handleBlur}
           autoFocus
           className="w-full bg-transparent border-b-2 border-blue-500 outline-none"
-          style={mergedStyles}
+          style={contentStyles}
         />
       );
     }
@@ -401,7 +490,7 @@ function DynamicComponent({ component }) {
     switch (type) {
       case 'text':
         return (
-          <div style={mergedStyles}>
+          <div style={contentStyles}>
             {currentContent}
           </div>
         );
@@ -416,7 +505,7 @@ function DynamicComponent({ component }) {
         );
 
         return (
-          <div style={mergedStyles}>
+          <div style={contentStyles}>
             {isImageUrl ? (
               <img src={currentContent} alt="Icon" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
@@ -428,7 +517,7 @@ function DynamicComponent({ component }) {
       case 'image':
         // 图片类型：显示用户上传的截图
         // 提取需要应用到 img 的样式
-        const { objectFit, ...containerStyles } = mergedStyles;
+        const { objectFit, ...containerStyles } = contentStyles;
 
         return (
           <div style={containerStyles}>
@@ -437,7 +526,7 @@ function DynamicComponent({ component }) {
               alt="Screenshot"
               style={{
                 width: '100%',
-                height: mergedStyles.height || 'auto',
+                height: contentStyles.height || 'auto',
                 objectFit: objectFit || 'contain',
                 display: 'block'
               }}
@@ -447,7 +536,7 @@ function DynamicComponent({ component }) {
 
       case 'component':
         return (
-          <div style={mergedStyles}>
+          <div style={contentStyles}>
             {currentContent}
           </div>
         );
@@ -455,59 +544,59 @@ function DynamicComponent({ component }) {
       case 'list':
         // 列表项样式
         const listItemStyle = {
-          ...(mergedStyles?.listItemBackground && {
-            background: mergedStyles.listItemBackground,
-            padding: mergedStyles.listItemPadding,
-            borderRadius: mergedStyles.listItemBorderRadius,
-            border: mergedStyles.listItemBorder,
-            boxShadow: mergedStyles.listItemShadow
+          ...(contentStyles?.listItemBackground && {
+            background: contentStyles.listItemBackground,
+            padding: contentStyles.listItemPadding,
+            borderRadius: contentStyles.listItemBorderRadius,
+            border: contentStyles.listItemBorder,
+            boxShadow: contentStyles.listItemShadow
           }),
-          ...(mergedStyles?.listItemBefore && {
+          ...(contentStyles?.listItemBefore && {
             display: 'flex',
             alignItems: 'flex-start',
-            gap: mergedStyles.listItemBeforeMargin || '12px'
+            gap: contentStyles.listItemBeforeMargin || '12px'
           })
         };
 
         return (
           <ul
             style={{
-              listStyleType: mergedStyles?.listStyleType || 'disc',
-              paddingLeft: mergedStyles?.paddingLeft || '24px',
+              listStyleType: contentStyles?.listStyleType || 'disc',
+              paddingLeft: contentStyles?.paddingLeft || '24px',
               display: 'flex',
               flexDirection: 'column',
-              gap: mergedStyles?.gap || '8px',
-              fontSize: mergedStyles?.fontSize,
-              lineHeight: mergedStyles?.lineHeight,
-              fontWeight: mergedStyles?.fontWeight,
-              backgroundColor: mergedStyles?.backgroundColor
+              gap: contentStyles?.gap || '8px',
+              fontSize: contentStyles?.fontSize,
+              lineHeight: contentStyles?.lineHeight,
+              fontWeight: contentStyles?.fontWeight,
+              backgroundColor: contentStyles?.backgroundColor
             }}
 
           >
             {Array.isArray(content) ? content.map((item, index) => (
               <li key={index} style={listItemStyle}>
-                {mergedStyles?.listItemBefore && (
+                {contentStyles?.listItemBefore && (
                   <span style={{
-                    color: mergedStyles.listItemBeforeColor,
-                    fontSize: mergedStyles.listItemBeforeSize,
+                    color: contentStyles.listItemBeforeColor,
+                    fontSize: contentStyles.listItemBeforeSize,
                     flexShrink: 0,
                     fontWeight: 'bold'
                   }}>
-                    {mergedStyles.listItemBefore}
+                    {contentStyles.listItemBefore}
                   </span>
                 )}
                 <span style={{ flex: 1 }}>{item}</span>
               </li>
             )) : (
               <li style={listItemStyle}>
-                {mergedStyles?.listItemBefore && (
+                {contentStyles?.listItemBefore && (
                   <span style={{
-                    color: mergedStyles.listItemBeforeColor,
-                    fontSize: mergedStyles.listItemBeforeSize,
+                    color: contentStyles.listItemBeforeColor,
+                    fontSize: contentStyles.listItemBeforeSize,
                     flexShrink: 0,
                     fontWeight: 'bold'
                   }}>
-                    {mergedStyles.listItemBefore}
+                    {contentStyles.listItemBefore}
                   </span>
                 )}
                 <span style={{ flex: 1 }}>{content}</span>
@@ -538,7 +627,7 @@ function DynamicComponent({ component }) {
         return (
           <button
             style={{
-              ...mergedStyles,
+              ...contentStyles,
               cursor: 'pointer'
             }}
           >
@@ -548,7 +637,7 @@ function DynamicComponent({ component }) {
         );
 
       default:
-        return <div style={mergedStyles}>{content}</div>;
+        return <div style={contentStyles}>{content}</div>;
     }
   };
   
@@ -579,13 +668,14 @@ function DynamicComponent({ component }) {
   return (
     <div
       ref={elementRef}
-      className={`absolute select-none group inline-block ${isDragging ? 'z-50' : 'z-20'} ${
+      className={`absolute select-none group inline-block ${isDragging || rotateStateRef.current.isRotating ? 'z-50' : 'z-20'} ${
         isSelected ? 'ring-2 ring-blue-500 ring-offset-2' : ''
       }`}
       style={{
         left: position.x,
         top: position.y,
-        cursor: isDragging ? 'grabbing' : 'grab'
+        cursor: isDragging ? 'grabbing' : (rotateStateRef.current.isRotating ? 'grabbing' : 'grab'),
+        transform: transform // 应用 transform 到外层容器
       }}
       onMouseDown={handleMouseDown}
       onDoubleClick={handleDoubleClick}
@@ -616,6 +706,13 @@ function DynamicComponent({ component }) {
         </div>
       )}
 
+      {/* 旋转角度浮标 - 只在旋转时显示 */}
+      {rotateStateRef.current.isRotating && (
+        <div className="absolute -top-8 left-0 bg-purple-500 text-white text-xs px-2 py-1 rounded shadow-lg pointer-events-none whitespace-nowrap">
+          {currentRotation}°
+        </div>
+      )}
+
       {/* 内容区域 */}
       <div
         onClick={(e) => {
@@ -629,7 +726,7 @@ function DynamicComponent({ component }) {
       </div>
 
       {/* 选中状态的覆盖层 */}
-      {isSelected && !isDragging && (
+      {isSelected && !isDragging && !rotateStateRef.current.isRotating && (
         <div className="absolute inset-0 bg-blue-500/10 border-2 border-blue-500 rounded pointer-events-none" />
       )}
 
@@ -638,10 +735,15 @@ function DynamicComponent({ component }) {
         <div className="absolute inset-0 bg-blue-500/20 border-2 border-blue-500 border-dashed rounded pointer-events-none" />
       )}
 
+      {/* 旋转时的半透明覆盖层 */}
+      {rotateStateRef.current.isRotating && (
+        <div className="absolute inset-0 bg-purple-500/20 border-2 border-purple-500 border-dashed rounded pointer-events-none" />
+      )}
+
       {/* 模板编辑模式 - 8个调整尺寸手柄（Figma/Canva风格）*/}
       {state.templateEditMode && isSelected && !isEditing && (
         <>
-          {/* 四个角 */}
+          {/* 四个角的调整尺寸手柄 */}
           <div
             className="resize-handle absolute w-4 h-4 bg-white border-2 border-blue-500 rounded-sm cursor-nwse-resize hover:bg-blue-100 transition-colors z-50"
             style={{ top: '-8px', left: '-8px' }}
@@ -683,6 +785,32 @@ function DynamicComponent({ component }) {
             className="resize-handle absolute w-4 h-4 bg-white border-2 border-blue-500 rounded-sm cursor-ew-resize hover:bg-blue-100 transition-colors z-50"
             style={{ top: '50%', right: '-8px', transform: 'translateY(-50%)' }}
             onMouseDown={handleResizeMouseDown('e')}
+          />
+
+          {/* 四个角的旋转手柄（Figma 风格 - 在角外侧）*/}
+          <div
+            className="rotate-handle absolute w-3 h-3 bg-white border-2 border-purple-500 rounded-full cursor-grab hover:bg-purple-100 transition-colors z-50"
+            style={{ top: '-20px', left: '-20px' }}
+            onMouseDown={handleRotateMouseDown}
+            title="旋转"
+          />
+          <div
+            className="rotate-handle absolute w-3 h-3 bg-white border-2 border-purple-500 rounded-full cursor-grab hover:bg-purple-100 transition-colors z-50"
+            style={{ top: '-20px', right: '-20px' }}
+            onMouseDown={handleRotateMouseDown}
+            title="旋转"
+          />
+          <div
+            className="rotate-handle absolute w-3 h-3 bg-white border-2 border-purple-500 rounded-full cursor-grab hover:bg-purple-100 transition-colors z-50"
+            style={{ bottom: '-20px', left: '-20px' }}
+            onMouseDown={handleRotateMouseDown}
+            title="旋转"
+          />
+          <div
+            className="rotate-handle absolute w-3 h-3 bg-white border-2 border-purple-500 rounded-full cursor-grab hover:bg-purple-100 transition-colors z-50"
+            style={{ bottom: '-20px', right: '-20px' }}
+            onMouseDown={handleRotateMouseDown}
+            title="旋转"
           />
         </>
       )}

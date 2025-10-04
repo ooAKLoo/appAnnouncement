@@ -240,7 +240,8 @@ export const palifyTemplate = (appInfo, productHuntInfo) => {
         width: '400px',
         transform: 'rotate(42.35deg)',
         objectFit: 'contain',
-        pointerEvents: 'none'
+        pointerEvents: 'none',
+        overflow: 'hidden'
       }
     },
     // 装饰性背景图片 2 (左下角旋转)
@@ -253,7 +254,8 @@ export const palifyTemplate = (appInfo, productHuntInfo) => {
         width: '350px',
         transform: 'rotate(42.35deg)',
         objectFit: 'contain',
-        pointerEvents: 'none'
+        pointerEvents: 'none',
+        overflow: 'hidden'
       }
     },
     // 标题 - Welcome to Palify
