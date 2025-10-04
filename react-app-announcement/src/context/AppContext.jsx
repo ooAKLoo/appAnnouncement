@@ -92,9 +92,9 @@ const initialState = {
   projectToDelete: null,
   createProjectModalOpen: false,
   toolbarsVisible: true,
-  
+
   appMode: 'home',
-  
+
   selectedElement: null,
   selectedElements: [], // 多选支持
   elementStyles: {},
@@ -104,7 +104,8 @@ const initialState = {
   contextMenu: { visible: false, x: 0, y: 0 }, // ✅ 修复：使用对象而不是 null
   templateVersion: 0, // 用于强制重新渲染模板
   templateEditMode: false, // 模板编辑模式
-  templateConfigCode: '' // 生成的模板配置代码
+  templateConfigCode: '', // 生成的模板配置代码
+  assetsLibraryTab: 'stickers' // 资源库当前Tab：'components' 或 'stickers'
 };
 
 function appReducer(state, action) {
@@ -202,6 +203,11 @@ function appReducer(state, action) {
       return {
         ...state,
         currentPanel: action.payload
+      };
+    case 'SET_ASSETS_LIBRARY_TAB':
+      return {
+        ...state,
+        assetsLibraryTab: action.payload
       };
     case 'TOGGLE_CONFIG_PANEL':
       return {
@@ -690,6 +696,7 @@ ${componentsCode}
     hideImagePreview: () => dispatch({ type: 'HIDE_IMAGE_PREVIEW' }),
     setCurrentTab: (tab) => dispatch({ type: 'SET_CURRENT_TAB', payload: tab }),
     setCurrentPanel: (panel) => dispatch({ type: 'SET_CURRENT_PANEL', payload: panel }),
+    setAssetsLibraryTab: (tab) => dispatch({ type: 'SET_ASSETS_LIBRARY_TAB', payload: tab }),
     toggleConfigPanel: () => dispatch({ type: 'TOGGLE_CONFIG_PANEL' }),
     toggleDownloadMenu: () => dispatch({ type: 'TOGGLE_DOWNLOAD_MENU' }),
     toggleProjectMenu: () => dispatch({ type: 'TOGGLE_PROJECT_MENU' }),

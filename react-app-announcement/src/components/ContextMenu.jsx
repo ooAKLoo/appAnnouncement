@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { Type, List, Box, Plus } from 'lucide-react';
 
 function ContextMenu() {
-  const { state, hideContextMenu, addDynamicComponent, setCurrentPanel } = useApp();
+  const { state, hideContextMenu, addDynamicComponent, setCurrentPanel, setAssetsLibraryTab } = useApp();
   
   // ✅ 添加详细的调试输出
   useEffect(() => {
@@ -60,9 +60,10 @@ function ContextMenu() {
   const handleAddComponent = (option) => {
     console.log('➕ 添加组件:', option.type);
 
-    // 如果是组件库选项，打开组件库面板
+    // 如果是组件库选项，打开资源库面板并定位到组件Tab
     if (option.isLibrary) {
-      setCurrentPanel('componentLibrary');
+      setAssetsLibraryTab('components'); // 设置资源库Tab为组件
+      setCurrentPanel('assets'); // 打开资源库面板
       hideContextMenu();
       return;
     }

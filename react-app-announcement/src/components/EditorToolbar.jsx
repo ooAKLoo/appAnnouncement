@@ -10,7 +10,8 @@ function EditorToolbar() {
     setAppMode,
     toggleDownloadMenu,
     setModelType,
-    toggleTemplateEditMode
+    toggleTemplateEditMode,
+    setAssetsLibraryTab
   } = useApp();
   
   const { downloadAs } = useDownload();
@@ -21,6 +22,10 @@ function EditorToolbar() {
   };
 
   const handlePanelClick = (panel) => {
+    // 如果点击的是资源库，设置默认Tab为素材
+    if (panel === 'assets') {
+      setAssetsLibraryTab('stickers');
+    }
     setCurrentPanel(panel);
   };
 
@@ -89,15 +94,15 @@ function EditorToolbar() {
 
         <button
           className={`relative flex items-center gap-1.5 px-4 py-2.5 text-sm font-normal transition-all duration-300 ${
-            state.currentPanel === 'stickers'
+            state.currentPanel === 'assets'
               ? 'text-gray-700'
               : 'text-gray-400 hover:text-gray-600'
           }`}
-          onClick={() => handlePanelClick('stickers')}
+          onClick={() => handlePanelClick('assets')}
         >
           <Sticker size={15} />
-          <span>素材</span>
-          {state.currentPanel === 'stickers' && (
+          <span>资源</span>
+          {state.currentPanel === 'assets' && (
             <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-gray-600 rounded-full transition-all duration-300" />
           )}
         </button>

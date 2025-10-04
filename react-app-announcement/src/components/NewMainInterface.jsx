@@ -6,10 +6,9 @@ import {
   DesignPanel,
   TemplatesPanel,
   StylePanel,
-  ComponentLibraryPanel,
   ProjectsPanel,
   ImageSidebar,
-  StickersPanel
+  AssetsLibraryPanel
 } from './sidebars';
 import MainContent from './MainContent';
 import BackgroundDecorations from './BackgroundDecorations';
@@ -52,7 +51,12 @@ function NewMainInterface() {
       <ContentPanel isActive={state.toolbarsVisible && state.currentPanel === 'content'} />
       <DesignPanel isActive={state.toolbarsVisible && state.currentPanel === 'design'} />
       <TemplatesPanel isActive={state.toolbarsVisible && state.currentPanel === 'templates'} />
-      <StickersPanel isActive={state.toolbarsVisible && state.currentPanel === 'stickers'} />
+
+      {/* 新的统一资源库面板 */}
+      <AssetsLibraryPanel
+        isActive={state.toolbarsVisible && state.currentPanel === 'assets'}
+        initialTab={state.assetsLibraryTab || 'stickers'}
+      />
 
       {/* 样式编辑面板 - 当选中元素且面板为style时显示 */}
       <StylePanel isActive={state.toolbarsVisible && state.currentPanel === 'style' && state.selectedElement !== null} />
@@ -60,12 +64,6 @@ function NewMainInterface() {
       {/* 图片编辑面板 - 当选中图片元素且面板为image时显示 */}
       <ImageSidebar isActive={state.toolbarsVisible && state.currentPanel === 'image' && state.selectedElement !== null} />
 
-      {/* 组件库面板 */}
-      <ComponentLibraryPanel
-        isActive={state.currentPanel === 'componentLibrary'}
-        onClose={() => setCurrentPanel('content')}
-      />
-      
       {/* 项目面板 - 基于 currentTab 状态 */}
       <ProjectsPanel isActive={state.toolbarsVisible && state.currentTab === 'projects'} />
       
