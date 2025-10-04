@@ -230,7 +230,7 @@ export const palifyTemplate = (appInfo, productHuntInfo) => {
   const centerX = getCenterX();
 
   return [
-    // 装饰性背景图片 1 (右上角旋转) - border-radius: 358px
+    // 装饰性背景图片 1 (右上角旋转)
     {
       id: generateId(),
       type: 'image',
@@ -238,15 +238,12 @@ export const palifyTemplate = (appInfo, productHuntInfo) => {
       position: { x: 998, y: 299 },
       styles: {
         width: '400px',
-        height: '350px',
-        borderRadius: '358px',
         transform: 'rotate(42.35deg)',
-        opacity: '0.4',
-        objectFit: 'cover',
+        objectFit: 'contain',
         pointerEvents: 'none'
       }
     },
-    // 装饰性背景图片 2 (左下角旋转) - border-radius: 214px
+    // 装饰性背景图片 2 (左下角旋转)
     {
       id: generateId(),
       type: 'image',
@@ -254,11 +251,8 @@ export const palifyTemplate = (appInfo, productHuntInfo) => {
       position: { x: 595, y: 487 },
       styles: {
         width: '350px',
-        height: '200px',
-        borderRadius: '214px',
         transform: 'rotate(42.35deg)',
-        opacity: '0.3',
-        objectFit: 'cover',
+        objectFit: 'contain',
         pointerEvents: 'none'
       }
     },

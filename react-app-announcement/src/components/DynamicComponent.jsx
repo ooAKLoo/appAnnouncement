@@ -427,15 +427,18 @@ function DynamicComponent({ component }) {
 
       case 'image':
         // 图片类型：显示用户上传的截图
+        // 提取需要应用到 img 的样式
+        const { objectFit, ...containerStyles } = mergedStyles;
+
         return (
-          <div style={mergedStyles}>
+          <div style={containerStyles}>
             <img
               src={currentContent}
               alt="Screenshot"
               style={{
                 width: '100%',
-                height: 'auto',
-                objectFit: 'contain',
+                height: mergedStyles.height || 'auto',
+                objectFit: objectFit || 'contain',
                 display: 'block'
               }}
             />
