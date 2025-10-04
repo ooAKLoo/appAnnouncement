@@ -3,7 +3,6 @@ export { default as ContentPanel } from './ContentPanel';
 export { default as DesignPanel } from './DesignPanel';
 export { default as TemplatesPanel } from './TemplatesPanel';
 export { default as StylePanel } from './StylePanel';
-export { default as ComponentPropertiesPanel } from './ComponentPropertiesPanel';
 export { default as ProjectsPanel } from './ProjectsPanel';
 export { default as AssetsPanel } from './AssetsPanel';
 export { default as ImageSidebar } from './ImageSidebar';

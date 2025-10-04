@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import {
   Type,
@@ -10,9 +10,11 @@ import {
   ArrowLeft,
   List
 } from 'lucide-react';
+import { FONT_LIST, getAllCategories, getFontsByCategory, loadFont } from '../../data/fontData';
+import { COLOR_THEMES, SIZES, BORDER_STYLES, generateComponentStyles } from '../../data/componentLibrary';
 
 function StylePanel({ isActive }) {
-  const { state, updateElementStyle, deselectElement, setCurrentPanel } = useApp();
+  const { state, updateElementStyle, updateDynamicComponent, deselectElement, setCurrentPanel } = useApp();
   const selected = state.selectedElement;
 
   // 如果面板没激活或没有选中元素，不显示
@@ -41,6 +43,23 @@ function StylePanel({ isActive }) {
   };
 
   const dynamicType = getDynamicComponentType();
+
+  // 获取当前动态组件
+  const getDynamicComponent = () => {
+    if (selected.element && selected.element.startsWith('dynamicComponents.')) {
+      const componentId = extractComponentId(selected.element);
+      if (componentId) {
+        return state.dynamicComponents?.find(c => String(c.id) === String(componentId));
+      }
+    }
+    return null;
+  };
+
+  const dynamicComponent = getDynamicComponent();
+  const isComponentWithProps = dynamicComponent?.componentType && (
+    dynamicComponent.componentType === 'iconLabel' ||
+    dynamicComponent.componentType === 'label'
+  );
 
   // 🔍 检测是否是图片类型的元素
   const isImageElement = () => {
@@ -91,12 +110,15 @@ function StylePanel({ isActive }) {
   };
   
   const renderTextControls = () => {
-    // 字体预设
-    const fontPresets = [
-      { name: '现代简约', family: 'Inter, SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' },
-      { name: '优雅衬线', family: 'Playfair Display, Georgia, Times New Roman, serif' },
-      { name: '友好手写', family: 'Caveat, Nunito, Comic Sans MS, cursive, sans-serif' },
-    ];
+    const [selectedCategory, setSelectedCategory] = useState('chinese');
+    const categories = getAllCategories();
+    const categoryFonts = getFontsByCategory(selectedCategory);
+
+    // 应用字体
+    const applyFont = (font) => {
+      loadFont(font); // 加载字体
+      updateStyle('fontFamily', `'${font.name}', sans-serif`);
+    };
 
     return (
       <div className="space-y-4">
@@ -105,26 +127,48 @@ function StylePanel({ isActive }) {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             字体
           </label>
-          <div className="space-y-2">
-            {fontPresets.map((preset, index) => (
+
+          {/* 分类标签 */}
+          <div className="flex gap-2 mb-3">
+            {categories.map((category) => (
               <button
-                key={index}
-                className={`w-full p-3 text-left border rounded-lg transition-all hover:border-blue-300 ${
-                  currentStyles.fontFamily === preset.family
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200'
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                  selectedCategory === category.id
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
-                onClick={() => updateStyle('fontFamily', preset.family)}
               >
-                <div className="font-medium text-gray-900 text-sm">{preset.name}</div>
-                <div
-                  className="text-xs text-gray-500 mt-1"
-                  style={{ fontFamily: preset.family }}
-                >
-                  The quick brown fox jumps
-                </div>
+                {category.icon} {category.name}
               </button>
             ))}
+          </div>
+
+          {/* 字体列表 */}
+          <div className="max-h-[240px] overflow-y-auto space-y-2 pr-1">
+            {categoryFonts.map((font) => {
+              const isSelected = currentStyles.fontFamily?.includes(font.name);
+              return (
+                <button
+                  key={font.id}
+                  className={`w-full p-3 text-left border rounded-lg transition-all hover:border-blue-300 ${
+                    isSelected
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200'
+                  }`}
+                  onClick={() => applyFont(font)}
+                >
+                  <div className="font-medium text-gray-900 text-sm">{font.name}</div>
+                  <div
+                    className="text-xs text-gray-500 mt-1"
+                    style={{ fontFamily: `'${font.name}', sans-serif` }}
+                  >
+                    The quick brown fox jumps
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -511,6 +555,108 @@ function StylePanel({ isActive }) {
 
       {/* 内容区域 */}
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
+        {/* Label/iconLabel 组件：显示组件属性配置 */}
+        {isComponentWithProps && dynamicComponent && (
+          <div>
+            <h4 className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
+              <Palette size={14} />
+              组件配置
+            </h4>
+            <div className="space-y-4">
+              {/* 主题选择 */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-2">主题色</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {Object.entries(COLOR_THEMES).map(([key, theme]) => {
+                    const isSelected = dynamicComponent.props?.theme === key;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => {
+                          const newProps = { ...dynamicComponent.props, theme: key };
+                          const newStyles = generateComponentStyles(dynamicComponent.componentType, newProps);
+                          updateDynamicComponent(dynamicComponent.id, {
+                            props: newProps,
+                            styles: newStyles
+                          });
+                        }}
+                        className={`p-2 rounded-lg border-2 text-left transition-all ${
+                          isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-4 h-4 rounded"
+                            style={{ backgroundColor: theme.bg, border: `1px solid ${theme.border}` }}
+                          />
+                          <span className="text-xs font-medium">{theme.name}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 尺寸选择 */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-2">尺寸</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {Object.entries(SIZES).map(([key, size]) => {
+                    const isSelected = dynamicComponent.props?.size === key;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => {
+                          const newProps = { ...dynamicComponent.props, size: key };
+                          const newStyles = generateComponentStyles(dynamicComponent.componentType, newProps);
+                          updateDynamicComponent(dynamicComponent.id, {
+                            props: newProps,
+                            styles: newStyles
+                          });
+                        }}
+                        className={`p-2 rounded-lg border-2 text-center transition-all ${
+                          isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <span className="text-xs font-medium">{size.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 边框样式 */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-2">边框样式</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {Object.entries(BORDER_STYLES).map(([key, style]) => {
+                    const isSelected = dynamicComponent.props?.borderStyle === key;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => {
+                          const newProps = { ...dynamicComponent.props, borderStyle: key };
+                          const newStyles = generateComponentStyles(dynamicComponent.componentType, newProps);
+                          updateDynamicComponent(dynamicComponent.id, {
+                            props: newProps,
+                            styles: newStyles
+                          });
+                        }}
+                        className={`p-2 rounded-lg border-2 text-center transition-all ${
+                          isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                        style={{ borderRadius: style.borderRadius }}
+                      >
+                        <span className="text-xs font-medium">{style.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 列表类型：显示预设模板 + 文字和背景样式 */}
         {dynamicType === 'list' && (
           <>

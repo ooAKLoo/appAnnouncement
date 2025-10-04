@@ -60,7 +60,7 @@ function SvgWithColor({ src, color, styles }) {
 }
 
 function DynamicComponent({ component }) {
-  const { state, updateDynamicComponent, deleteDynamicComponent, selectElement, setCurrentPanel, clearSelection, updateAppInfo, updateProductHuntInfo, generateTemplateCode } = useApp();
+  const { state, updateDynamicComponent, deleteDynamicComponent, selectElement, setCurrentPanel, setAssetsLibraryTab, clearSelection, updateAppInfo, updateProductHuntInfo, generateTemplateCode } = useApp();
   const [isDragging, setIsDragging] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentSize, setCurrentSize] = useState({ width: 0, height: 0 });
@@ -618,6 +618,63 @@ function DynamicComponent({ component }) {
         );
 
       case 'component':
+        // 如果是 iconLabel 组件，渲染图标+文字
+        if (component.componentType === 'iconLabel') {
+          const iconSvg = component.props?.iconSvg || '/stickers/brands/apple.svg'; // 默认图标
+
+          // 图标大小跟随文字字体大小
+          const fontSize = contentStyles.fontSize || '16px';
+          const iconSize = parseInt(fontSize) * 1.2; // 图标稍大于文字
+
+          // 图标颜色跟随文字颜色
+          const textColor = contentStyles.color || '#000';
+          const isSvg = iconSvg.includes('.svg');
+
+          return (
+            <div style={contentStyles}>
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // 打开素材库选择图标
+                  setAssetsLibraryTab('stickers');
+                  setCurrentPanel('assets');
+                }}
+                style={{
+                  width: `${iconSize}px`,
+                  height: `${iconSize}px`,
+                  flexShrink: 0,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                {isSvg ? (
+                  <SvgWithColor
+                    src={iconSvg}
+                    color={textColor}
+                    styles={{
+                      width: '100%',
+                      height: '100%'
+                    }}
+                  />
+                ) : (
+                  <img
+                    src={iconSvg}
+                    alt="icon"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'contain'
+                    }}
+                  />
+                )}
+              </div>
+              <span>{currentContent}</span>
+            </div>
+          );
+        }
+
         return (
           <div style={contentStyles}>
             {currentContent}

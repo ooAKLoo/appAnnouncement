@@ -5,7 +5,7 @@ import { getAllCategories, getStickersInCategory } from '../../data/stickerData'
 import { getAllComponentTypes, generateComponent } from '../../data/componentLibrary';
 
 function AssetsLibraryPanel({ isActive, initialTab = 'stickers' }) {
-  const { addDynamicComponent, setCurrentPanel } = useApp();
+  const { state, addDynamicComponent, updateDynamicComponent, setCurrentPanel } = useApp();
   const [activeTab, setActiveTab] = useState(initialTab);
   const [selectedCategory, setSelectedCategory] = useState('arrows');
   const [stickers, setStickers] = useState([]);
@@ -50,9 +50,13 @@ function AssetsLibraryPanel({ isActive, initialTab = 'stickers' }) {
     const componentData = generateComponent(componentTypeId);
     if (!componentData) return;
 
+    // iconLabel 和 label 需要 component 类型，其他非 Magic UI 组件用 text 类型
+    const componentType = (componentTypeId === 'iconLabel' || componentTypeId === 'label') ? 'component' :
+                         (componentData.isMagicUI ? 'component' : 'text');
+
     const component = {
       id: generateId(),
-      type: componentData.isMagicUI ? 'component' : 'text', // Magic UI 用 component 类型
+      type: componentType,
       content: componentData.content,
       componentType: componentData.componentType, // 保存组件类型
       props: componentData.props, // 保存组件属性
@@ -68,9 +72,33 @@ function AssetsLibraryPanel({ isActive, initialTab = 'stickers' }) {
     console.log('✅ 添加组件:', componentTypeId, componentData.props, '是否Magic UI:', componentData.isMagicUI);
   };
 
-  // 添加素材
+  // 添加素材或更新 iconLabel
   const handleAddSticker = (sticker) => {
-    const component = {
+    // 检查当前是否选中了 iconLabel 组件
+    const selectedElement = state.selectedElement;
+    if (selectedElement?.element?.startsWith('dynamicComponents.')) {
+      const match = selectedElement.element.match(/^dynamicComponents\.(.+)\.content$/);
+      if (match) {
+        const componentId = match[1];
+        const component = state.dynamicComponents?.find(c => String(c.id) === String(componentId));
+
+        // 如果是 iconLabel 组件，更新图标
+        if (component?.componentType === 'iconLabel') {
+          updateDynamicComponent(componentId, {
+            props: {
+              ...component.props,
+              iconSvg: sticker.filePath
+            }
+          });
+          console.log('✅ 更新 iconLabel 图标:', sticker.name);
+          setCurrentPanel('style'); // 返回样式面板
+          return;
+        }
+      }
+    }
+
+    // 否则，作为新图片添加到画布
+    const newComponent = {
       id: generateId(),
       type: 'image',
       content: sticker.filePath,
@@ -86,7 +114,7 @@ function AssetsLibraryPanel({ isActive, initialTab = 'stickers' }) {
       }
     };
 
-    addDynamicComponent(component);
+    addDynamicComponent(newComponent);
     console.log('✅ 添加素材到画布:', sticker.name);
   };
 
@@ -168,7 +196,24 @@ function AssetsLibraryPanel({ isActive, initialTab = 'stickers' }) {
                 {/* 预览区域 - 作为主视觉 */}
                 <div className="flex items-center justify-center py-6 bg-gradient-to-br from-gray-50 to-white group-hover:from-blue-50 group-hover:to-white transition-all">
                   <div style={componentData.styles}>
-                    {componentData.content}
+                    {compType.id === 'iconLabel' && componentData.props?.iconSvg ? (
+                      <>
+                        <img
+                          src={componentData.props.iconSvg}
+                          alt="icon"
+                          style={{
+                            width: parseInt(componentData.styles.fontSize || '16px') * 1.2 + 'px',
+                            height: parseInt(componentData.styles.fontSize || '16px') * 1.2 + 'px',
+                            flexShrink: 0,
+                            filter: componentData.styles.color ?
+                              `invert(${componentData.styles.color === '#ffffff' ? '1' : '0'})` : 'none'
+                          }}
+                        />
+                        <span>{componentData.content}</span>
+                      </>
+                    ) : (
+                      componentData.content
+                    )}
                   </div>
                 </div>
 

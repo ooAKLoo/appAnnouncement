@@ -1,4 +1,4 @@
-import { Tag } from 'lucide-react';
+import { Tag, Play } from 'lucide-react';
 
 /**
  * APP宣发场景组件库 - 只提供结构差异的组件
@@ -54,6 +54,20 @@ export const COLOR_THEMES = {
     text: '#059669',
     bg: '#d1fae5',
     border: '#a7f3d0'
+  },
+  glassLight: {
+    name: '透明浅色',
+    text: '#ffffff',
+    bg: 'rgba(255,255,255,0.1)',
+    border: 'rgba(255,255,255,0.3)',
+    isTransparent: true
+  },
+  glassDark: {
+    name: '透明深色',
+    text: '#000000',
+    bg: 'rgba(0,0,0,0.1)',
+    border: 'rgba(0,0,0,0.3)',
+    isTransparent: true
   }
 };
 
@@ -116,6 +130,21 @@ export const COMPONENT_TYPES = {
       borderStyle: 'rounded',
       fontWeight: '600'
     }
+  },
+  // Icon Label - 带图标的标签组件（如 App Store、Google Play）
+  iconLabel: {
+    id: 'iconLabel',
+    name: 'Icon Label',
+    icon: Play,
+    description: '带图标的按钮标签，图标可从素材库选择',
+    defaultContent: 'App Store',
+    defaultProps: {
+      theme: 'primary',
+      size: 'md',
+      borderStyle: 'rounded',
+      fontWeight: '500',
+      iconSvg: '/stickers/brands/apple.svg'  // 默认使用 Apple 图标
+    }
   }
 };
 
@@ -134,7 +163,7 @@ export function generateComponentStyles(componentTypeId, props) {
   const size = SIZES[props.size] || SIZES.md;
   const borderStyle = BORDER_STYLES[props.borderStyle] || BORDER_STYLES.rounded;
 
-  return {
+  const baseStyles = {
     fontSize: size.fontSize,
     fontWeight: props.fontWeight || '600',
     color: theme.text,
@@ -144,6 +173,18 @@ export function generateComponentStyles(componentTypeId, props) {
     border: `1px solid ${theme.border}`,
     display: 'inline-block'
   };
+
+  // iconLabel 组件需要 flex 布局
+  if (componentTypeId === 'iconLabel') {
+    return {
+      ...baseStyles,
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '8px'
+    };
+  }
+
+  return baseStyles;
 }
 
 /**

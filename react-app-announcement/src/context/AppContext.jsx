@@ -373,14 +373,12 @@ function appReducer(state, action) {
             const componentId = match[1];
             const component = state.dynamicComponents?.find(c => String(c.id) === String(componentId));
 
-            // 如果是text类型的组件，打开组件内容编辑面板
-            if (component?.type === 'text') {
-              return 'component';
-            }
             // 如果是图片类型，打开图片编辑面板
             if (component?.type === 'image' || component?.type === 'icon') {
               return 'image';
             }
+            // 其他类型（包括text、list等）都打开样式面板
+            return 'style';
           }
         }
 
