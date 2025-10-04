@@ -541,8 +541,18 @@ function StylePanel({ isActive }) {
           {renderBackgroundControls()}
         </div>
 
-        {/* 重置按钮 */}
-        <div className="pt-4 border-t border-gray-100">
+        {/* 底部操作按钮 */}
+        <div className="pt-4 border-t border-gray-100 space-y-2">
+          {/* 如果是text类型的动态组件，显示切换到内容编辑的按钮 */}
+          {dynamicType === 'text' && (
+            <button
+              onClick={() => setCurrentPanel('component')}
+              className="w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm font-medium"
+            >
+              ← 编辑内容
+            </button>
+          )}
+
           <button
             onClick={() => updateElementStyle(selected.id, {})}
             className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm"

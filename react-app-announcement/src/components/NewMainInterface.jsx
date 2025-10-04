@@ -6,6 +6,7 @@ import {
   DesignPanel,
   TemplatesPanel,
   StylePanel,
+  ComponentPropertiesPanel,
   ProjectsPanel,
   ImageSidebar,
   AssetsLibraryPanel
@@ -57,6 +58,9 @@ function NewMainInterface() {
         isActive={state.toolbarsVisible && state.currentPanel === 'assets'}
         initialTab={state.assetsLibraryTab || 'stickers'}
       />
+
+      {/* 组件内容编辑面板 - 当选中组件且面板为component时显示 */}
+      <ComponentPropertiesPanel isActive={state.toolbarsVisible && state.currentPanel === 'component' && state.selectedElement !== null} />
 
       {/* 样式编辑面板 - 当选中元素且面板为style时显示 */}
       <StylePanel isActive={state.toolbarsVisible && state.currentPanel === 'style' && state.selectedElement !== null} />

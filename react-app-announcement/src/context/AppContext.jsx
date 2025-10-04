@@ -363,6 +363,32 @@ function appReducer(state, action) {
         appMode: action.payload
       };
     case 'SELECT_ELEMENT':
+      // 智能判断应该打开哪个面板
+      const determinePanel = () => {
+        // 检查是否是动态组件
+        if (action.payload.element && action.payload.element.startsWith('dynamicComponents.')) {
+          const match = action.payload.element.match(/^dynamicComponents\.(.+)\.content$/);
+          if (match) {
+            const componentId = match[1];
+            const component = state.dynamicComponents?.find(c => String(c.id) === String(componentId));
+
+            // 如果是text类型的组件，打开组件内容编辑面板
+            if (component?.type === 'text') {
+              return 'component';
+            }
+            // 如果是图片类型，打开图片编辑面板
+            if (component?.type === 'image' || component?.type === 'icon') {
+              return 'image';
+            }
+          }
+        }
+
+        // 其他情况打开样式面板
+        return 'style';
+      };
+
+      const targetPanel = determinePanel();
+
       // 如果是多选模式（payload.isMultiSelect），添加到选中列表
       if (action.payload.isMultiSelect) {
         const elementId = action.payload.id;
@@ -372,7 +398,8 @@ function appReducer(state, action) {
           elementId,
           isAlreadySelected,
           currentSelectedCount: state.selectedElements.length,
-          action: isAlreadySelected ? '取消选中' : '添加选中'
+          action: isAlreadySelected ? '取消选中' : '添加选中',
+          targetPanel
         });
 
         return {
@@ -381,21 +408,22 @@ function appReducer(state, action) {
             ? state.selectedElements.filter(el => el.id !== elementId) // 取消选中
             : [...state.selectedElements, action.payload], // 添加到选中
           selectedElement: action.payload,
-          currentPanel: 'style'
+          currentPanel: targetPanel
         };
       } else {
         // 单选模式，清空其他选中
         console.log('🔄 [SELECT_ELEMENT] 单选模式:', {
           elementId: action.payload.id,
           elementPath: action.payload.element,
-          previousSelectedCount: state.selectedElements.length
+          previousSelectedCount: state.selectedElements.length,
+          targetPanel
         });
 
         return {
           ...state,
           selectedElement: action.payload,
           selectedElements: [action.payload],
-          currentPanel: 'style'
+          currentPanel: targetPanel
         };
       }
     case 'DESELECT_ELEMENT':
