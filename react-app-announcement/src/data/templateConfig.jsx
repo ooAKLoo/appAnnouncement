@@ -1,13 +1,4 @@
 import React from 'react';
-// 导入统一的模板组件
-import {
-  ClassicTemplate,
-  CenterTemplate,
-  ProductHuntCenterTemplate,
-  ProductHuntTopTemplate,
-  VoiceAITemplate,
-  PalifyTemplate
-} from '../components/templates/Templates';
 
 // 模板预览组件
 const TemplatePreview = {
@@ -99,7 +90,6 @@ export const TEMPLATES = {
     name: '水平布局',
     description: '内容与模型水平排列，适合展示详细信息',
     preview: TemplatePreview.classic,
-    component: ClassicTemplate,
     deviceTypes: ['mobile', 'desktop'],
     layoutConfig: {
       features: 'space-y-8 mb-12',
@@ -127,7 +117,6 @@ export const TEMPLATES = {
     name: '垂直布局',
     description: '内容垂直堆叠，层次分明',
     preview: TemplatePreview.center,
-    component: CenterTemplate,
     deviceTypes: ['mobile', 'desktop'],
     layoutConfig: {
       features: 'grid grid-cols-1 md:grid-cols-2 gap-8 mb-12',
@@ -155,7 +144,6 @@ export const TEMPLATES = {
     name: 'PH 居中',
     description: '深色主题，图标居中，下载按钮',
     preview: TemplatePreview.productHuntCenter,
-    component: ProductHuntCenterTemplate,
     deviceTypes: ['product-hunt'],
     layoutConfig: {},
     supportsFeatures: false,
@@ -167,7 +155,6 @@ export const TEMPLATES = {
     name: 'PH 简约',
     description: '浅色主题，图标在上，标语展示',
     preview: TemplatePreview.productHuntTop,
-    component: ProductHuntTopTemplate,
     deviceTypes: ['product-hunt'],
     layoutConfig: {},
     supportsFeatures: false,
@@ -179,7 +166,6 @@ export const TEMPLATES = {
     name: 'Voice AI',
     description: '音频播放器界面，适合音频应用',
     preview: TemplatePreview.voiceAI,
-    component: VoiceAITemplate,
     deviceTypes: ['product-hunt'],
     layoutConfig: {},
     supportsFeatures: false,
@@ -191,19 +177,12 @@ export const TEMPLATES = {
     name: 'Palify',
     description: '设备对比，黑白主题展示',
     preview: TemplatePreview.palify,
-    component: PalifyTemplate,
     deviceTypes: ['product-hunt'],
     layoutConfig: {},
     supportsFeatures: false,
     supportsEvent: false,
     supportsDownloads: false
   }
-};
-
-// 获取模板组件
-export const getTemplateComponent = (templateId) => {
-  const template = TEMPLATES[templateId] || TEMPLATES.classic;
-  return template.component;
 };
 
 // 获取模板配置

@@ -44,13 +44,29 @@ function EditManager({ children }) {
       const editableElement = e.target.closest('[data-editable="true"]');
 
       if (editableElement) {
-        // 点击了可编辑元素，选中它并切换到样式面板
+        // 点击了可编辑元素，选中它并切换到对应面板
         const id = editableElement.getAttribute('data-editable-id');
         const path = editableElement.getAttribute('data-editable-path');
 
         console.log('📝 选中元素:', { id, path });
         selectElement('element', id, path);
-        setCurrentPanel('style'); // 自动切换到样式面板
+
+        // 🖼️ 智能判断面板类型：图片元素打开图片面板，其他元素打开样式面板
+        const isImageElement = path && (
+          path.includes('icon') ||
+          path.includes('image') ||
+          path === 'appInfo.icon' ||
+          path === 'productHuntInfo.icon'
+        );
+
+        if (isImageElement) {
+          console.log('🖼️ 检测到图片元素，打开图片面板');
+          setCurrentPanel('image');
+        } else {
+          console.log('📝 检测到非图片元素，打开样式面板');
+          setCurrentPanel('style');
+        }
+
         e.stopPropagation();
       }
       // 🔥 移除这里的取消选中逻辑，让 MainContent 的 handleBackgroundClick 统一处理

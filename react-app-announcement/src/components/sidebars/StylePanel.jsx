@@ -20,17 +20,56 @@ function StylePanel({ isActive }) {
 
   const currentStyles = state.elementStyles[selected.id] || {};
 
+  // 提取动态组件 ID（支持 ID 中包含小数点）
+  const extractComponentId = (element) => {
+    if (!element) return null;
+    // 使用正则匹配 dynamicComponents.{id}.content 格式
+    const match = element.match(/^dynamicComponents\.(.+)\.content$/);
+    return match ? match[1] : null;
+  };
+
   // 检测是否是动态组件，如果是，获取其类型
   const getDynamicComponentType = () => {
     if (selected.element && selected.element.startsWith('dynamicComponents.')) {
-      const componentId = selected.element.split('.')[1];
-      const component = state.dynamicComponents?.find(c => c.id === componentId);
-      return component?.type;
+      const componentId = extractComponentId(selected.element);
+      if (componentId) {
+        const component = state.dynamicComponents?.find(c => String(c.id) === String(componentId));
+        return component?.type;
+      }
     }
     return null;
   };
 
   const dynamicType = getDynamicComponentType();
+
+  // 🔍 检测是否是图片类型的元素
+  const isImageElement = () => {
+    // 1. 检查动态组件类型
+    if (dynamicType === 'image' || dynamicType === 'icon') {
+      return true;
+    }
+    // 2. 检查 Editable 元素路径
+    const imagePaths = ['appInfo.icon', 'productHuntInfo.icon'];
+    const isImagePath = selected.element && (
+      imagePaths.includes(selected.element) ||
+      selected.element.includes('icon') ||
+      selected.element.includes('image')
+    );
+    return isImagePath;
+  };
+
+  // 🔄 如果是图片元素，自动切换到图片侧边栏
+  React.useEffect(() => {
+    if (isImageElement() && isActive) {
+      console.log('🖼️ 检测到图片元素，自动切换到图片侧边栏');
+      setCurrentPanel('image');
+    }
+  }, [selected, isActive]);
+
+  // 如果是图片元素，不显示样式面板（会自动切换到图片侧边栏）
+  if (isImageElement()) {
+    return null;
+  }
   
   // 辅助函数：解析数值
   const parseValue = (value, defaultValue) => {

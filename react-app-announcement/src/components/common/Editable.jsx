@@ -323,7 +323,7 @@ function Editable({ path, x = 100, y = 100, children, className = '' }) {
     });
 
     if (moveDistance < 5 && !isResizing) {
-      // 没有移动，当作点击处理 - 只选中，不打开样式面板
+      // 没有移动，当作点击处理 - 选中元素
       const isMultiSelect = e.ctrlKey || e.metaKey;
 
       console.log(`✅ [${path}] 单击选中:`, {
@@ -335,6 +335,14 @@ function Editable({ path, x = 100, y = 100, children, className = '' }) {
       });
 
       selectElement('element', id, path, isMultiSelect);
+
+      // 🖼️ 如果是图片/图标元素，自动打开图片侧边栏
+      const imagePaths = ['appInfo.icon', 'productHuntInfo.icon'];
+      const isImagePath = imagePaths.includes(path) || path.includes('icon') || path.includes('image');
+      if (isImagePath) {
+        console.log(`🖼️ [${path}] 单击图片元素，打开图片侧边栏`);
+        setCurrentPanel('image');
+      }
 
       // 模板编辑模式下，点击也生成代码
       if (state.templateEditMode) {
@@ -360,9 +368,16 @@ function Editable({ path, x = 100, y = 100, children, className = '' }) {
     const textPaths = ['appInfo.name', 'appInfo.title', 'appInfo.subtitle', 'productHuntInfo.badge',
                        'productHuntInfo.name', 'productHuntInfo.tagline', 'productHuntInfo.description'];
 
+    // 检查是否是图片/图标类型的元素
+    const imagePaths = ['appInfo.icon', 'productHuntInfo.icon'];
+    const isImagePath = imagePaths.includes(path) || path.includes('icon') || path.includes('image');
+
     if (textPaths.includes(path)) {
       console.log(`✅ [${path}] 双击进入编辑模式`);
       setIsEditing(true);
+    } else if (isImagePath) {
+      console.log(`🖼️ [${path}] 双击打开图片侧边栏`);
+      setCurrentPanel('image');
     } else {
       console.log(`✅ [${path}] 双击打开样式面板`);
       setCurrentPanel('style');

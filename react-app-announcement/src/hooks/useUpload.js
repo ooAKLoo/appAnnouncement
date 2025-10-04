@@ -45,14 +45,21 @@ export function useUpload() {
 
     try {
       const compressedFile = await compressImage(file, 200, 0.9);
-      const imageUrl = URL.createObjectURL(compressedFile);
 
-      // 统一更新到 appInfo，所有模板都从这里读取
-      updateAppInfo({ iconImage: imageUrl });
+      // 🔧 使用 FileReader 转换为 data URL，与 ImageSidebar 保持一致
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const imageUrl = e.target.result;
+        console.log('🖼️ Icon 上传完成，更新 iconImage:', imageUrl.substring(0, 50) + '...');
 
-      console.log('Icon uploaded successfully');
+        // 统一更新到 appInfo，所有模板都从这里读取
+        updateAppInfo({ iconImage: imageUrl });
+
+        console.log('✅ Icon uploaded successfully');
+      };
+      reader.readAsDataURL(compressedFile);
     } catch (error) {
-      console.error('Error uploading icon:', error);
+      console.error('❌ Error uploading icon:', error);
       alert('图标上传失败，请重试');
     }
   };
@@ -60,16 +67,23 @@ export function useUpload() {
   const handleScreenUpload = async (event) => {
     const file = event.target.files[0];
     if (!validateImage(file)) return;
-    
+
     try {
       const compressedFile = await compressImage(file, 1200, 0.9);
-      const imageUrl = URL.createObjectURL(compressedFile);
-      
-      setScreenImage(imageUrl);
-      
-      console.log('Screen image uploaded successfully');
+
+      // 🔧 使用 FileReader 转换为 data URL，与 ImageSidebar 保持一致
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const imageUrl = e.target.result;
+        console.log('🖼️ Screen 上传完成:', imageUrl.substring(0, 50) + '...');
+
+        setScreenImage(imageUrl);
+
+        console.log('✅ Screen image uploaded successfully');
+      };
+      reader.readAsDataURL(compressedFile);
     } catch (error) {
-      console.error('Error uploading screen image:', error);
+      console.error('❌ Error uploading screen image:', error);
       alert('截图上传失败，请重试');
     }
   };

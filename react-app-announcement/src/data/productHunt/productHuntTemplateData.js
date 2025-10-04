@@ -212,19 +212,11 @@ export const voiceAITemplate = (appInfo, productHuntInfo, downloads, state) => {
     {
       id: generateId(),
       type: 'image',
-      content: state?.screenImage || '/placeholder-screenshot.png',
+      content: state?.screenImage || '/postory-voice-ai-default.png',
       dataPath: 'screenImage',
       position: { x: 578, y: 453 },
       styles: {
         width: '513px',
-        height: '358px',
-        padding: '24px',
-        backgroundColor: 'rgba(0,0,0,0.4)',
-        border: '1px solid rgba(255,255,255,0.2)',
-        borderRadius: '16px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
         overflow: 'hidden'
       }
     }

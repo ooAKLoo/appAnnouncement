@@ -167,11 +167,17 @@ function DynamicComponent({ component }) {
     );
 
     if (moveDistance < 5 && !wasResizing) {
-      // 没有移动，当作点击处理 - 只选中，不打开样式面板
+      // 没有移动，当作点击处理 - 选中元素
       // 检查是否按住了 Ctrl/Cmd 键进行多选
       const isMultiSelect = e.ctrlKey || e.metaKey;
       console.log('📝 单击选中动态组件:', id, '多选模式:', isMultiSelect);
       selectElement('element', `dynamicComponents-${id}-content`, `dynamicComponents.${id}.content`, isMultiSelect);
+
+      // 🖼️ 如果是图片类型，自动打开图片侧边栏
+      if (type === 'image' || type === 'icon') {
+        console.log('🖼️ 单击图片元素，打开图片侧边栏');
+        setCurrentPanel('image');
+      }
 
       // 模板编辑模式下，点击也生成代码
       if (state.templateEditMode) {
@@ -336,13 +342,16 @@ function DynamicComponent({ component }) {
     }
   }, [isDragging]); // 只依赖 isDragging，resizing 用 ref 管理
   
-  // 处理双击 - 文本/组件类型进入编辑模式，其他类型打开样式面板
+  // 处理双击 - 文本/组件类型进入编辑模式，图片类型打开图片侧边栏，其他类型打开样式面板
   const handleDoubleClick = (e) => {
     e.stopPropagation();
 
     if (type === 'text' || type === 'component') {
       console.log('📝 双击进入编辑模式:', id);
       setIsEditing(true);
+    } else if (type === 'image' || type === 'icon') {
+      console.log('🖼️ 双击打开图片侧边栏:', id);
+      setCurrentPanel('image');
     } else {
       console.log('📝 双击打开样式面板:', id);
       setCurrentPanel('style');
@@ -398,11 +407,12 @@ function DynamicComponent({ component }) {
         );
 
       case 'icon':
-        // 图标类型：可以是图片URL、blob URL或者emoji/文字
+        // 图标类型：可以是图片URL、blob URL、data URL或者emoji/文字
         const isImageUrl = currentContent && (
           currentContent.startsWith('http') ||
           currentContent.startsWith('/') ||
-          currentContent.startsWith('blob:')
+          currentContent.startsWith('blob:') ||
+          currentContent.startsWith('data:image/')
         );
 
         return (

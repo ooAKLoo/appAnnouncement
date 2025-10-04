@@ -6,3 +6,4 @@ export { default as StylePanel } from './StylePanel';
 export { default as ComponentLibraryPanel } from './ComponentLibraryPanel';
 export { default as ProjectsPanel } from './ProjectsPanel';
 export { default as AssetsPanel } from './AssetsPanel';
+export { default as ImageSidebar } from './ImageSidebar';

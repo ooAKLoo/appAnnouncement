@@ -163,3 +163,131 @@
   - ✅ 控制按钮和导出框不受影响
 
   这是真实的 CSS 裁剪，超出导出框的内容会被直接切掉！
+
+
+
+  🔧 修复的核心问题
+
+  1. EditManager.jsx - 硬编码的面板切换
+
+  问题： 所有元素点击时都强制打开样式面板 (setCurrentPanel('style'))
+
+  解决： 添加智能判断逻辑
+  // 判断是否是图片元素
+  const isImageElement = path && (
+    path.includes('icon') || path.includes('image') || ...
+  );
+
+  // 根据元素类型打开对应面板
+  if (isImageElement) {
+    setCurrentPanel('image');
+  } else {
+    setCurrentPanel('style');
+  }
+
+  2. ImageSidebar.jsx & StylePanel.jsx - componentId 提取错误
+
+  问题： 使用 split('.') 无法处理包含小数点的 ID（如 1759499775012.178）
+
+  解决： 使用正则表达式精确匹配
+  const extractComponentId = (element) => {
+    const match = element.match(/^dynamicComponents\.(.+)\.content$/);
+    return match ? match[1] : null;
+  };
+
+  📋 完整的点击流程
+
+  点击图片元素时：
+
+  1. EditManager 检测到点击 → 识别为图片路径 → setCurrentPanel('image')
+  2. ImageSidebar 激活 → 验证元素类型 → 显示图片编辑面板
+  3. StylePanel 检测到图片元素 → 自动切换到 image 面板 → 不显示自己
+
+  点击非图片元素时：
+
+  1. EditManager 检测到点击 → 识别为非图片路径 → setCurrentPanel('style')
+  2. StylePanel 激活 → 显示样式编辑面板
+  3. ImageSidebar 检测到非图片元素 → 不显示
+
+  现在点击图片元素应该能正确显示图片侧边栏了！
+
+
+
+
+完美！我找到问题了！从代码分析可以看出：
+
+  📊 完整链路分析
+
+  1️⃣ 模板配置（所有模板）
+
+  {
+    type: 'icon',
+    content: appInfo.iconImage || appInfo.icon,
+    dataPath: 'appInfo.iconImage',  // ← 关键！
+    ...
+  }
+
+  2️⃣ ContentPanel 上传流程 ✅
+
+  useUpload.js → handleIconUpload()
+  → updateAppInfo({ iconImage: imageUrl })
+  → state.appInfo.iconImage 更新
+  → DynamicComponent 从 state.appInfo.iconImage 读取
+  → ✅ 图片正常显示
+
+  3️⃣ ImageSidebar 上传流程 ❌
+
+  ImageSidebar → handleImageUpload()
+  → updateDynamicComponent(id, { content: imageUrl })
+  → 只更新 component.content
+  → 没有更新 state.appInfo.iconImage ← 问题所在！
+  → DynamicComponent 从 state.appInfo.iconImage 读取（旧值）
+  → ❌ 图片没有更新
+
+  🐛 核心问题
+
+  我的判断条件写错了：
+  if (pathParts[0] === 'appInfo' && pathParts[1] === 'icon')  // ❌ 
+  永远不匹配
+
+  从日志看，dataPath 是 "appInfo.iconImage"，所以 pathParts[1] 是
+  "iconImage" 而不是 "icon"！
+
+
+
+完美！已经修复！核心问题是判断条件错误。
+
+  ✅ 问题根源
+
+  dataPath 的实际值： "appInfo.iconImage" （不是 "appInfo.icon"）
+
+  错误的判断：
+  if (pathParts[1] === 'icon')  // ❌ 永远不匹配，因为是 'iconImage'
+
+  正确的判断：
+  if (pathParts[1] === 'iconImage')  // ✅ 正确匹配
+
+  🎯 修复后的完整流程
+
+  handleImageUpload() {
+    // 1. 读取文件为 data URL
+    const imageUrl = reader.readAsDataURL(file);
+
+    // 2. 更新动态组件的 content（立即显示）
+    updateDynamicComponent(component.id, { content: imageUrl });
+
+    // 3. 检查 dataPath
+    if (component.dataPath === 'appInfo.iconImage') {
+      // 同时更新 state（持久化）
+      updateAppInfo({ iconImage: imageUrl });  // ← 关键！
+    }
+  }
+
+  现在请测试：
+  1. 点击内容区的 APP 图标
+  2. ImageSidebar 打开
+  3. 上传新图片
+  4. 应该看到控制台输出：
+    - 🔍 检查 dataPath: appInfo.iconImage 分割结果: ["appInfo", "iconImage"]
+    - ✅ 动态组件关联到 appInfo.iconImage，同时更新 state
+  5. 图片应该立即更新并持久化！
