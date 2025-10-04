@@ -559,8 +559,19 @@ export function AppProvider({ children }) {
       const mergedStyles = { ...comp.styles, ...runtimeStyles };
 
       const styleLines = Object.entries(mergedStyles)
-        .filter(([key, value]) => value) // 过滤掉空值
-        .map(([key, value]) => `      ${key}: '${value}'`);
+        .filter(([key, value]) => value !== undefined && value !== null && value !== '') // 过滤掉空值
+        .map(([key, value]) => {
+          // 根据值的类型决定是否添加引号
+          if (typeof value === 'number') {
+            return `      ${key}: ${value}`;
+          } else if (typeof value === 'string') {
+            return `      ${key}: '${value}'`;
+          } else if (typeof value === 'boolean') {
+            return `      ${key}: ${value}`;
+          } else {
+            return `      ${key}: '${value}'`;
+          }
+        });
 
       // 构建每个组件的配置
       const parts = [
@@ -602,31 +613,41 @@ const modelState = {
   }`}
 };`;
 
-    // 生成导出框配置代码（如果存在）
-    const exportFrameConfig = state.design.exportWidth && state.design.exportHeight ? `
+    // 生成背景配置代码
+    const backgroundConfig = `// 背景配置
+const background = {
+  colorMode: '${state.design.colorMode}',        // 'solid' | 'gradient' | 'image'
+  bgColor: '${state.design.bgColor}',            // 主背景色
+  ${state.design.colorMode === 'gradient' ? `gradientColor: '${state.design.gradientColor}',  // 渐变辅色
+  gradientAngle: '${state.design.gradientAngle}',       // 渐变角度` : ''}
+};`;
+
+    // 生成导出框配置代码（总是显示，方便查看当前设置）
+    const hasExportFrame = state.design.exportWidth && state.design.exportHeight;
+    const exportFrameConfig = `
 // 导出框/裁剪框配置
 // 用于定义导出时的裁剪区域，超出此框的内容将被裁剪
 const exportFrame = {
-  enabled: true,
-  width: ${state.design.exportWidth},      // 导出框宽度（像素）
-  height: ${state.design.exportHeight},     // 导出框高度（像素）
-  x: ${state.design.exportX !== null ? state.design.exportX : 'null'},           // X 位置（null 表示居中）
-  y: ${state.design.exportY !== null ? state.design.exportY : 'null'},           // Y 位置（null 表示居中）
-  scale: ${state.design.exportScale || 1}          // 用户自定义缩放比例（基于自动计算的缩放之上）
-};
+  enabled: ${hasExportFrame ? 'true' : 'false'},${hasExportFrame ? `
+  width: ${state.design.exportWidth},              // 导出框宽度（像素）
+  height: ${state.design.exportHeight},             // 导出框高度（像素）
+  position: {
+    x: ${state.design.exportX !== null ? state.design.exportX : 'null'},         // X 位置（null 表示自动居中）
+    y: ${state.design.exportY !== null ? state.design.exportY : 'null'}          // Y 位置（null 表示自动居中）
+  },
+  scale: ${state.design.exportScale || 1}              // 用户自定义缩放比例` : '  // 提示：在"设计"面板中设置"尺寸预设"以启用导出框'}
+};${hasExportFrame ? `
 
 // 💡 使用说明：
-// 1. 将 exportFrame.width 和 height 设置到 design.exportWidth/exportHeight
-// 2. 将 exportFrame.x 和 y 设置到 design.exportX/exportY（null 表示自动居中）
-// 3. 将 exportFrame.scale 设置到 design.exportScale
-// 4. 系统会自动应用 clipPath 裁剪，超出框的内容不可见` : `
-// 导出框/裁剪框配置
-const exportFrame = {
-  enabled: false  // 未启用导出框
-};`;
+// 1. 设置 design.exportWidth/exportHeight 为导出框尺寸
+// 2. 设置 design.exportX/exportY 为导出框位置（null 表示自动居中）
+// 3. 设置 design.exportScale 为缩放比例（默认 1）
+// 4. 系统会自动应用裁剪，超出框的内容不可见` : ''}`;
 
     const code = `// 模板配置代码
 // 提示：复制此配置到模板文件中使用
+
+${backgroundConfig}
 
 ${modelConfig}
 ${exportFrameConfig}

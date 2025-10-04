@@ -169,12 +169,14 @@ export const voiceAITemplate = (appInfo, productHuntInfo, downloads, state) => {
   const centerX = getCenterX();
 
   return [
+    // 主标题 - 产品名称
     {
       id: generateId(),
       type: 'text',
-      content: 'Your Voice,',
-      dataPath: 'productHuntInfo.title',
-      position: { x: 569, y: 291 },
+      // content: appInfo.name || 'Design-Free,',
+      content: 'Design-Free,',
+      // dataPath: 'appInfo.name',
+      position: { x: 601, y: 291 },
       styles: {
         fontSize: '36px',
         fontWeight: '700',
@@ -182,10 +184,13 @@ export const voiceAITemplate = (appInfo, productHuntInfo, downloads, state) => {
         width: '500px'
       }
     },
+    // 副标题 - 产品标语
     {
       id: generateId(),
       type: 'text',
-      content: 'Supercharged by AI',
+      // content: appInfo.title || 'Promotion Made Simple',
+      content: 'Promotion Made Simple',
+      // dataPath: 'appInfo.title',
       position: { x: 651, y: 326 },
       styles: {
         fontSize: '38px',
@@ -196,12 +201,14 @@ export const voiceAITemplate = (appInfo, productHuntInfo, downloads, state) => {
         borderRadius: '4px'
       }
     },
+    // 描述 - 产品介绍
     {
       id: generateId(),
       type: 'text',
-      content: 'Instant audio transformation powered by AI',
-      dataPath: 'productHuntInfo.subtitle',
-      position: { x: 626, y: 405 },
+      content: 'Create stunning release graphics in 5 minutes flat',
+      // content: appInfo.subtitle || appInfo.description || 'Instant, professional launch visuals—no design skills needed',
+      // dataPath: 'appInfo.subtitle',
+      position: { x: 668, y: 404 },
       styles: {
         fontSize: '15px',
         opacity: '0.7',
@@ -258,12 +265,11 @@ export const palifyTemplate = (appInfo, productHuntInfo) => {
         overflow: 'hidden'
       }
     },
-    // 标题 - Welcome to Palify
+    // 标题 - App 名称
     {
       id: generateId(),
       type: 'text',
-      content: 'Welcome to Palify',
-      dataPath: 'productHuntInfo.welcome',
+      content: 'Welcome to ' + (appInfo.name || 'App Name'),
       position: { x: 486, y: 158 },
       styles: {
         fontFamily: 'Inter, sans-serif',
@@ -274,12 +280,12 @@ export const palifyTemplate = (appInfo, productHuntInfo) => {
         color: '#000000'
       }
     },
-    // 副标题 - Your All-in-One Professional Networking & Growth Platform
+    // 副标题 - App 标语
     {
       id: generateId(),
       type: 'text',
-      content: 'Your All-in-One Professional Networking & Growth Platform',
-      dataPath: 'productHuntInfo.tagline',
+      // content: appInfo.title || productHuntInfo.tagline || 'Your product tagline here',
+      content: 'Your product tagline here',
       position: { x: 478, y: 235 },
       styles: {
         fontFamily: 'Inter, sans-serif',
