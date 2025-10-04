@@ -291,3 +291,9 @@
     - 🔍 检查 dataPath: appInfo.iconImage 分割结果: ["appInfo", "iconImage"]
     - ✅ 动态组件关联到 appInfo.iconImage，同时更新 state
   5. 图片应该立即更新并持久化！
+
+
+
+模板配置代码
+react-app-announcement/src/context/AppContext.jsx
+react-app-announcement/src/data/productHunt/productHuntTemplateData.js
