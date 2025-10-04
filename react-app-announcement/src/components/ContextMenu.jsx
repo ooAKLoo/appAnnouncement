@@ -82,7 +82,8 @@ function ContextMenu() {
       styles: {
         fontSize: '16px',
         fontWeight: '400',
-        color: '#333333',
+        // 不设置 fontFamily 和 color，让全局 typography 应用
+        // fontFamily 和 color 会在 DynamicComponent 中从 baseStyles 应用
         backgroundColor: 'transparent',
         padding: '8px',
         borderRadius: '4px'

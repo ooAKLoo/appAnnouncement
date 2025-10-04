@@ -64,8 +64,15 @@ function DynamicComponent({ component }) {
   const elementId = `dynamicComponents-${id}-content`;
   const elementStyles = state.elementStyles?.[elementId] || {};
 
-  // 合并样式：elementStyles 优先
-  const mergedStyles = { ...styles, ...elementStyles };
+  // 合并样式：先应用全局 typography，再应用组件样式，最后应用元素样式（优先级递增）
+  // 对 text、button、component 类型应用全局字体
+  const shouldApplyTypography = type === 'text' || type === 'button' || type === 'component';
+  const baseStyles = shouldApplyTypography ? {
+    fontFamily: state.typography?.fontFamily,
+    color: state.typography?.textColor
+  } : {};
+
+  const mergedStyles = { ...baseStyles, ...styles, ...elementStyles };
 
   // 提取 transform 到最外层，让选中框也能跟随旋转
   const { transform, ...contentStyles } = mergedStyles;
