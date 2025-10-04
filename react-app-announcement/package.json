@@ -17,11 +17,15 @@
     "@react-three/fiber": "^9.3.0",
     "@tauri-apps/api": "^1.6.0",
     "@tauri-apps/plugin-store": "^2.4.0",
+    "cobe": "^0.6.5",
+    "framer-motion": "^12.23.22",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.3",
     "lucide-react": "^0.544.0",
+    "motion": "^12.23.22",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "svg-dotted-map": "^2.0.1",
     "three": "^0.180.0"
   },
   "devDependencies": {

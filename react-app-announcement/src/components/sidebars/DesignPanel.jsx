@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Palette, Droplets, Type, X, Maximize2 } from 'lucide-react';
+import { Palette, Droplets, Type, X, Maximize2, Sparkles, Grid3x3, Globe, Map, Lightbulb, CircleDot } from 'lucide-react';
 import { generateSecondaryColor, colorSchemeTypes } from '../../data/styleConfig';
 
 function DesignPanel({ isActive }) {
@@ -117,6 +117,38 @@ function DesignPanel({ isActive }) {
                 >
                   纯色
                 </button>
+              </div>
+            </div>
+
+            {/* Background Effects */}
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-3 block">背景效果</label>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { id: 'none', name: '无', icon: X },
+                  { id: 'particles', name: '粒子', icon: Sparkles },
+                  { id: 'dotPattern', name: '点阵', icon: CircleDot },
+                  { id: 'grid', name: '网格', icon: Grid3x3 },
+                  { id: 'globe', name: '地球', icon: Globe },
+                  { id: 'dottedMap', name: '地图', icon: Map },
+                  { id: 'spotlight', name: '聚光灯', icon: Lightbulb },
+                ].map((effect) => {
+                  const Icon = effect.icon;
+                  return (
+                    <button
+                      key={effect.id}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                        state.design.backgroundEffect === effect.id
+                          ? 'bg-blue-500 text-white shadow-sm'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                      onClick={() => updateDesign({ backgroundEffect: effect.id })}
+                    >
+                      <Icon size={16} />
+                      {effect.name}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 

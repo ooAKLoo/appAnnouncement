@@ -35,7 +35,8 @@ const initialState = {
     exportHeight: null,
     exportX: null,      // 导出框 X 位置（null 表示居中）
     exportY: null,      // 导出框 Y 位置（null 表示居中）
-    exportScale: 1      // 导出框缩放比例
+    exportScale: 1,     // 导出框缩放比例
+    backgroundEffect: 'none' // 背景效果：'none', 'particles', 'dotPattern', 'grid', 'globe', 'dottedMap', 'spotlight'
   },
   typography: {
     fontFamily: 'Inter, SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',

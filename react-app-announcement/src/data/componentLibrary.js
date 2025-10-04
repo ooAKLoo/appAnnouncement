@@ -1,4 +1,4 @@
-import { Tag, Download, Star, TrendingUp, Quote } from 'lucide-react';
+import { Tag } from 'lucide-react';
 
 /**
  * APP宣发场景组件库 - 只提供结构差异的组件
@@ -154,6 +154,23 @@ export function generateComponent(componentTypeId) {
   if (!type) return null;
 
   const props = { ...type.defaultProps };
+
+  // Magic UI 组件使用特殊样式
+  if (type.isMagicUI) {
+    return {
+      content: type.defaultContent,
+      styles: {
+        width: '300px',
+        height: '200px',
+        display: 'block'
+      },
+      componentType: componentTypeId,
+      props: props,
+      isMagicUI: true
+    };
+  }
+
+  // 普通组件使用样式系统
   const styles = generateComponentStyles(componentTypeId, props);
 
   return {

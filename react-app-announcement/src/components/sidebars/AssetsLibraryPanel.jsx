@@ -51,10 +51,11 @@ function AssetsLibraryPanel({ isActive, initialTab = 'stickers' }) {
 
     const component = {
       id: generateId(),
-      type: 'text', // 使用text类型，这样可以被双击编辑内容
+      type: componentData.isMagicUI ? 'component' : 'text', // Magic UI 用 component 类型
       content: componentData.content,
       componentType: componentData.componentType, // 保存组件类型
       props: componentData.props, // 保存组件属性
+      isMagicUI: componentData.isMagicUI, // 传递 Magic UI 标志
       position: {
         x: window.innerWidth / 2 - 100,
         y: window.innerHeight / 2 - 50
@@ -63,7 +64,7 @@ function AssetsLibraryPanel({ isActive, initialTab = 'stickers' }) {
     };
 
     addDynamicComponent(component);
-    console.log('✅ 添加组件:', componentTypeId, componentData.props);
+    console.log('✅ 添加组件:', componentTypeId, componentData.props, '是否Magic UI:', componentData.isMagicUI);
   };
 
   // 添加素材

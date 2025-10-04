@@ -97,7 +97,7 @@ function DynamicComponent({ component }) {
     initialPositions: {}
   });
 
-  const { id, type, content, position, styles, dataPath } = component;
+  const { id, type, content, position, styles, dataPath, componentType, props, isMagicUI } = component;
 
   // 🔧 根据 dataPath 实时获取当前内容
   const getCurrentContent = () => {

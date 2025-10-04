@@ -21,6 +21,8 @@ export default {
         'fadeInUp': 'fadeInUp 1s ease-out',
         'float': 'float 6s ease-in-out infinite',
         'float-delay': 'floatDelay 6s ease-in-out infinite',
+        'orbit': 'orbit calc(var(--duration)*1s) linear infinite',
+        'spotlight': 'spotlight 2s ease 0.75s 1 forwards',
       },
       keyframes: {
         fadeInLeft: {
@@ -42,6 +44,24 @@ export default {
         floatDelay: {
           '0%, 100%': { transform: 'translateY(0px)' },
           '50%': { transform: 'translateY(-30px)' }
+        },
+        orbit: {
+          '0%': {
+            transform: 'rotate(0deg) translateY(calc(var(--radius) * 1px)) rotate(0deg)',
+          },
+          '100%': {
+            transform: 'rotate(360deg) translateY(calc(var(--radius) * 1px)) rotate(-360deg)',
+          },
+        },
+        spotlight: {
+          '0%': {
+            opacity: '0',
+            transform: 'translate(-72%, -62%) scale(0.5)',
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translate(-50%, -40%) scale(1)',
+          },
         }
       },
       backdropBlur: {

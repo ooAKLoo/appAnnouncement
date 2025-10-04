@@ -18,6 +18,12 @@ import ConfirmDialog from './ConfirmDialog';
 import CreateProjectModal from './CreateProjectModal';
 import HomePage from './HomePage';
 import TemplateCodePanel from './TemplateCodePanel';
+import { Particles } from '../lib/magicui/particles';
+import { DotPattern } from '../lib/magicui/dot-pattern';
+import { GridBackground } from '../lib/magicui/grid-background';
+import { Globe } from '../lib/magicui/globe';
+import { DottedMap } from '../lib/magicui/dotted-map';
+import { Spotlight } from '../lib/magicui/spotlight';
 
 function NewMainInterface() {
   console.log('🖥️ NewMainInterface 渲染中...');
@@ -45,6 +51,67 @@ function NewMainInterface() {
 
   return (
     <div className="relative min-h-screen overflow-hidden" style={backgroundStyle}>
+      {/* 背景效果层 */}
+      {state.design.backgroundEffect === 'particles' && (
+        <Particles
+          className="absolute inset-0 z-0"
+          quantity={100}
+          ease={80}
+          color={state.typography.textColor || '#000000'}
+          refresh
+        />
+      )}
+      {state.design.backgroundEffect === 'dotPattern' && (
+        <DotPattern
+          className="absolute inset-0 z-0 [mask-image:radial-gradient(500px_circle_at_center,white,transparent)]"
+        />
+      )}
+      {state.design.backgroundEffect === 'grid' && (
+        <div className="absolute inset-0 z-0">
+          <GridBackground
+          gridSize={20}
+            gridColor={state.typography.textColor || '#e4e4e7'}
+          />
+        </div>
+      )}
+      {state.design.backgroundEffect === 'globe' && (
+        <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none overflow-hidden">
+          <div className="relative w-[600px] h-[600px] flex items-center justify-center">
+            <Globe className="absolute top-0" />
+            <div className="pointer-events-none absolute inset-0 h-full " />
+            {/* <div className="pointer-events-none absolute inset-0 h-full bg-[radial-gradient(circle_at_50%_200%,rgba(0,0,0,0.1),rgba(255,255,255,0))]" /> */}
+          </div>
+        </div>
+      )}
+      {state.design.backgroundEffect === 'dottedMap' && (
+        <div className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden opacity-30">
+          <DottedMap
+            width={200}
+            height={100}
+            mapSamples={6000}
+            dotRadius={0.3}
+            dotColor={state.typography.textColor || '#000000'}
+            markerColor="#3b82f6"
+            markers={[
+              { lat: 40.7128, lng: -74.006, size: 0.8 },  // 纽约
+              { lat: 51.5074, lng: -0.1278, size: 0.8 },  // 伦敦
+              { lat: 39.9042, lng: 116.4074, size: 0.8 }, // 北京
+              { lat: 35.6762, lng: 139.6503, size: 0.8 }, // 东京
+              { lat: 37.5665, lng: 126.9780, size: 0.8 }, // 首尔
+            ]}
+            className="w-full h-auto"
+          />
+        </div>
+      )}
+      {state.design.backgroundEffect === 'spotlight' && (
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <Spotlight
+            className="-top-40 left-0 md:-top-20 md:left-60"
+            fill="white"
+          />
+        </div>
+      )}
+
       {/* 编辑模式下显示 EditorToolbar */}
       <EditorToolbar />
       
