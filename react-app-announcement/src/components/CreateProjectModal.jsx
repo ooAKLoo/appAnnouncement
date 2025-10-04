@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useApp } from '../context/AppContext';
+import { useApp, initialState } from '../context/AppContext';
 import { projectStorage } from '../utils/storage';
 import Modal from './common/Modal';
 
@@ -10,32 +10,34 @@ function CreateProjectModal() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!projectName.trim()) {
       return;
     }
 
     setIsCreating(true);
-    
+
     try {
-      // 创建新项目对象
+      // 🔥 使用初始状态创建新项目，而不是当前状态
       const newProject = {
         id: Date.now().toString(),
         name: projectName.trim(),
         createdAt: new Date().toISOString(),
-        // 完整的初始状态
-        appInfo: { ...state.appInfo },
-        design: { ...state.design },
-        typography: { ...state.typography },
-        downloads: { ...state.downloads },
-        features: [...state.features],
-        eventInfo: { ...state.eventInfo },
-        contentSections: { ...state.contentSections },
-        featureStyle: state.featureStyle,
-        currentStyle: state.currentStyle,
-        modelType: state.modelType,
-        modelState: { ...state.modelState }, // ✅ 保存模型状态
-        screenImage: state.screenImage, // ✅ 保留当前图片
+        // 使用初始化状态（全新的项目）
+        appInfo: { ...initialState.appInfo },
+        design: { ...initialState.design },
+        typography: { ...initialState.typography },
+        downloads: { ...initialState.downloads },
+        features: [...initialState.features],
+        eventInfo: { ...initialState.eventInfo },
+        contentSections: { ...initialState.contentSections },
+        featureStyle: initialState.featureStyle,
+        currentStyle: initialState.currentStyle,
+        modelType: initialState.modelType,
+        modelState: { ...initialState.modelState },
+        screenImage: null,  // 新项目没有截图
+        dynamicComponents: [],  // 新项目没有动态组件
+        elementStyles: {},  // 新项目没有元素样式
         thumbnail: null
       };
 
@@ -53,11 +55,27 @@ function CreateProjectModal() {
       
       // ✅ 5. 更新 React state
       dispatch({ type: 'ADD_PROJECT', payload: newProject });
-      
-      // ✅ 6. 设置当前项目 ID (触发自动保存机制)
+
+      // ✅ 6. 恢复新项目的初始状态到编辑器
+      dispatch({ type: 'UPDATE_APP_INFO', payload: newProject.appInfo });
+      dispatch({ type: 'UPDATE_DESIGN', payload: newProject.design });
+      dispatch({ type: 'UPDATE_TYPOGRAPHY', payload: newProject.typography });
+      dispatch({ type: 'UPDATE_DOWNLOADS', payload: newProject.downloads });
+      dispatch({ type: 'UPDATE_FEATURES', payload: newProject.features });
+      dispatch({ type: 'UPDATE_EVENT_INFO', payload: newProject.eventInfo });
+      dispatch({ type: 'SET_CONTENT_SECTIONS', payload: newProject.contentSections });
+      dispatch({ type: 'SET_FEATURE_STYLE', payload: newProject.featureStyle });
+      dispatch({ type: 'UPDATE_STYLE', payload: newProject.currentStyle });
+      dispatch({ type: 'SET_MODEL_TYPE', payload: newProject.modelType });
+      dispatch({ type: 'UPDATE_MODEL_STATE', payload: newProject.modelState });
+      dispatch({ type: 'SET_SCREEN_IMAGE', payload: newProject.screenImage });
+      dispatch({ type: 'SET_DYNAMIC_COMPONENTS', payload: newProject.dynamicComponents || [] });
+      dispatch({ type: 'SET_ELEMENT_STYLES', payload: newProject.elementStyles || {} });
+
+      // ✅ 7. 设置当前项目 ID (触发自动保存机制)
       setCurrentProjectId(newProject.id);
-      
-      // ✅ 7. 切换到编辑模式
+
+      // ✅ 8. 切换到编辑模式
       setAppMode('editor');
       
       // 重置表单并关闭弹窗

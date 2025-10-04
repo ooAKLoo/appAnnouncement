@@ -90,38 +90,59 @@ export function useProjects() {
 
   const loadProject = async (project) => {
     try {
-      // 恢复完整状态
-      dispatch({ type: 'UPDATE_APP_INFO', payload: project.appInfo });
-      dispatch({ type: 'UPDATE_DESIGN', payload: project.design });
-      dispatch({ type: 'UPDATE_TYPOGRAPHY', payload: project.typography });
-      dispatch({ type: 'UPDATE_DOWNLOADS', payload: project.downloads });
-      dispatch({ type: 'UPDATE_FEATURES', payload: project.features });
-      dispatch({ type: 'UPDATE_EVENT_INFO', payload: project.eventInfo });
-      dispatch({ type: 'SET_CONTENT_SECTIONS', payload: project.contentSections });
-      dispatch({ type: 'SET_FEATURE_STYLE', payload: project.featureStyle });
-      dispatch({ type: 'UPDATE_STYLE', payload: project.currentStyle });
-      dispatch({ type: 'SET_MODEL_TYPE', payload: project.modelType });
-      
-      // ✅ 恢复模型状态
-      if (project.modelState) {
-        dispatch({ type: 'UPDATE_MODEL_STATE', payload: project.modelState });
+      // 🔥 关键修复：从文件重新加载最新数据，而不是用传入的旧对象
+      const projects = await projectStorage.loadProjects();
+      const latestProject = projects.find(p => p.id === project.id);
+
+      if (!latestProject) {
+        alert('项目不存在');
+        return;
       }
-      
-      dispatch({ type: 'SET_SCREEN_IMAGE', payload: project.screenImage });
-      
+
+      console.log('📂 从文件加载项目:', latestProject.name);
+
+      // 恢复完整状态
+      dispatch({ type: 'UPDATE_APP_INFO', payload: latestProject.appInfo });
+      dispatch({ type: 'UPDATE_DESIGN', payload: latestProject.design });
+      dispatch({ type: 'UPDATE_TYPOGRAPHY', payload: latestProject.typography });
+      dispatch({ type: 'UPDATE_DOWNLOADS', payload: latestProject.downloads });
+      dispatch({ type: 'UPDATE_FEATURES', payload: latestProject.features });
+      dispatch({ type: 'UPDATE_EVENT_INFO', payload: latestProject.eventInfo });
+      dispatch({ type: 'SET_CONTENT_SECTIONS', payload: latestProject.contentSections });
+      dispatch({ type: 'SET_FEATURE_STYLE', payload: latestProject.featureStyle });
+      dispatch({ type: 'UPDATE_STYLE', payload: latestProject.currentStyle });
+      dispatch({ type: 'SET_MODEL_TYPE', payload: latestProject.modelType });
+
+      // ✅ 恢复模型状态
+      if (latestProject.modelState) {
+        dispatch({ type: 'UPDATE_MODEL_STATE', payload: latestProject.modelState });
+      }
+
+      // ✅ 恢复动态组件
+      if (latestProject.dynamicComponents) {
+        dispatch({ type: 'SET_DYNAMIC_COMPONENTS', payload: latestProject.dynamicComponents });
+      }
+
+      // ✅ 恢复元素样式
+      if (latestProject.elementStyles) {
+        dispatch({ type: 'SET_ELEMENT_STYLES', payload: latestProject.elementStyles });
+      }
+
+      dispatch({ type: 'SET_SCREEN_IMAGE', payload: latestProject.screenImage });
+
       // 设置当前项目 ID（触发自动保存）
-      setCurrentProjectId(project.id);
-      
+      setCurrentProjectId(latestProject.id);
+
       // 保存为当前项目
-      await projectStorage.saveCurrentProject(project.id, project);
-      
+      await projectStorage.saveCurrentProject(latestProject.id, latestProject);
+
       // 切换到编辑模式
       setAppMode('editor');
       setCurrentTab('app');
-      
-      console.log('Project loaded successfully:', project.name);
+
+      console.log('✅ 项目加载成功:', latestProject.name);
     } catch (error) {
-      console.error('Error loading project:', error);
+      console.error('❌ 加载项目失败:', error);
       alert('加载作品失败，请重试');
     }
   };

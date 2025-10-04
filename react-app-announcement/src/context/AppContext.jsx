@@ -490,12 +490,22 @@ function appReducer(state, action) {
         dynamicComponents: [...state.dynamicComponents, action.payload],
         contextMenu: { visible: false, x: 0, y: 0 }
       };
+    case 'SET_DYNAMIC_COMPONENTS':
+      return {
+        ...state,
+        dynamicComponents: action.payload || []
+      };
     case 'UPDATE_DYNAMIC_COMPONENT':
       return {
         ...state,
         dynamicComponents: state.dynamicComponents.map(comp =>
           comp.id === action.payload.id ? { ...comp, ...action.payload.updates } : comp
         )
+      };
+    case 'SET_ELEMENT_STYLES':
+      return {
+        ...state,
+        elementStyles: action.payload || {}
       };
     case 'DELETE_DYNAMIC_COMPONENT':
       return {
@@ -543,27 +553,55 @@ export function AppProvider({ children }) {
     loadData();
   }, []);
 
-  useEffect(() => {
+  // 自动保存函数（提取出来以便复用）
+  const performSave = useCallback(async () => {
     if (!currentProjectId) return;
 
-    clearTimeout(autoSaveTimerRef.current);
-    autoSaveTimerRef.current = setTimeout(async () => {
-      try {
-        const projectData = await projectStorage.saveCurrentProject(
-          currentProjectId, 
-          state
-        );
-        
-        await projectStorage.updateProject(currentProjectId, projectData);
-        
-        console.log('自动保存成功');
-      } catch (error) {
-        console.error('自动保存失败:', error);
+    try {
+      console.log('💾 开始保存...');
+
+      // 保存当前项目状态
+      const projectData = await projectStorage.saveCurrentProject(
+        currentProjectId,
+        state
+      );
+
+      // 获取完整的项目信息（包含 name、createdAt、thumbnail 等）
+      const projects = await projectStorage.loadProjects();
+      const currentProject = projects.find(p => p.id === currentProjectId);
+
+      if (currentProject) {
+        // 合并完整的项目数据
+        const fullProjectData = {
+          ...currentProject,  // 保留原有的 name、createdAt、thumbnail 等
+          ...projectData,     // 覆盖更新的状态数据
+          updatedAt: new Date().toISOString()
+        };
+
+        await projectStorage.updateProject(currentProjectId, fullProjectData);
+        console.log('✅ 保存成功');
       }
-    }, 2000);
+    } catch (error) {
+      console.error('❌ 保存失败:', error);
+    }
+  }, [currentProjectId, state]);
+
+  // 快速防抖自动保存（500ms）
+  useEffect(() => {
+    if (!currentProjectId) {
+      console.log('⏸️ 跳过自动保存：无项目ID');
+      return;
+    }
+
+    console.log('⏰ 触发自动保存倒计时 (500ms)');
+    clearTimeout(autoSaveTimerRef.current);
+    autoSaveTimerRef.current = setTimeout(() => {
+      performSave();
+    }, 500);
 
     return () => clearTimeout(autoSaveTimerRef.current);
   }, [
+    performSave,
     currentProjectId,
     state.appInfo,
     state.productHuntInfo,
@@ -579,6 +617,7 @@ export function AppProvider({ children }) {
     state.modelType,
     state.modelState,
     state.screenImage,
+    state.dynamicComponents,
     state.elementStyles
   ]);
 
@@ -711,6 +750,7 @@ ${componentsCode}
     dispatch,
     currentProjectId,
     setCurrentProjectId,
+    performSave, // 暴露保存函数，供其他组件调用
     generateTemplateCode,
     updateAppInfo: (info) => dispatch({ type: 'UPDATE_APP_INFO', payload: info }),
     updateProductHuntInfo: (info) => dispatch({ type: 'UPDATE_PRODUCT_HUNT_INFO', payload: info }),
@@ -807,3 +847,6 @@ export function useApp() {
   }
   return context;
 }
+
+// 导出初始状态，供创建新项目时使用
+export { initialState };

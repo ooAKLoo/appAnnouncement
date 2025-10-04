@@ -16,7 +16,6 @@
     "@react-three/drei": "^10.7.6",
     "@react-three/fiber": "^9.3.0",
     "@tauri-apps/api": "^1.6.0",
-    "@tauri-apps/plugin-store": "^2.4.0",
     "cobe": "^0.6.5",
     "framer-motion": "^12.23.22",
     "html2canvas": "^1.4.1",

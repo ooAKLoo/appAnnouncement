@@ -1,12 +1,28 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Plus, FileText, Play, Trash2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useProjects } from '../hooks/useProjects';
+import { projectStorage } from '../utils/storage';
 import CreateProjectModal from './CreateProjectModal';
 
 function HomePage() {
-  const { state, openCreateProjectModal } = useApp();
+  const { state, openCreateProjectModal, setProjects } = useApp();
   const { loadProject, deleteProjectById } = useProjects();
+
+  // 🔥 每次进入首页时重新加载项目列表，确保显示最新数据
+  useEffect(() => {
+    const reloadProjects = async () => {
+      try {
+        const projects = await projectStorage.loadProjects();
+        setProjects(projects);
+        console.log('🔄 首页刷新项目列表:', projects.length);
+      } catch (error) {
+        console.error('❌ 刷新项目列表失败:', error);
+      }
+    };
+
+    reloadProjects();
+  }, [setProjects]);
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('zh-CN', {

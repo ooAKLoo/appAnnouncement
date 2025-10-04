@@ -718,15 +718,16 @@ function PhoneModel() {
     }
   }, [state.templateVersion, state.modelType]);
 
-  // 同步 3D 模型状态到全局 context
+  // 同步 3D 模型状态到全局 context（总是保存，不限于模板编辑模式）
   useEffect(() => {
+    updateModelState({
+      rotation: modelRotation,
+      position: { x: modelPosition[0], y: modelPosition[1], z: modelPosition[2] },
+      cameraDistance: cameraDistance
+    });
+
+    // 只在模板编辑模式下生成代码
     if (state.templateEditMode) {
-      updateModelState({
-        rotation: modelRotation,
-        position: { x: modelPosition[0], y: modelPosition[1], z: modelPosition[2] },
-        cameraDistance: cameraDistance
-      });
-      // 延迟生成代码，确保 state 已更新
       setTimeout(() => generateTemplateCode(), 50);
     }
   }, [modelRotation, modelPosition, cameraDistance, state.templateEditMode, updateModelState, generateTemplateCode]);

@@ -268,15 +268,16 @@ function PhoneModel2D() {
     }
   }, [state.templateVersion, state.modelType]);
 
-  // 同步 2D 模型状态到全局 context
+  // 同步 2D 模型状态到全局 context（总是保存，不限于模板编辑模式）
   useEffect(() => {
+    updateModelState({
+      scale: transform.scale,
+      rotation: { x: 0, y: 0, z: transform.rotation },
+      position: { x: transform.x, y: transform.y, z: 0 }
+    });
+
+    // 只在模板编辑模式下生成代码
     if (state.templateEditMode) {
-      updateModelState({
-        scale: transform.scale,
-        rotation: { x: 0, y: 0, z: transform.rotation },
-        position: { x: transform.x, y: transform.y, z: 0 }
-      });
-      // 延迟生成代码，确保 state 已更新
       setTimeout(() => generateTemplateCode(), 50);
     }
   }, [transform, state.templateEditMode, updateModelState, generateTemplateCode]);

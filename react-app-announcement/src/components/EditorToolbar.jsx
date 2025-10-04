@@ -11,12 +11,17 @@ function EditorToolbar() {
     toggleDownloadMenu,
     setModelType,
     toggleTemplateEditMode,
-    setAssetsLibraryTab
+    setAssetsLibraryTab,
+    performSave
   } = useApp();
-  
+
   const { downloadAs } = useDownload();
 
-  const handleBackToHome = () => {
+  const handleBackToHome = async () => {
+    // 🔥 离开前强制保存一次（确保数据不丢失）
+    await performSave();
+    console.log('🏠 返回首页前已保存');
+
     setAppMode('home');
     setCurrentPanel('content'); // 重置面板状态
   };
