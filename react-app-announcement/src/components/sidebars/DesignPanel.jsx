@@ -43,42 +43,48 @@ function DesignPanel({ isActive }) {
   return (
     <div className="fixed left-4 top-20 bottom-4 w-80 bg-white rounded-xl shadow-xl border border-gray-200/50 flex flex-col overflow-hidden z-50">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-        <div className="flex items-center gap-2">
-          <Palette size={16} className="text-blue-600" />
-          <h2 className="text-sm font-semibold text-gray-900">设计</h2>
+      <div className="sticky top-0 bg-white px-6 pt-6 pb-4 border-b border-gray-100">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
+              <Palette size={20} className="text-blue-600" />
+            </div>
+            <div>
+              <h2 className="text-base font-semibold text-gray-900">设计样式</h2>
+              <p className="text-xs text-gray-500">自定义外观和布局</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setCurrentPanel(null)}
+            className="p-1 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <X size={20} className="text-gray-500" />
+          </button>
         </div>
-        <button
-          onClick={() => setCurrentPanel(null)}
-          className="p-1 rounded hover:bg-gray-100 transition-colors"
-        >
-          <X size={16} className="text-gray-500" />
-        </button>
       </div>
 
-      {/* Tabs - Figma Style */}
-      <div className="flex border-b border-gray-100 bg-gray-50/50">
-        {[
-          { id: 'background', label: '背景', icon: Droplets },
-          { id: 'typography', label: '字体', icon: Type },
-          { id: 'size', label: '尺寸', icon: Maximize2 }
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium transition-colors relative ${
-              activeTab === tab.id
-                ? 'text-blue-600 bg-white'
-                : 'text-gray-500 hover:text-gray-900'
-            }`}
-          >
-            <tab.icon size={13} />
-            {tab.label}
-            {activeTab === tab.id && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600" />
-            )}
-          </button>
-        ))}
+      {/* Tabs */}
+      <div className="bg-gray-50/50 overflow-x-auto scrollbar-hide px-6 py-3">
+        <div className="flex gap-1.5">
+          {[
+            { id: 'background', label: '背景', icon: Droplets },
+            { id: 'typography', label: '字体', icon: Type },
+            { id: 'size', label: '尺寸', icon: Maximize2 }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                activeTab === tab.id
+                  ? 'bg-blue-500 text-white shadow-sm'
+                  : 'bg-white text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              <tab.icon size={14} />
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Content */}
@@ -86,93 +92,110 @@ function DesignPanel({ isActive }) {
 
         {/* Background Tab */}
         {activeTab === 'background' && (
-          <div className="p-4 space-y-4">
+          <div className="px-6 py-6 space-y-6">
             {/* Color Mode Toggle */}
-            <div className="flex bg-gray-100 rounded-lg p-0.5">
-              <button
-                className={`flex-1 py-1.5 px-3 rounded-md text-xs font-medium transition-all ${
-                  state.design.colorMode === 'gradient'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-500'
-                }`}
-                onClick={() => updateDesign({ colorMode: 'gradient' })}
-              >
-                渐变
-              </button>
-              <button
-                className={`flex-1 py-1.5 px-3 rounded-md text-xs font-medium transition-all ${
-                  state.design.colorMode === 'solid'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-500'
-                }`}
-                onClick={() => updateDesign({ colorMode: 'solid' })}
-              >
-                纯色
-              </button>
-            </div>
-
-            {/* Color Presets - Compact Grid */}
-            <div className="grid grid-cols-6 gap-2">
-              {colorPresets.map((preset, index) => (
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-3 block">颜色模式</label>
+              <div className="flex bg-gray-100 rounded-lg p-1">
                 <button
-                  key={index}
-                  className="group relative w-full aspect-square rounded-lg overflow-hidden border-2 border-transparent hover:border-gray-300 transition-all hover:scale-110"
-                  onClick={() => updateDesign({ bgColor: preset.bg, gradientColor: preset.gradient })}
-                  title={preset.name}
+                  className={`flex-1 py-2 px-4 rounded-md text-xs font-medium transition-all ${
+                    state.design.colorMode === 'gradient'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500'
+                  }`}
+                  onClick={() => updateDesign({ colorMode: 'gradient' })}
                 >
-                  <div
-                    className="w-full h-full"
-                    style={{
-                      background: state.design.colorMode === 'solid'
-                        ? preset.bg
-                        : `linear-gradient(135deg, ${preset.bg}, ${preset.gradient})`
-                    }}
-                  />
+                  渐变
                 </button>
-              ))}
+                <button
+                  className={`flex-1 py-2 px-4 rounded-md text-xs font-medium transition-all ${
+                    state.design.colorMode === 'solid'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500'
+                  }`}
+                  onClick={() => updateDesign({ colorMode: 'solid' })}
+                >
+                  纯色
+                </button>
+              </div>
             </div>
 
-            {/* Custom Colors - Compact */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-600 w-10">主色</span>
-                <input
-                  type="color"
-                  value={state.design.bgColor}
-                  onChange={(e) => updateDesign({ bgColor: e.target.value })}
-                  className="w-7 h-7 rounded border border-gray-300 cursor-pointer"
-                />
-                <input
-                  type="text"
-                  value={state.design.bgColor}
-                  onChange={(e) => updateDesign({ bgColor: e.target.value })}
-                  className="flex-1 px-2 py-1 border border-gray-200 rounded text-xs font-mono"
-                />
+            {/* Color Presets */}
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-3 block">预设配色</label>
+              <div className="grid grid-cols-6 gap-3">
+                {colorPresets.map((preset, index) => (
+                  <button
+                    key={index}
+                    className="group relative w-full aspect-square rounded-lg overflow-hidden border-2 border-transparent hover:border-blue-400 transition-all hover:scale-105"
+                    onClick={() => updateDesign({ bgColor: preset.bg, gradientColor: preset.gradient })}
+                    title={preset.name}
+                  >
+                    <div
+                      className="w-full h-full"
+                      style={{
+                        background: state.design.colorMode === 'solid'
+                          ? preset.bg
+                          : `linear-gradient(135deg, ${preset.bg}, ${preset.gradient})`
+                      }}
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom Colors */}
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-3 block">自定义颜色</label>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={state.design.bgColor}
+                      onChange={(e) => updateDesign({ bgColor: e.target.value })}
+                      className="w-10 h-10 rounded-lg border border-gray-300 cursor-pointer"
+                    />
+                    <div>
+                      <div className="text-xs text-gray-500 mb-1">主色</div>
+                      <input
+                        type="text"
+                        value={state.design.bgColor}
+                        onChange={(e) => updateDesign({ bgColor: e.target.value })}
+                        className="w-24 px-2 py-1.5 border border-gray-200 rounded-lg text-xs font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {state.design.colorMode === 'gradient' && (
                 <>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-600 w-10">辅色</span>
-                    <input
-                      type="color"
-                      value={state.design.gradientColor}
-                      onChange={(e) => updateDesign({ gradientColor: e.target.value })}
-                      className="w-7 h-7 rounded border border-gray-300 cursor-pointer"
-                    />
-                    <input
-                      type="text"
-                      value={state.design.gradientColor}
-                      onChange={(e) => updateDesign({ gradientColor: e.target.value })}
-                      className="flex-1 px-2 py-1 border border-gray-200 rounded text-xs font-mono"
-                    />
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={state.design.gradientColor}
+                        onChange={(e) => updateDesign({ gradientColor: e.target.value })}
+                        className="w-10 h-10 rounded-lg border border-gray-300 cursor-pointer"
+                      />
+                      <div>
+                        <div className="text-xs text-gray-500 mb-1">辅色</div>
+                        <input
+                          type="text"
+                          value={state.design.gradientColor}
+                          onChange={(e) => updateDesign({ gradientColor: e.target.value })}
+                          className="w-24 px-2 py-1.5 border border-gray-200 rounded-lg text-xs font-mono"
+                        />
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Gradient Angle - Compact */}
+                  {/* Gradient Angle */}
                   <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-xs text-gray-600">角度</span>
-                      <span className="text-xs font-mono text-gray-500">{state.design.gradientAngle}</span>
+                    <div className="flex items-center justify-between mb-3">
+                      <label className="text-sm font-medium text-gray-700">渐变角度</label>
+                      <span className="text-sm font-mono text-gray-500">{state.design.gradientAngle}</span>
                     </div>
                     <input
                       type="range"
@@ -181,16 +204,16 @@ function DesignPanel({ isActive }) {
                       step="15"
                       value={parseInt(state.design.gradientAngle) || 135}
                       onChange={(e) => updateDesign({ gradientAngle: `${e.target.value}deg` })}
-                      className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mb-3"
                     />
-                    <div className="grid grid-cols-8 gap-1 mt-2">
+                    <div className="grid grid-cols-8 gap-1.5">
                       {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
                         <button
                           key={angle}
-                          className={`px-1 py-0.5 text-xs rounded transition-all ${
+                          className={`px-1 py-1 text-[10px] rounded-md transition-all leading-tight ${
                             parseInt(state.design.gradientAngle) === angle
-                              ? 'bg-blue-100 text-blue-700 font-medium'
-                              : 'text-gray-500 hover:bg-gray-100'
+                              ? 'bg-blue-500 text-white font-medium'
+                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                           }`}
                           onClick={() => updateDesign({ gradientAngle: `${angle}deg` })}
                         >
@@ -200,17 +223,17 @@ function DesignPanel({ isActive }) {
                     </div>
                   </div>
 
-                  {/* Color Scheme Types - Original Design */}
+                  {/* Color Scheme Types */}
                   <div>
-                    <label className="text-xs font-medium text-gray-700 mb-2 block">配色方案</label>
+                    <label className="text-sm font-medium text-gray-700 mb-3 block">配色方案</label>
                     <div className="flex flex-wrap gap-2">
                       {Object.entries(colorSchemeTypes).map(([type, info]) => (
                         <button
                           key={type}
-                          className={`px-3 py-1.5 text-xs rounded-full border transition-all ${
+                          className={`px-4 py-2 text-xs rounded-lg border transition-all ${
                             selectedSchemeType === type
-                              ? 'bg-blue-100 border-blue-300 text-blue-700'
-                              : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
+                              ? 'bg-blue-500 border-blue-500 text-white'
+                              : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
                           }`}
                           onClick={() => handleSchemeChange(type)}
                           title={info.description}
@@ -228,40 +251,50 @@ function DesignPanel({ isActive }) {
 
         {/* Typography Tab */}
         {activeTab === 'typography' && (
-          <div className="p-4 space-y-3">
-            {/* Font Presets - Compact */}
-            {fontPresets.map((preset, index) => (
-              <button
-                key={index}
-                className={`w-full p-2.5 text-left border rounded-lg transition-all ${
-                  state.typography.fontFamily === preset.family
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-                onClick={() => updateTypography({ fontFamily: preset.family })}
-              >
-                <div className="text-xs font-semibold text-gray-900 mb-1">{preset.name}</div>
-                <div
-                  className="text-xs text-gray-500"
-                  style={{ fontFamily: preset.family }}
-                >
-                  The quick brown fox
-                </div>
-              </button>
-            ))}
+          <div className="px-6 py-6 space-y-6">
+            {/* Font Presets */}
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-3 block">字体样式</label>
+              <div className="space-y-3">
+                {fontPresets.map((preset, index) => (
+                  <button
+                    key={index}
+                    className={`w-full p-4 text-left border rounded-lg transition-all ${
+                      state.typography.fontFamily === preset.family
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => updateTypography({ fontFamily: preset.family })}
+                  >
+                    <div className="text-sm font-semibold text-gray-900 mb-2">{preset.name}</div>
+                    <div
+                      className="text-sm text-gray-500"
+                      style={{ fontFamily: preset.family }}
+                    >
+                      The quick brown fox jumps
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
 
-            {/* Text Color - Compact */}
-            <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
-              <span className="text-xs text-gray-600">字体颜色</span>
-              <input
-                type="color"
-                value={state.typography.textColor || '#333333'}
-                onChange={(e) => updateTypography({ textColor: e.target.value })}
-                className="w-7 h-7 rounded border border-gray-300 cursor-pointer"
-              />
-              <span className="text-xs text-gray-500 font-mono">
-                {state.typography.textColor || '#333333'}
-              </span>
+            {/* Text Color */}
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-3 block">字体颜色</label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={state.typography.textColor || '#333333'}
+                  onChange={(e) => updateTypography({ textColor: e.target.value })}
+                  className="w-10 h-10 rounded-lg border border-gray-300 cursor-pointer"
+                />
+                <input
+                  type="text"
+                  value={state.typography.textColor || '#333333'}
+                  onChange={(e) => updateTypography({ textColor: e.target.value })}
+                  className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono"
+                />
+              </div>
             </div>
           </div>
         )}

@@ -637,6 +637,34 @@ function ImageSidebar({ isActive }) {
           </div>
         </div>
 
+        {/* SVG 颜色 (仅对 SVG 图片生效) */}
+        {component?.content?.includes('.svg') && (
+          <div>
+            <h4 className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
+              <Palette size={14} />
+              SVG 颜色
+            </h4>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={currentStyles.svgColor || '#000000'}
+                  onChange={(e) => updateStyle('svgColor', e.target.value)}
+                  className="w-10 h-10 rounded-lg border border-gray-300 cursor-pointer"
+                />
+                <input
+                  type="text"
+                  value={currentStyles.svgColor || '#000000'}
+                  onChange={(e) => updateStyle('svgColor', e.target.value)}
+                  className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono"
+                  placeholder="#000000"
+                />
+              </div>
+              <p className="text-xs text-gray-500">💡 此功能仅对 SVG 矢量图生效</p>
+            </div>
+          </div>
+        )}
+
         {/* 透明度 */}
         <div>
           <h4 className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">

@@ -58,22 +58,17 @@ function TemplatesPanel({ isActive }) {
 
         {/* 展示模型 */}
         <section className="mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            <LayoutTemplate size={16} className="text-gray-600" />
-            <h3 className="font-medium text-gray-900">展示模型</h3>
-          </div>
-
-          {/* 设备类型选择 - 简约横向 Tab Bar */}
+          {/* 设备类型选择 */}
           <div className="mb-4">
-            <div className="p-1 bg-gray-100/80 rounded-lg overflow-x-auto scrollbar-hide">
-              <div className="flex items-center gap-1.5 min-w-max">
+            <div className="bg-gray-50/50 overflow-x-auto scrollbar-hide px-3 py-2 rounded-lg">
+              <div className="flex gap-1.5">
                 {deviceTypes.map((device) => (
                   <button
                     key={device.id}
-                    className={`relative flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-all duration-200 whitespace-nowrap ${
+                    className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
                       currentDeviceType === device.id
-                        ? 'bg-white text-gray-900 shadow-sm'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-white/60'
+                        ? 'bg-blue-500 text-white shadow-sm'
+                        : 'bg-white text-gray-600 hover:bg-gray-100'
                     }`}
                     onClick={() => {
                       updateDesign({ deviceType: device.id });
@@ -82,10 +77,8 @@ function TemplatesPanel({ isActive }) {
                       }
                     }}
                   >
-                    <device.icon size={15} className={
-                      currentDeviceType === device.id ? 'text-gray-700' : 'text-gray-400'
-                    } />
-                    <span className="text-sm font-medium">{device.name}</span>
+                    <device.icon size={14} />
+                    {device.name}
                   </button>
                 ))}
               </div>

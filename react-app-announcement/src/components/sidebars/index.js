@@ -7,3 +7,4 @@ export { default as ComponentLibraryPanel } from './ComponentLibraryPanel';
 export { default as ProjectsPanel } from './ProjectsPanel';
 export { default as AssetsPanel } from './AssetsPanel';
 export { default as ImageSidebar } from './ImageSidebar';
+export { default as StickersPanel } from './StickersPanel';

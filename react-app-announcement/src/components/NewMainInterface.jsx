@@ -8,7 +8,8 @@ import {
   StylePanel,
   ComponentLibraryPanel,
   ProjectsPanel,
-  ImageSidebar
+  ImageSidebar,
+  StickersPanel
 } from './sidebars';
 import MainContent from './MainContent';
 import BackgroundDecorations from './BackgroundDecorations';
@@ -51,6 +52,7 @@ function NewMainInterface() {
       <ContentPanel isActive={state.toolbarsVisible && state.currentPanel === 'content'} />
       <DesignPanel isActive={state.toolbarsVisible && state.currentPanel === 'design'} />
       <TemplatesPanel isActive={state.toolbarsVisible && state.currentPanel === 'templates'} />
+      <StickersPanel isActive={state.toolbarsVisible && state.currentPanel === 'stickers'} />
 
       {/* 样式编辑面板 - 当选中元素且面板为style时显示 */}
       <StylePanel isActive={state.toolbarsVisible && state.currentPanel === 'style' && state.selectedElement !== null} />

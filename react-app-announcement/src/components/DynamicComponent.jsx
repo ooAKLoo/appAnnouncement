@@ -1,6 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { X, Move } from 'lucide-react';
+
+// SVG 颜色组件：动态加载 SVG 并修改颜色
+function SvgWithColor({ src, color, styles }) {
+  const [svgContent, setSvgContent] = useState('');
+
+  useEffect(() => {
+    if (!src || !src.includes('.svg')) return;
+
+    fetch(src)
+      .then(res => res.text())
+      .then(svg => {
+        // 替换 SVG 中的颜色属性
+        let modifiedSvg = svg;
+
+        // 替换 fill 属性（常见的填充颜色）
+        modifiedSvg = modifiedSvg.replace(/fill="[^"]*"/g, `fill="${color}"`);
+        modifiedSvg = modifiedSvg.replace(/fill:[^;"]*/g, `fill:${color}`);
+
+        // 替换 stroke 属性（描边颜色）
+        modifiedSvg = modifiedSvg.replace(/stroke="[^"]*"/g, `stroke="${color}"`);
+        modifiedSvg = modifiedSvg.replace(/stroke:[^;"]*/g, `stroke:${color}`);
+
+        // 如果 SVG 没有 fill 属性，添加一个
+        if (!modifiedSvg.includes('fill=')) {
+          modifiedSvg = modifiedSvg.replace(/<svg/, `<svg fill="${color}"`);
+        }
+
+        // 移除 SVG 的固定宽高属性，使用外部容器的尺寸
+        modifiedSvg = modifiedSvg.replace(/width="[^"]*"/g, '');
+        modifiedSvg = modifiedSvg.replace(/height="[^"]*"/g, '');
+
+        // 添加 width 和 height 为 100% 以填充容器
+        modifiedSvg = modifiedSvg.replace(/<svg/, '<svg width="100%" height="100%"');
+
+        setSvgContent(modifiedSvg);
+      })
+      .catch(err => {
+        console.error('Failed to load SVG:', err);
+      });
+  }, [src, color]);
+
+  if (!svgContent) {
+    return <img src={src} alt="SVG" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />;
+  }
+
+  return (
+    <div
+      style={{
+        ...styles,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
+      dangerouslySetInnerHTML={{ __html: svgContent }}
+    />
+  );
+}
 
 function DynamicComponent({ component }) {
   const { state, updateDynamicComponent, deleteDynamicComponent, selectElement, setCurrentPanel, clearSelection, updateAppInfo, updateProductHuntInfo, generateTemplateCode } = useApp();
@@ -524,7 +581,26 @@ function DynamicComponent({ component }) {
       case 'image':
         // 图片类型：显示用户上传的截图
         // 提取需要应用到 img 的样式
-        const { objectFit, ...containerStyles } = contentStyles;
+        const { objectFit, svgColor, ...containerStyles } = contentStyles;
+        const isSvg = currentContent && currentContent.includes('.svg');
+
+        // 如果是 SVG 且有颜色，使用 SvgWithColor 组件
+        if (isSvg && svgColor) {
+          return (
+            <SvgWithColor
+              src={currentContent}
+              color={svgColor}
+              styles={{
+                ...containerStyles,
+                width: containerStyles.width || '100%',
+                height: containerStyles.height || '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            />
+          );
+        }
 
         return (
           <div style={containerStyles}>

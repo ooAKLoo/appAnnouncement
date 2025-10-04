@@ -126,7 +126,7 @@ function AssetsPanel({ isActive }) {
           <h3 className="font-medium text-gray-900 mb-3">预设素材</h3>
           
           {/* 分类筛选 */}
-          <div className="flex gap-2 mb-4 overflow-x-auto">
+          <div className="flex gap-2 mb-4 overflow-x-auto scrollbar-hide">
             {categories.map((category) => (
               <button
                 key={category}
