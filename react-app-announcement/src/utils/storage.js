@@ -225,6 +225,124 @@ class ProjectStorage {
     }
   }
 
+  async renameProject(projectId, newName) {
+    await this.init();
+    if (!this.initialized) return;
+
+    try {
+      const projects = await this.loadProjects();
+      const index = projects.findIndex(p => p.id === projectId);
+
+      if (index !== -1) {
+        const project = projects[index];
+        const groupId = project.groupId;
+
+        // 如果项目属于一个组，重命名该组的所有项目
+        if (groupId) {
+          projects.forEach(p => {
+            if (p.groupId === groupId) {
+              p.name = newName;
+              p.updatedAt = new Date().toISOString();
+            }
+          });
+          console.log('✅ Project group renamed:', groupId, '->', newName);
+        } else {
+          // 单个项目重命名
+          projects[index].name = newName;
+          projects[index].updatedAt = new Date().toISOString();
+          console.log('✅ Project renamed:', projectId, '->', newName);
+        }
+
+        await this.saveProjects(projects);
+        return projects[index];
+      }
+    } catch (error) {
+      console.error('❌ Error renaming project:', error);
+      throw error;
+    }
+  }
+
+  async duplicateProject(projectId) {
+    await this.init();
+    if (!this.initialized) return;
+
+    try {
+      const projects = await this.loadProjects();
+      const originalIndex = projects.findIndex(p => p.id === projectId);
+
+      if (originalIndex === -1) {
+        throw new Error('Project not found');
+      }
+
+      const originalProject = projects[originalIndex];
+
+      // 如果原项目没有 groupId，创建一个并更新原项目
+      let groupId = originalProject.groupId;
+      if (!groupId) {
+        groupId = `group_${Date.now()}`;
+        projects[originalIndex].groupId = groupId;
+        projects[originalIndex].versionNumber = 1;
+      }
+
+      // 计算新的版本号
+      const groupProjects = projects.filter(p => p.groupId === groupId);
+      const maxVersion = Math.max(...groupProjects.map(p => p.versionNumber || 1));
+
+      // 创建新项目副本
+      const newProject = {
+        ...originalProject,
+        id: Date.now().toString(),
+        name: originalProject.name.replace(/ \(v\d+\)$/, ''), // 移除旧版本号
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        groupId: groupId,
+        versionNumber: maxVersion + 1
+      };
+
+      // 复制图片文件
+      if (originalProject.screenImageFile) {
+        const newImageFile = await this.copyImage(originalProject.screenImageFile, newProject.id);
+        newProject.screenImageFile = newImageFile;
+      }
+      if (originalProject.thumbnailFile) {
+        const newThumbnailFile = await this.copyImage(originalProject.thumbnailFile, newProject.id);
+        newProject.thumbnailFile = newThumbnailFile;
+      }
+
+      projects.push(newProject);
+      await this.saveProjects(projects);
+      console.log('✅ Project duplicated:', projectId, '->', newProject.id, 'Group:', groupId);
+      return newProject;
+    } catch (error) {
+      console.error('❌ Error duplicating project:', error);
+      throw error;
+    }
+  }
+
+  async copyImage(fileName, newProjectId) {
+    if (!fileName || fileName.startsWith('data:image')) {
+      return fileName;
+    }
+
+    await this.init();
+    if (!this.initialized) return fileName;
+
+    try {
+      const oldPath = await this.path.join(this.imagesDir, fileName);
+      const newFileName = `${newProjectId}_screen.jpg`;
+      const newPath = await this.path.join(this.imagesDir, newFileName);
+
+      const data = await this.fs.readBinaryFile(oldPath);
+      await this.fs.writeBinaryFile(newPath, data);
+
+      console.log('✅ Image copied:', fileName, '->', newFileName);
+      return newFileName;
+    } catch (error) {
+      console.error('❌ Error copying image:', error);
+      return fileName;
+    }
+  }
+
   async saveImage(projectId, imageBase64) {
     if (!imageBase64 || !projectId) return null;
 

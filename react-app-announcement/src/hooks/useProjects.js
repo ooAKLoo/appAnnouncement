@@ -158,6 +158,36 @@ export function useProjects() {
     }
   };
 
+  const renameProjectById = async (projectId, newName) => {
+    try {
+      const updatedProject = await projectStorage.renameProject(projectId, newName);
+      if (updatedProject) {
+        // 重新加载项目列表
+        const projects = await projectStorage.loadProjects();
+        dispatch({ type: 'SET_PROJECTS', payload: projects });
+        console.log('Project renamed successfully');
+        return updatedProject;
+      }
+    } catch (error) {
+      console.error('Error renaming project:', error);
+      alert('重命名失败，请重试');
+    }
+  };
+
+  const duplicateProjectById = async (projectId) => {
+    try {
+      const newProject = await projectStorage.duplicateProject(projectId);
+      if (newProject) {
+        dispatch({ type: 'ADD_PROJECT', payload: newProject });
+        console.log('Project duplicated successfully');
+        return newProject;
+      }
+    } catch (error) {
+      console.error('Error duplicating project:', error);
+      alert('复制失败，请重试');
+    }
+  };
+
   const exportProject = (project) => {
     try {
       const dataStr = JSON.stringify(project, null, 2);
@@ -220,6 +250,8 @@ export function useProjects() {
     saveProject,
     loadProject,
     deleteProjectById,
+    renameProjectById,
+    duplicateProjectById,
     exportProject,
     importProject,
     generateThumbnail
