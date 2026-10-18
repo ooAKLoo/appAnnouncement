@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>可控制的霓虹灯效果</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+
+    <style>
+        /* 1. 定义 CSS 变量
+          我们在这里定义一个全局变量 '--neon-glow-color'，并给它一个默认值。
+          JavaScript 将会来修改这个值。
+        */
+        :root {
+            --neon-glow-color: #ff6b00; /* 默认是图片中的橙色 */
+        }
+
+        body {
+            background-color: #1a1a1a;
+            display: flex;
+            /* 更改布局为垂直排列 */
+            flex-direction: column; 
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Pacifico', cursive;
+        }
+
+        /* 2. 添加控制面板的样式 */
+        .controls {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 40px;
+            display: flex;
+            gap: 20px; /* 控件之间的间距 */
+            align-items: center;
+        }
+        .controls label {
+            color: #fff;
+            font-family: sans-serif; /* 控制面板使用普通字体 */
+            font-size: 1rem;
+        }
+        .controls input[type="text"] {
+            font-size: 1rem;
+            padding: 5px;
+            border-radius: 5px;
+            border: none;
+        }
+        .controls input[type="color"] {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: transparent; /* 移除默认背景 */
+        }
+        /* 隐藏颜色选择器的默认边框 */
+        .controls input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        .controls input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 5px;
+        }
+
+
+        /* 3. 修改霓虹灯样式以使用 CSS 变量 */
+        .neon-text {
+            /* 灯管中心（最亮的部分）我们固定为白色，
+              这样模拟效果最真实，并且适用于所有颜色。
+            */
+            color: #fff;
+            font-size: 5rem;
+            
+            /* 注意：外层的辉光颜色现在使用了我们定义的变量
+              var(--neon-glow-color) 
+            */
+            text-shadow:
+                0 0 7px #fff,
+                0 0 10px #fff,
+                0 0 21px #fff,
+                
+                /* 这些颜色会随用户的选择而改变 */
+                0 0 42px var(--neon-glow-color),
+                0 0 82px var(--neon-glow-color),
+                0 0 92px var(--neon-glow-color),
+                0 0 102px var(--neon-glow-color);
+        }
+
+        /* 动画也同样使用 CSS 变量 */
+        .neon-text.animated {
+            animation: pulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            from {
+                text-shadow:
+                    0 0 5px #fff,
+                    0 0 10px #fff,
+                    0 0 15px var(--neon-glow-color),
+                    0 0 20px var(--neon-glow-color),
+                    0 0 25px var(--neon-glow-color),
+                    0 0 30px var(--neon-glow-color),
+                    0 0 35px var(--neon-glow-color);
+            }
+            to {
+                text-shadow:
+                    0 0 10px #fff,
+                    0 0 20px #fff,
+                    0 0 30px var(--neon-glow-color),
+                    0 0 40px var(--neon-glow-color),
+                    0 0 50px var(--neon-glow-color),
+                    0 0 60px var(--neon-glow-color),
+                    0 0 70px var(--neon-glow-color);
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <label for="text-input">输入文字:</label>
+        <input type="text" id="text-input" value="Off cafe">
+        
+        <label for="color-picker">选择颜色:</label>
+        <input type="color" id="color-picker" value="#ff6b00">
+    </div>
+
+    <div class="neon-text animated">
+        </div>
+
+
+    <script>
+        // 获取我们需要的 HTML 元素
+        const textInput = document.getElementById('text-input');
+        const colorPicker = document.getElementById('color-picker');
+        const neonText = document.querySelector('.neon-text');
+        
+        // 获取根元素 (<html>)，用来设置 CSS 变量
+        const root = document.documentElement;
+
+        // --- 功能1：更新文字 ---
+        function updateText() {
+            // 如果输入框为空，显示一个占位符，避免什么都没有
+            neonText.textContent = textInput.value ? textInput.value : '...';
+        }
+
+        // --- 功能2：更新颜色 ---
+        function updateColor() {
+            // 将 CSS 变量 '--neon-glow-color' 的值设置为颜色选择器的新值
+            root.style.setProperty('--neon-glow-color', colorPicker.value);
+        }
+
+        // --- 监听事件 ---
+        // 当在文本框中“输入”时，调用 updateText 函数
+        textInput.addEventListener('input', updateText);
+        
+        // 当颜色选择器的值“改变”时，调用 updateColor 函数
+        colorPicker.addEventListener('input', updateColor);
+
+        // --- 页面加载时立即执行一次 ---
+        // 确保页面打开时，文本框里的默认文字就显示为霓虹灯效果
+        updateText();
+    </script>
+
+</body>
+</html>

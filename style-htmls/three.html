@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动态 3D 文字效果 (Three.js)</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #111; /* 深色背景 */
+            color: white;
+            font-family: Arial, sans-serif;
+            overflow: hidden; /* 隐藏滚动条 */
+        }
+        
+        /* 3D 渲染画布 */
+        #c {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* 悬浮在顶部的控制面板 */
+        .controls {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 10;
+        }
+        .controls label {
+            margin-right: 10px;
+        }
+        .controls input[type="text"] {
+            font-size: 1rem;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <label for="text-input">输入文字:</label>
+        <input type="text" id="text-input" value="Hello">
+    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.163.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.163.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        // 导入字体加载器
+        import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+        // 导入文字几何体
+        import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+        // 导入鼠标控制器
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // --- 全局变量 ---
+        let scene, camera, renderer, controls;
+        let font; // 用于存储加载的字体
+        let textMesh; // 用于存储当前的 3D 文字
+        const textInput = document.getElementById('text-input');
+
+        // 1. 初始化 3D 场景
+        function init() {
+            // 场景
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x111111);
+
+            // 相机 (PerspectiveCamera: 透视相机)
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 15; // 将相机向后移动
+
+            // 渲染器
+            renderer = new THREE.WebGLRenderer({ antialias: true }); // antialias: 抗锯齿
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            // 鼠标控制器 (允许拖动旋转)
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true; // 启用阻尼（惯性）
+
+            // --- 光照 (模拟您图片中的效果) ---
+            // 添加一个环境光，确保物体不会全黑
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+            scene.add(ambientLight);
+
+            // 添加一盏橙色定向光 (模拟主光源)
+            const light1 = new THREE.DirectionalLight(0xff6b00, 2.0);
+            light1.position.set(5, 10, 7.5);
+            scene.add(light1);
+            
+            // 添加一盏蓝色定向光 (模拟辅助光源)
+            const light2 = new THREE.DirectionalLight(0x00bfff, 1.5);
+            light2.position.set(-5, -5, 5);
+            scene.add(light2);
+
+            // 2. 加载字体
+            const fontLoader = new FontLoader();
+            // 我们使用一个 Three.js 官方的圆润字体
+            // 您也可以用工具转换任何 ttf/otf 字体为这个 json 格式
+            fontLoader.load(
+                'https://unpkg.com/three@0.163.0/examples/fonts/gentilis_bold.typeface.json',
+                
+                // onLoad (加载成功)
+                function (loadedFont) {
+                    console.log("字体加载成功");
+                    font = loadedFont;
+                    // 页面加载时，用默认文字创建第一个 3D 模型
+                    createText(textInput.value);
+                },
+
+                // onProgress (加载中)
+                function (xhr) {
+                    console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+
+                // onError (加载失败)
+                function (err) {
+                    console.error('字体加载失败: ', err);
+                }
+            );
+
+            // 3. 监听输入框
+            textInput.addEventListener('input', (e) => {
+                // 确保字体已加载
+                if (font) {
+                    createText(e.target.value);
+                }
+            });
+
+            // 4. 监听窗口大小变化
+            window.addEventListener('resize', onWindowResize, false);
+
+            // 5. 开始动画循环
+            animate();
+        }
+
+        // 核心功能：创建 3D 文字
+        function createText(text) {
+            // 如果已有文字，先从场景中移除并释放内存
+            if (textMesh) {
+                scene.remove(textMesh);
+                textMesh.geometry.dispose();
+                textMesh.material.dispose();
+            }
+            
+            if (!text) return; // 如果输入框为空，则不创建
+
+            // --- 关键步骤：定义几何体 ---
+            const geometry = new TextGeometry(text, {
+                font: font,         // 使用加载的字体
+                size: 5,            // 字体大小
+                height: 2,          // 挤出厚度
+                curveSegments: 12,  // 曲线分段数 (越多越平滑)
+                
+                // --- 这就是实现“圆润管道”效果的核心 ---
+                bevelEnabled: true,     // 启用斜角
+                bevelThickness: 0.5,    // 斜角的厚度 (从表面向外延伸)
+                bevelSize: 0.3,         // 斜角的大小 (倒角)
+                bevelSegments: 8        // 斜角的分段数 (越多越圆润)
+            });
+
+            // --- 材质 (模拟液态/光泽塑料) ---
+            const material = new THREE.MeshPhysicalMaterial({
+                color: 0xdddddd,        // 基础色 (浅灰色，以便反光)
+                metalness: 0.2,         // 金属感 (0 = 非金属, 1 = 金属)
+                roughness: 0.1,         // 粗糙度 (0 = 完美镜面, 1 = 完全粗糙)
+                clearcoat: 1.0,         // 清漆层 (模拟一层光油)
+                clearcoatRoughness: 0.1 // 清漆层的粗糙度
+            });
+            
+            // 创建网格 (Mesh)
+            textMesh = new THREE.Mesh(geometry, material);
+
+            // --- 将文字居中 ---
+            // 1. 计算文字的边界框
+            geometry.computeBoundingBox();
+            // 2. 计算中心点偏移
+            const centerOffset = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
+            // 3. 应用偏移
+            textMesh.position.x = centerOffset;
+
+            // 将文字添加到场景中
+            scene.add(textMesh);
+        }
+
+        // 窗口大小调整
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // 动画循环 (每帧渲染)
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // 更新控制器
+            controls.update();
+
+            // 渲染场景
+            renderer.render(scene, camera);
+        }
+
+        // --- 启动 ---
+        init();
+    </script>
+
+</body>
+</html>
